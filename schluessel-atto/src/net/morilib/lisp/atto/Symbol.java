@@ -45,31 +45,6 @@ public class Symbol {
 	 */
 	public static Symbol DEFINE = new Symbol("define");
 
-	/**
-	 * 
-	 */
-	public static Symbol CONS = new Symbol("cons");
-
-	/**
-	 * 
-	 */
-	public static Symbol CAR = new Symbol("car");
-
-	/**
-	 * 
-	 */
-	public static Symbol CDR = new Symbol("cdr");
-
-	/**
-	 * 
-	 */
-	public static Symbol EQ = new Symbol("eq?");
-
-	/**
-	 * 
-	 */
-	public static Symbol ATOM = new Symbol("atom?");
-
 	//
 	private static Map<String, Symbol> symbols =
 			new HashMap<String, Symbol>();
@@ -81,15 +56,10 @@ public class Symbol {
 		symbols.put("lambda", LAMBDA);
 		symbols.put("set!",   SET);
 		symbols.put("define", DEFINE);
-		symbols.put("cons",   CONS);
-		symbols.put("car",    CAR);
-		symbols.put("cdr",    CDR);
-		symbols.put("eq?",    EQ);
-		symbols.put("atom?",  ATOM);
 	}
 
 	//
-	private String name;
+	String name;
 
 	//
 	private Symbol(String n) {
@@ -110,6 +80,14 @@ public class Symbol {
 			}
 			return r;
 		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/* (non-Javadoc)

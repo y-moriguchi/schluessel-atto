@@ -810,13 +810,70 @@ private int _unreadl = -1;
 			} else if($c >= '*' && $c <= '+') {
 				STATE = 19;
 				return 1;
-			} else if($c >= '-' && $c <= ':') {
+			} else if($c >= '-' && $c <= '/') {
 				STATE = 19;
 				return 1;
-			} else if($c >= '<' && $c <= '_') {
+			} else if($c >= '0' && $c <= '9') {
+				STATE = 29;
+				return 1;
+			} else if($c == ':') {
 				STATE = 19;
 				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
+			} else if($c >= '<' && $c <= '@') {
+				STATE = 19;
+				return 1;
+			} else if($c >= 'A' && $c <= 'F') {
+				STATE = 29;
+				return 1;
+			} else if($c >= 'G' && $c <= '_') {
+				STATE = 19;
+				return 1;
+			} else if($c >= 'a' && $c <= 'f') {
+				STATE = 29;
+				return 1;
+			} else if($c >= 'g' && $c <= 2147483647) {
+				STATE = 19;
+				return 1;
+			}
+			return 0;
+		case 29:
+			if($c >= 0 && $c <= 8) {
+				STATE = 19;
+				return 1;
+			} else if($c >= 11 && $c <= 31) {
+				STATE = 19;
+				return 1;
+			} else if($c == '!') {
+				STATE = 19;
+				return 1;
+			} else if($c >= '$' && $c <= '&') {
+				STATE = 19;
+				return 1;
+			} else if($c >= '*' && $c <= '+') {
+				STATE = 19;
+				return 1;
+			} else if($c >= '-' && $c <= '/') {
+				STATE = 19;
+				return 1;
+			} else if($c >= '0' && $c <= '9') {
+				STATE = 29;
+				return 1;
+			} else if($c == ':') {
+				STATE = 19;
+				return 1;
+			} else if($c >= '<' && $c <= '@') {
+				STATE = 19;
+				return 1;
+			} else if($c >= 'A' && $c <= 'F') {
+				STATE = 29;
+				return 1;
+			} else if($c >= 'G' && $c <= '_') {
+				STATE = 19;
+				return 1;
+			} else if($c >= 'a' && $c <= 'f') {
+				STATE = 29;
+				return 1;
+			} else if($c >= 'g' && $c <= 2147483647) {
 				STATE = 19;
 				return 1;
 			}
@@ -841,7 +898,7 @@ private int _unreadl = -1;
 				STATE = 19;
 				return 1;
 			} else if($c >= '0' && $c <= '7') {
-				STATE = 29;
+				STATE = 30;
 				return 1;
 			} else if($c >= '8' && $c <= ':') {
 				STATE = 19;
@@ -854,7 +911,7 @@ private int _unreadl = -1;
 				return 1;
 			}
 			return 0;
-		case 29:
+		case 30:
 			if($c >= 0 && $c <= 8) {
 				STATE = 19;
 				return 1;
@@ -874,7 +931,7 @@ private int _unreadl = -1;
 				STATE = 19;
 				return 1;
 			} else if($c >= '0' && $c <= '7') {
-				STATE = 29;
+				STATE = 30;
 				return 1;
 			} else if($c >= '8' && $c <= ':') {
 				STATE = 19;
@@ -907,10 +964,10 @@ private int _unreadl = -1;
 				STATE = 19;
 				return 1;
 			} else if($c == '0') {
-				STATE = 30;
+				STATE = 31;
 				return 1;
 			} else if($c == '1') {
-				STATE = 30;
+				STATE = 31;
 				return 1;
 			} else if($c >= '2' && $c <= ':') {
 				STATE = 19;
@@ -923,7 +980,7 @@ private int _unreadl = -1;
 				return 1;
 			}
 			return 0;
-		case 30:
+		case 31:
 			if($c >= 0 && $c <= 8) {
 				STATE = 19;
 				return 1;
@@ -943,10 +1000,10 @@ private int _unreadl = -1;
 				STATE = 19;
 				return 1;
 			} else if($c == '0') {
-				STATE = 30;
+				STATE = 31;
 				return 1;
 			} else if($c == '1') {
-				STATE = 30;
+				STATE = 31;
 				return 1;
 			} else if($c >= '2' && $c <= ':') {
 				STATE = 19;
@@ -993,26 +1050,26 @@ private int _unreadl = -1;
 				STATE = 3;
 				return 1;
 			} else if($c == '"') {
-				STATE = 31;
+				STATE = 32;
 				return 1;
 			} else if($c >= '#' && $c <= '[') {
 				STATE = 3;
 				return 1;
 			} else if($c == '\\') {
-				STATE = 32;
+				STATE = 33;
 				return 1;
 			} else if($c >= ']' && $c <= 2147483647) {
 				STATE = 3;
 				return 1;
 			}
 			return 0;
-		case 32:
+		case 33:
 			if($c >= 0 && $c <= 2147483647) {
 				STATE = 3;
 				return 1;
 			}
 			return 0;
-		case 31:
+		case 32:
 			return 0;
 		case 2:
 			if($c == 9) {
@@ -1086,106 +1143,110 @@ private int _unreadl = -1;
 				STATE == 29 ||
 				STATE == 28 ||
 				STATE == 31 ||
-				STATE == 30);
+				STATE == 30 ||
+				STATE == 32);
 	}
 
 	Object lexer_gettoken(StringBuffer b) {
 		String $$ = b.toString();
 
 		switch(STATE) {
-		case 8:
-			// State20           
-return MT.get($$);
-		case 20:
-			// State10   
-return $$;
-		case 28:
-			// State24        
-return chn($$);
-		case 17:
-			// State21       
-return MT.UNS;
-		case 9:
-			// State27   
-return $$;
-		case 23:
-			// State34        
-return hex($$);
-		case 13:
-			// State11               
-return Symbol.get($$);
-		case 27:
-			// State25        
-return ch1($$);
-		case 6:
-			// State27   
-return $$;
-		case 29:
-			// State36        
-return oct($$);
-		case 26:
-			// State23        
-return ch1($$);
-		case 2:
-			// State9      
-return null;
-		case 14:
-			// State11               
-return Symbol.get($$);
-		case 31:
-			// State2         
-return str($$);
-		case 12:
-			// State11               
-return Symbol.get($$);
-		case 15:
+		case 16:
 			// State13        
 return dbl($$);
-		case 16:
+		case 30:
+			// State36        
+return oct($$);
+		case 15:
 			// State13        
 return dbl($$);
 		case 10:
 			// State12         
 return _int($$);
-		case 1:
+		case 28:
+			// State24        
+return chn($$);
+		case 7:
 			// State11               
 return Symbol.get($$);
-		case 21:
-			// State6         
-return shp($$);
-		case 30:
-			// State32        
-return bin($$);
-		case 19:
-			// State6         
-return shp($$);
-		case 25:
+		case 8:
+			// State20           
+return MT.get($$);
+		case 6:
+			// State27   
+return $$;
+		case 12:
+			// State11               
+return Symbol.get($$);
+		case 26:
 			// State23        
 return ch1($$);
-		case 11:
-			// State7      
-return null;
-		case 18:
-			// State13        
-return dbl($$);
-		case 22:
+		case 31:
+			// State32        
+return bin($$);
+		case 13:
+			// State11               
+return Symbol.get($$);
+		case 23:
 			// State6         
 return shp($$);
 		case 5:
 			// State20           
 return MT.get($$);
-		case 7:
+		case 20:
+			// State10   
+return $$;
+		case 32:
+			// State2         
+return str($$);
+		case 1:
 			// State11               
 return Symbol.get($$);
+		case 22:
+			// State6         
+return shp($$);
+		case 11:
+			// State7      
+return null;
+		case 27:
+			// State25        
+return ch1($$);
+		case 2:
+			// State9      
+return null;
 		case 24:
 			// State6         
 return shp($$);
+		case 14:
+			// State11               
+return Symbol.get($$);
+		case 18:
+			// State13        
+return dbl($$);
+		case 19:
+			// State6         
+return shp($$);
+		case 17:
+			// State21       
+return MT.UNS;
+		case 29:
+			// State34        
+return hex($$);
+		case 21:
+			// State6         
+return shp($$);
+		case 9:
+			// State27   
+return $$;
+		case 25:
+			// State23        
+return ch1($$);
 		default:  return null;
 		}
 	}
 
 	boolean lexer_isdead() {
-return (false || STATE == 20 || STATE == 17 || STATE == 6 || STATE == 26 || STATE == 31 || STATE == 5);
+return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE == 32 || STATE == 17);
 	}
 
 	int _read1ul() throws java.io.IOException {
@@ -1475,13 +1536,13 @@ return (false || STATE == 20 || STATE == 17 || STATE == 6 || STATE == 26 || STAT
 	@SuppressWarnings("unchecked")
 	int AttoParser_execaction(Object  $c) {
 		switch(STATE) {
-		case 9:
-			// State38         
-			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
+		case 10:
 			break;
-		case 5:
-			// State19     
-			_ = unw($c);
+		case 15:
+			break;
+		case 7:
+			break;
+		case 20:
 			break;
 		case 14:
 			// State37      
@@ -1491,6 +1552,40 @@ return (false || STATE == 20 || STATE == 17 || STATE == 6 || STATE == 26 || STAT
 			// State6          
 			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
 			break;
+		case 3:
+			// vec                                      
+			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
+			break;
+		case 0:
+			break;
+		case 6:
+			break;
+		case 1:
+			// State8   
+			_ = null;
+			break;
+		case 19:
+			break;
+		case 11:
+			break;
+		case 5:
+			// State19     
+			_ = unw($c);
+			break;
+		case 2:
+			// lst                                      
+			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
+			break;
+		case 12:
+			// State9        
+			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+			break;
+		case 13:
+			// State10         
+			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
+			break;
+		case 16:
+			break;
 		case 17:
 			// State5        
 			((java.util.List<Object>)(__stv[__slen - 1][2])).add(_);
@@ -1499,59 +1594,25 @@ return (false || STATE == 20 || STATE == 17 || STATE == 6 || STATE == 26 || STAT
 			// meta      
 			(__stv[__slen - 1][4]) = $c;
 			break;
-		case 13:
-			// State10         
-			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
-			break;
-		case 19:
-			break;
-		case 10:
+		case 8:
+			// State17             
+			_ = mta(((MT)(__stv[__slen - 1][4])), _);
 			break;
 		case 21:
 			// State13            
 			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
 			break;
-		case 7:
-			break;
-		case 16:
-			break;
-		case 2:
-			// lst                                      
-			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
-			break;
-		case 1:
-			// State8   
-			_ = null;
-			break;
-		case 6:
-			break;
-		case 12:
-			// State9        
-			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
-			break;
-		case 0:
-			break;
-		case 3:
-			// vec                                      
-			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
-			break;
-		case 20:
-			break;
-		case 15:
-			break;
-		case 8:
-			// State17             
-			_ = mta(((MT)(__stv[__slen - 1][4])), _);
-			break;
-		case 11:
+		case 9:
+			// State38         
+			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
 			break;
 		}
 		return 1;
 	}
 
 	boolean AttoParser_isend() {
-		return (STATE == 0 ||
-				STATE == 17 ||
+		return (STATE == 17 ||
+				STATE == 0 ||
 				STATE == 16 ||
 				STATE == 2 ||
 				STATE == 3 ||
@@ -1952,20 +2013,29 @@ return (false || STATE == 20 || STATE == 17 || STATE == 6 || STATE == 26 || STAT
 		return Double.valueOf(s);
 	}
 
+	private static Object toint(BigInteger x) {
+		if(x.compareTo(SchemeAtto.MAXINT) > 0 ||
+				x.compareTo(SchemeAtto.MININT) < 0) {
+			return x;
+		} else {
+			return Integer.valueOf(x.intValue());
+		}
+	}
+
 	private static Object bin(String s) {
-		return new BigInteger(s.substring(2), 2);
+		return toint(new BigInteger(s.substring(2), 2));
 	}
 
 	private static Object oct(String s) {
-		return new BigInteger(s.substring(2), 8);
+		return toint(new BigInteger(s.substring(2), 8));
 	}
 
 	private static Object _int(String s) {
-		return new BigInteger(s);
+		return toint(new BigInteger(s));
 	}
 
 	private static Object hex(String s) {
-		return new BigInteger(s.substring(2), 16);
+		return toint(new BigInteger(s.substring(2), 16));
 	}
 
 	private static Object unw(Object o) {

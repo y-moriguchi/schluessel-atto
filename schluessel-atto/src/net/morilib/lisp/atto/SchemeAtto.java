@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,12 @@ public final class SchemeAtto {
 		}
 
 	};
+
+	//
+	static final BigInteger MAXINT =
+			BigInteger.valueOf(Integer.MAX_VALUE);
+	static final BigInteger MININT =
+			BigInteger.valueOf(Integer.MIN_VALUE);
 
 	/**
 	 * 

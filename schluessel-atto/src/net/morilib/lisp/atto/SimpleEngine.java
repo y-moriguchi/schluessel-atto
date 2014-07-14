@@ -15,9 +15,14 @@
  */
 package net.morilib.lisp.atto;
 
+import java.math.BigInteger;
+import java.util.List;
+
 public class SimpleEngine implements Callback {
 
 	//
+	private static final BigInteger MAXINT_1 =
+			BigInteger.valueOf((long)Integer.MAX_VALUE + 1l);
 	static final SimpleEngine INSTANCE = new SimpleEngine();
 
 	/**
@@ -43,6 +48,21 @@ public class SimpleEngine implements Callback {
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 2) {
 				return new Boolean(args[0] == args[1]);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable EQV = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 2) {
+				return new Boolean(args[0].equals(args[1]));
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -99,16 +119,249 @@ public class SimpleEngine implements Callback {
 
 	};
 
+	/**
+	 * 
+	 */
+	public static final Appliable NULL = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				return new Boolean(args[0] == Cell.NIL);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable ERROR = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				throw new IllegalArgumentException(args[0].toString());
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable INC = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			int x;
+
+			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Integer) {
+				x = ((Integer)args[0]).intValue();
+				return x < Integer.MAX_VALUE ?
+						Integer.valueOf(x + 1) : MAXINT_1;
+			} else if(args[0] instanceof BigInteger) {
+				return ((BigInteger)args[0]).add(BigInteger.ONE);
+			} else if(args[0] instanceof Number) {
+				return new Double(((Number)args[0]).doubleValue() + 1);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable GT = new Appliable() {
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public Object apply(Callback b, Object... args) {
+			Comparable p = null;
+
+			for(Object o : args) {
+				try {
+					if(!(o instanceof Comparable)) {
+						throw new IllegalArgumentException();
+					} else if(p == null) {
+						p = (Comparable)o;
+					} else if(p.compareTo((Comparable)args[1]) > 0) {
+						p = (Comparable)o;
+					} else {
+						return Boolean.FALSE;
+					}
+				} catch(ClassCastException e) {
+					throw new IllegalArgumentException();
+				}
+			}
+			return Boolean.TRUE;
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable LT = new Appliable() {
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public Object apply(Callback b, Object... args) {
+			Comparable p = null;
+
+			for(Object o : args) {
+				try {
+					if(!(o instanceof Comparable)) {
+						throw new IllegalArgumentException();
+					} else if(p == null) {
+						p = (Comparable)o;
+					} else if(p.compareTo((Comparable)args[1]) < 0) {
+						p = (Comparable)o;
+					} else {
+						return Boolean.FALSE;
+					}
+				} catch(ClassCastException e) {
+					throw new IllegalArgumentException();
+				}
+			}
+			return Boolean.TRUE;
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable SUBSTRING = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 3) {
+				throw new IllegalArgumentException();
+			} else if(args[1] instanceof Integer &&
+					args[2] instanceof Integer) {
+				return args[0].toString().substring(
+						((Integer)args[1]).intValue(),
+						((Integer)args[2]).intValue());
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable STRING_REF = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 2) {
+				throw new IllegalArgumentException();
+			} else if(args[1] instanceof Integer) {
+				return new Character(args[0].toString().charAt(
+						((Integer)args[1]).intValue()));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable STRING_APPEND = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			StringBuffer a = new StringBuffer();
+
+			for(Object o : args) {
+				a.append(o.toString());
+			}
+			return a.toString();
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable STRING_SYMBOL = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				return Symbol.get(args[0].toString());
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable SYMBOL_STRING = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Symbol) {
+				return ((Symbol)args[0]).getName();
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable VECTOR = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				return new Boolean(args[0] instanceof List);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
 	/* (non-Javadoc)
 	 * @see net.morilib.lisp.atto.Callback#init(net.morilib.lisp.atto.Environment)
 	 */
 	@Override
 	public void init(Environment env) {
-		env.binds.put(Symbol.CONS, CONS);
-		env.binds.put(Symbol.CAR,  CAR);
-		env.binds.put(Symbol.CDR,  CDR);
-		env.binds.put(Symbol.EQ,   EQ);
-		env.binds.put(Symbol.ATOM, ATOM);
+		// pure lisp
+		env.binds.put(Symbol.get("cons"),  CONS);
+		env.binds.put(Symbol.get("eq?"),   EQ);
+		env.binds.put(Symbol.get("car"),   CAR);
+		env.binds.put(Symbol.get("cdr"),   CDR);
+		env.binds.put(Symbol.get("atom?"), ATOM);
+
+		// additional
+		env.binds.put(Symbol.get("null?"), NULL);
+		env.binds.put(Symbol.get("error"), ERROR);
+		env.binds.put(Symbol.get("eqv?"),  EQV);
+		env.binds.put(Symbol.get("1+"),    INC);
+		env.binds.put(Symbol.get(">"),     GT);
+		env.binds.put(Symbol.get("<"),     LT);
+
+		// string
+		env.binds.put(Symbol.get("substring"),      SUBSTRING);
+		env.binds.put(Symbol.get("string-ref"),     STRING_REF);
+		env.binds.put(Symbol.get("string-append"),  STRING_APPEND);
+		env.binds.put(Symbol.get("string->symbol"), STRING_SYMBOL);
+		env.binds.put(Symbol.get("symbol->string"), SYMBOL_STRING);
+
+		// vector
+		env.binds.put(Symbol.get("vector?"), VECTOR);
 	}
 
 	/* (non-Javadoc)
