@@ -32,6 +32,7 @@ public class AttoParser   {
 		abstract int step(Object c) throws java.io.IOException;
 		abstract boolean accepted();
 		abstract boolean isDead();
+		abstract boolean isEmptyTransition();
 		abstract int execaction(Object c);
 		abstract boolean isend();
 		abstract int recover(Exception e);
@@ -1151,102 +1152,102 @@ private int _unreadl = -1;
 		String $$ = b.toString();
 
 		switch(STATE) {
-		case 16:
-			// State13        
-return dbl($$);
-		case 30:
-			// State36        
-return oct($$);
-		case 15:
-			// State13        
-return dbl($$);
-		case 10:
-			// State12         
-return _int($$);
-		case 28:
-			// State24        
-return chn($$);
-		case 7:
-			// State11               
-return Symbol.get($$);
-		case 8:
-			// State20           
-return MT.get($$);
-		case 6:
-			// State27   
-return $$;
-		case 12:
-			// State11               
-return Symbol.get($$);
-		case 26:
-			// State23        
-return ch1($$);
-		case 31:
-			// State32        
-return bin($$);
-		case 13:
-			// State11               
-return Symbol.get($$);
-		case 23:
-			// State6         
-return shp($$);
-		case 5:
-			// State20           
-return MT.get($$);
-		case 20:
-			// State10   
-return $$;
-		case 32:
-			// State2         
-return str($$);
-		case 1:
-			// State11               
-return Symbol.get($$);
-		case 22:
-			// State6         
-return shp($$);
 		case 11:
 			// State7      
 return null;
-		case 27:
-			// State25        
-return ch1($$);
-		case 2:
-			// State9      
-return null;
-		case 24:
-			// State6         
-return shp($$);
 		case 14:
 			// State11               
 return Symbol.get($$);
-		case 18:
+		case 27:
+			// State25        
+return ch1($$);
+		case 1:
+			// State11               
+return Symbol.get($$);
+		case 24:
+			// State6         
+return shp($$);
+		case 10:
+			// State12         
+return _int($$);
+		case 15:
 			// State13        
 return dbl($$);
-		case 19:
-			// State6         
-return shp($$);
-		case 17:
-			// State21       
-return MT.UNS;
-		case 29:
-			// State34        
-return hex($$);
-		case 21:
-			// State6         
-return shp($$);
-		case 9:
-			// State27   
-return $$;
 		case 25:
 			// State23        
 return ch1($$);
+		case 8:
+			// State20           
+return MT.get($$);
+		case 13:
+			// State11               
+return Symbol.get($$);
+		case 19:
+			// State6         
+return shp($$);
+		case 29:
+			// State34        
+return hex($$);
+		case 6:
+			// State27   
+return $$;
+		case 22:
+			// State6         
+return shp($$);
+		case 26:
+			// State23        
+return ch1($$);
+		case 32:
+			// State2         
+return str($$);
+		case 16:
+			// State13        
+return dbl($$);
+		case 12:
+			// State11               
+return Symbol.get($$);
+		case 20:
+			// State10   
+return $$;
+		case 9:
+			// State27   
+return $$;
+		case 5:
+			// State20           
+return MT.get($$);
+		case 2:
+			// State9      
+return null;
+		case 21:
+			// State6         
+return shp($$);
+		case 18:
+			// State13        
+return dbl($$);
+		case 7:
+			// State11               
+return Symbol.get($$);
+		case 17:
+			// State21       
+return MT.UNS;
+		case 30:
+			// State36        
+return oct($$);
+		case 28:
+			// State24        
+return chn($$);
+		case 23:
+			// State6         
+return shp($$);
+		case 31:
+			// State32        
+return bin($$);
 		default:  return null;
 		}
 	}
 
 	boolean lexer_isdead() {
-return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE == 32 || STATE == 17);
+return (false || STATE == 6 || STATE == 26 || STATE == 32 || STATE == 20 || STATE == 5 || STATE == 17);
 	}
 
 	int _read1ul() throws java.io.IOException {
@@ -1379,14 +1380,8 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 		case 5:
 			return 0;
 		case 4:
-			if($c == null) {
 				STATE = 6;
 				return 1;
-			} else if($c != null) {
-				UNGET($c);
-				STATE = 6;
-				return 1;
-			}
 		case 6:
 			if($c != null) {
 				__stkpush(7, ENGINE_AttoParser);
@@ -1395,14 +1390,8 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 			}
 			return 0;
 		case 7:
-			if($c == null) {
 				STATE = 8;
 				return 1;
-			} else if($c != null) {
-				UNGET($c);
-				STATE = 8;
-				return 1;
-			}
 		case 8:
 			return 0;
 		case 3:
@@ -1426,14 +1415,8 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 			}
 			return 0;
 		case 11:
-			if($c == null) {
 				STATE = 12;
 				return 1;
-			} else if($c != null) {
-				UNGET($c);
-				STATE = 12;
-				return 1;
-			}
 		case 12:
 			if(Character.valueOf(')').equals($c)) {
 			} else if(")".equals($c)) {
@@ -1472,14 +1455,8 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 			}
 			return 0;
 		case 16:
-			if($c == null) {
 				STATE = 17;
 				return 1;
-			} else if($c != null) {
-				UNGET($c);
-				STATE = 17;
-				return 1;
-			}
 		case 17:
 			if(Character.valueOf(')').equals($c)) {
 			} else if(")".equals($c)) {
@@ -1536,59 +1513,33 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 	@SuppressWarnings("unchecked")
 	int AttoParser_execaction(Object  $c) {
 		switch(STATE) {
-		case 10:
+		case 12:
+			// State9        
+			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
 			break;
-		case 15:
+		case 9:
+			// State38         
+			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
 			break;
-		case 7:
-			break;
-		case 20:
-			break;
-		case 14:
-			// State37      
-			_ = Cell.NIL;
-			break;
-		case 18:
-			// State6          
-			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
+		case 16:
 			break;
 		case 3:
 			// vec                                      
 			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
 			break;
-		case 0:
-			break;
-		case 6:
-			break;
-		case 1:
-			// State8   
-			_ = null;
-			break;
-		case 19:
-			break;
-		case 11:
-			break;
-		case 5:
-			// State19     
-			_ = unw($c);
-			break;
-		case 2:
-			// lst                                      
-			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
-			break;
-		case 12:
-			// State9        
-			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+		case 14:
+			// State37      
+			_ = Cell.NIL;
 			break;
 		case 13:
 			// State10         
 			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
 			break;
-		case 16:
+		case 0:
 			break;
-		case 17:
-			// State5        
-			((java.util.List<Object>)(__stv[__slen - 1][2])).add(_);
+		case 15:
+			break;
+		case 20:
 			break;
 		case 4:
 			// meta      
@@ -1598,13 +1549,39 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 			// State17             
 			_ = mta(((MT)(__stv[__slen - 1][4])), _);
 			break;
+		case 5:
+			// State19     
+			_ = unw($c);
+			break;
+		case 18:
+			// State6          
+			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
+			break;
+		case 19:
+			break;
+		case 7:
+			break;
+		case 11:
+			break;
+		case 1:
+			// State8   
+			_ = null;
+			break;
+		case 2:
+			// lst                                      
+			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
+			break;
 		case 21:
 			// State13            
 			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
 			break;
-		case 9:
-			// State38         
-			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
+		case 6:
+			break;
+		case 10:
+			break;
+		case 17:
+			// State5        
+			((java.util.List<Object>)(__stv[__slen - 1][2])).add(_);
 			break;
 		}
 		return 1;
@@ -1664,6 +1641,13 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 				STATE == 9 ||
 				STATE == 13 ||
 				STATE == 14);
+		}
+
+		boolean isEmptyTransition() {
+		return (STATE == 16 ||
+				STATE == 4 ||
+				STATE == 7 ||
+				STATE == 11);
 		}
 
 		public String toString() {
@@ -1767,7 +1751,9 @@ return (false || STATE == 6 || STATE == 26 || STATE == 5 || STATE == 20 || STATE
 					st[0] = NINA_FAIL;  return null;
 				}
 
-				if(!__stk[__slen - 1].isDead()) {
+				if(__stk[__slen - 1].isEmptyTransition()) {
+					// do nothing
+				} else if(!__stk[__slen - 1].isDead()) {
 					c = _read();
 				} else if(b) {
 					__logprint("accept " + __stk[__slen - 1]);
