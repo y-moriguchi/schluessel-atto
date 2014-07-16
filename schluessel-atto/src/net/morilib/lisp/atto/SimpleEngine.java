@@ -23,6 +23,8 @@ public class SimpleEngine implements Callback {
 	//
 	private static final BigInteger MAXINT_1 =
 			BigInteger.valueOf((long)Integer.MAX_VALUE + 1l);
+	private static final BigInteger MININT_1 =
+			BigInteger.valueOf((long)Integer.MIN_VALUE - 1l);
 	static final SimpleEngine INSTANCE = new SimpleEngine();
 
 	/**
@@ -137,11 +139,62 @@ public class SimpleEngine implements Callback {
 	/**
 	 * 
 	 */
+	public static final Appliable SYMBOL = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				return new Boolean(args[0] instanceof Symbol);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
 	public static final Appliable ERROR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
 				throw new IllegalArgumentException(args[0].toString());
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable SET_CAR = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 2) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Cell) {
+				((Cell)args[0]).car = args[1];
+				return SchemeAtto.UNDEF;
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable SET_CDR = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 2) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Cell) {
+				((Cell)args[0]).cdr = args[1];
+				return SchemeAtto.UNDEF;
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -167,6 +220,31 @@ public class SimpleEngine implements Callback {
 				return ((BigInteger)args[0]).add(BigInteger.ONE);
 			} else if(args[0] instanceof Number) {
 				return new Double(((Number)args[0]).doubleValue() + 1);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable DEC = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			int x;
+
+			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Integer) {
+				x = ((Integer)args[0]).intValue();
+				return x > Integer.MIN_VALUE ?
+						Integer.valueOf(x - 1) : MININT_1;
+			} else if(args[0] instanceof BigInteger) {
+				return ((BigInteger)args[0]).subtract(BigInteger.ONE);
+			} else if(args[0] instanceof Number) {
+				return new Double(((Number)args[0]).doubleValue() - 1);
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -235,6 +313,21 @@ public class SimpleEngine implements Callback {
 	/**
 	 * 
 	 */
+	public static final Appliable STRING = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				return new Boolean(args[0] instanceof String);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
 	public static final Appliable SUBSTRING = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
@@ -263,6 +356,23 @@ public class SimpleEngine implements Callback {
 			} else if(args[1] instanceof Integer) {
 				return new Character(args[0].toString().charAt(
 						((Integer)args[1]).intValue()));
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable STRING_LENGTH = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof String) {
+				return new Integer(args[0].toString().length());
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -346,16 +456,22 @@ public class SimpleEngine implements Callback {
 		env.binds.put(Symbol.get("atom?"), ATOM);
 
 		// additional
-		env.binds.put(Symbol.get("null?"), NULL);
-		env.binds.put(Symbol.get("error"), ERROR);
-		env.binds.put(Symbol.get("eqv?"),  EQV);
-		env.binds.put(Symbol.get("1+"),    INC);
-		env.binds.put(Symbol.get(">"),     GT);
-		env.binds.put(Symbol.get("<"),     LT);
+		env.binds.put(Symbol.get("null?"),    NULL);
+		env.binds.put(Symbol.get("symbol?"),  SYMBOL);
+		env.binds.put(Symbol.get("error"),    ERROR);
+		env.binds.put(Symbol.get("eqv?"),     EQV);
+		env.binds.put(Symbol.get("set-car!"), SET_CAR);
+		env.binds.put(Symbol.get("set-cdr!"), SET_CDR);
+		env.binds.put(Symbol.get("1+"),       INC);
+		env.binds.put(Symbol.get("1-"),       DEC);
+		env.binds.put(Symbol.get(">"),        GT);
+		env.binds.put(Symbol.get("<"),        LT);
 
 		// string
+		env.binds.put(Symbol.get("string?"),        STRING);
 		env.binds.put(Symbol.get("substring"),      SUBSTRING);
 		env.binds.put(Symbol.get("string-ref"),     STRING_REF);
+		env.binds.put(Symbol.get("string-length"),  STRING_LENGTH);
 		env.binds.put(Symbol.get("string-append"),  STRING_APPEND);
 		env.binds.put(Symbol.get("string->symbol"), STRING_SYMBOL);
 		env.binds.put(Symbol.get("symbol->string"), SYMBOL_STRING);
@@ -372,7 +488,7 @@ public class SimpleEngine implements Callback {
 		if(f instanceof Appliable) {
 			return ((Appliable)f).apply(this, args);
 		} else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(f.toString());
 		}
 	}
 
@@ -406,7 +522,7 @@ public class SimpleEngine implements Callback {
 					SchemeAtto.traverse(this, v, tobound));
 			return SchemeAtto.UNDEF;
 		} else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(sym.toString());
 		}
 	}
 
@@ -423,10 +539,28 @@ public class SimpleEngine implements Callback {
 	 */
 	@Override
 	public Object doSet(Environment v, Object sym, Object toset) {
-		if(v.find(sym) == null) {
-			throw new IllegalArgumentException();
+		if(sym instanceof Symbol) {
+			if(!v.set((Symbol)sym,
+					SchemeAtto.traverse(this, v, toset))) {
+				throw new IllegalArgumentException();
+			}
+			return SchemeAtto.UNDEF;
+		} else {
+			throw new IllegalArgumentException(sym.toString());
 		}
-		return doDefine(v, sym, toset);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Callback#doBegin(net.morilib.lisp.atto.Environment, java.lang.Object[])
+	 */
+	@Override
+	public Object doBegin(Environment v, Object... body) {
+		Object r = SchemeAtto.UNDEF;
+
+		for(Object o : body) {
+			r = SchemeAtto.traverse(this, v, o);
+		}
+		return r;
 	}
 
 }

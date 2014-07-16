@@ -1,0 +1,18 @@
+(eval-macro
+'(define-syntax and
+  (syntax-rules ()
+    ((_) #t)
+    ((_ e1) e1)
+    ((_ e1 e2 ...) (if e1 (and e2 ...) #f)))))
+
+(eval-macro '(and 1 2))
+(eval-macro '(and 1 2 3 4))
+
+(define-syntax and
+  (syntax-rules ()
+    ((_) #t)
+    ((_ e1) e1)
+    ((_ e1 e2 ...) (if e1 (and e2 ...) #f))))
+
+(and 1 2)
+;;

@@ -79,4 +79,12 @@ public interface Callback {
 	 */
 	public Object doSet(Environment env, Object sym, Object toset);
 
+	/**
+	 * 
+	 * @param env
+	 * @param body
+	 * @return
+	 */
+	public Object doBegin(Environment env, Object... body);
+
 }

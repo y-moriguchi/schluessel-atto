@@ -23,7 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class SchemeAtto {
+public class SchemeAtto {
 
 	/**
 	 * 
@@ -41,6 +41,31 @@ public final class SchemeAtto {
 			BigInteger.valueOf(Integer.MAX_VALUE);
 	static final BigInteger MININT =
 			BigInteger.valueOf(Integer.MIN_VALUE);
+
+	//
+	Environment macroenv;
+	Environment env;
+
+	/**
+	 * 
+	 */
+	public SchemeAtto() {
+		try {
+			// setup macro
+			macroenv = new Environment();
+			SimpleEngine.INSTANCE.init(macroenv);
+			eval(SimpleEngine.INSTANCE, macroenv,
+					SchemeAtto.class.getResourceAsStream(
+							"macro-atto.scm"));
+
+			// setup environment
+			env = new Environment();
+			SimpleEngine.INSTANCE.init(env);
+			eval(SchemeAtto.class.getResourceAsStream("lib.scm"));
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * 
@@ -104,11 +129,12 @@ public final class SchemeAtto {
 
 		if(o instanceof Symbol) {
 			if((p = v.find(o)) == null) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(
+						"unbound symbol: " + o);
 			} else {
 				return p;
 			}
-		} else if(!(o instanceof Cell)) {
+		} else if(!(o instanceof Cell) || o == Cell.NIL) {
 			return o;
 		} else if((a = toArray(o))[0] == Symbol.IF) {
 			if(a.length == 3) {
@@ -130,6 +156,12 @@ public final class SchemeAtto {
 			} else {
 				throw new IllegalArgumentException();
 			}
+		} else if(a[0] == Symbol.BEGIN) {
+			z = new Object[a.length - 1];
+			for(int k = 1; k < a.length; k++) {
+				z[k - 1] = a[k];
+			}
+			return b.doBegin(v, z);
 		} else if(a[0] == Symbol.DEFINE) {
 			if(a.length == 3) {
 				return b.doDefine(v, a[1], a[2]);
@@ -185,33 +217,47 @@ public final class SchemeAtto {
 
 	/**
 	 * 
-	 * @param rd
+	 * @param p
+	 * @return
 	 */
-	public static void repl(Reader rd) {
-		Environment v = new Environment();
-		Object o, p = null;
+	public Object eval(Object p) {
+		Object o = p;
 
-		SimpleEngine.INSTANCE.init(v);
+		o = new Cell(Symbol.get("eval-macro"), new Cell(
+				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
+				Cell.NIL));
+		o = traverse(SimpleEngine.INSTANCE, macroenv, o);
+//		System.out.println(o);
+		o = traverse(SimpleEngine.INSTANCE, env, o);
+		return o;
+	}
+
+	/**
+	 * 
+	 * @param rd
+	 * @return
+	 * @throws IOException
+	 */
+	public Object eval(Reader rd) throws IOException {
+		Object o, p = UNDEF;
+
 		while(true) {
-			try {
-				if((o = AttoParser.read(rd)) == null) {
-					return;
-				} else {
-					p = traverse(SimpleEngine.INSTANCE, v, o);
-					System.out.println(p);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			if((o = AttoParser.read(rd)) == null) {
+				return p;
+			} else {
+				p = eval(o);
 			}
 		}
 	}
 
 	/**
 	 * 
-	 * @param ins
+	 * @param in
+	 * @return
+	 * @throws IOException
 	 */
-	public static void repl(InputStream ins) {
-		repl(new InputStreamReader(ins));
+	public Object eval(InputStream in) throws IOException {
+		return eval(new InputStreamReader(in));
 	}
 
 	/**
@@ -220,7 +266,25 @@ public final class SchemeAtto {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {
-		repl(System.in);
+		SchemeAtto s = new SchemeAtto();
+		Object o, p = UNDEF;
+		Reader rd;
+
+		rd = new InputStreamReader(System.in);
+		while(true) {
+			try {
+				if((o = AttoParser.read(rd)) == null) {
+					System.exit(0);
+				} else {
+					p = s.eval(o);
+					System.out.println(p);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			} catch(IllegalArgumentException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

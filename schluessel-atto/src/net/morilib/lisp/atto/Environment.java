@@ -34,4 +34,21 @@ public class Environment {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sym
+	 * @param val
+	 * @return
+	 */
+	public boolean set(Symbol sym, Object val) {
+		if(binds.containsKey(sym)) {
+			binds.put(sym, val);
+			return true;
+		} else if(root != null) {
+			return root.set(sym, val);
+		} else {
+			return false;
+		}
+	}
+
 }
