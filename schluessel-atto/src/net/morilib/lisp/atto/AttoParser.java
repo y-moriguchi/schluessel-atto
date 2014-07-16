@@ -2000,12 +2000,7 @@ return (false || STATE == 6 || STATE == 26 || STATE == 32 || STATE == 20 || STAT
 	}
 
 	private static Object toint(BigInteger x) {
-		if(x.compareTo(LispAtto.MAXINT) > 0 ||
-				x.compareTo(LispAtto.MININT) < 0) {
-			return x;
-		} else {
-			return Integer.valueOf(x.intValue());
-		}
+		return LispAtto.toObject(x);
 	}
 
 	private static Object bin(String s) {

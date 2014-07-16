@@ -48,11 +48,16 @@ public class SimpleEngine implements Callback {
 	public static final Appliable EQ = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
-			if(args.length == 2) {
-				return new Boolean(args[0] == args[1]);
-			} else {
-				throw new IllegalArgumentException();
+			Object p = null;
+
+			for(Object o : args) {
+				if(p == null || p == o) {
+					p = o;
+				} else {
+					return Boolean.FALSE;
+				}
 			}
+			return Boolean.TRUE;
 		}
 
 	};
@@ -63,11 +68,16 @@ public class SimpleEngine implements Callback {
 	public static final Appliable EQV = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
-			if(args.length == 2) {
-				return new Boolean(args[0].equals(args[1]));
-			} else {
-				throw new IllegalArgumentException();
+			Object p = null;
+
+			for(Object o : args) {
+				if(p == null || p.equals(o)) {
+					p = o;
+				} else {
+					return Boolean.FALSE;
+				}
 			}
+			return Boolean.TRUE;
 		}
 
 	};
@@ -277,23 +287,73 @@ public class SimpleEngine implements Callback {
 	 */
 	public static final Appliable GT = new Appliable() {
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Object apply(Callback b, Object... args) {
-			Comparable p = null;
+			Integer pi = null;
+			BigInteger pb = null;
+			Double pd = null;
+			double d;
 
 			for(Object o : args) {
-				try {
-					if(!(o instanceof Comparable)) {
+				if(pi != null) {
+					if(o instanceof Integer) {
+						if(pi.compareTo((Integer)o) > 0) {
+							pi = (Integer)o;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof BigInteger) {
+						return Boolean.FALSE;
+					} else if(o instanceof Double) {
+						if(pi.doubleValue() > ((Double)o).doubleValue()) {
+							pd = (Double)o;
+							pi = null;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else {
 						throw new IllegalArgumentException();
-					} else if(p == null) {
-						p = (Comparable)o;
-					} else if(p.compareTo((Comparable)args[1]) > 0) {
-						p = (Comparable)o;
+					}
+				} else if(pb != null) {
+					if(o instanceof Integer) {
+						pi = (Integer)o;
+						pb = null;
+					} else if(o instanceof BigInteger) {
+						if(pb.compareTo((BigInteger)o) > 0) {
+							pb = (BigInteger)o;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof Double) {
+						if(pb.doubleValue() > ((Double)o).doubleValue()) {
+							pd = (Double)o;
+							pb = null;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else {
+						throw new IllegalArgumentException();
+					}
+				} else if(pd != null) {
+					d = pd.doubleValue();
+					if(!(o instanceof Number)) {
+						throw new IllegalArgumentException();
+					} else if(d > ((Number)o).doubleValue()) {
+						pd = new Double(((Number)o).doubleValue());
+						pb = null;
+						pi = null;
 					} else {
 						return Boolean.FALSE;
 					}
-				} catch(ClassCastException e) {
-					throw new IllegalArgumentException();
+				} else {
+					if(o instanceof Integer) {
+						pi = (Integer)o;
+					} else if(o instanceof BigInteger) {
+						pb = (BigInteger)o;
+					} else if(o instanceof Double) {
+						pd = (Double)o;
+					} else {
+						throw new IllegalArgumentException();
+					}
 				}
 			}
 			return Boolean.TRUE;
@@ -306,26 +366,305 @@ public class SimpleEngine implements Callback {
 	 */
 	public static final Appliable LT = new Appliable() {
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Object apply(Callback b, Object... args) {
-			Comparable p = null;
+			Integer pi = null;
+			BigInteger pb = null;
+			Double pd = null;
+			double d;
 
 			for(Object o : args) {
-				try {
-					if(!(o instanceof Comparable)) {
+				if(pi != null) {
+					if(o instanceof Integer) {
+						if(pi.compareTo((Integer)o) < 0) {
+							pi = (Integer)o;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof BigInteger) {
+						pb = BigInteger.valueOf(pi.intValue());
+						if(pb.compareTo((BigInteger)o) < 0) {
+							pb = (BigInteger)o;
+							pi = null;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof Double) {
+						if(pi.doubleValue() < ((Double)o).doubleValue()) {
+							pd = (Double)o;
+							pi = null;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else {
 						throw new IllegalArgumentException();
-					} else if(p == null) {
-						p = (Comparable)o;
-					} else if(p.compareTo((Comparable)args[1]) < 0) {
-						p = (Comparable)o;
+					}
+				} else if(pb != null) {
+					if(o instanceof Integer) {
+						return Boolean.FALSE;
+					} else if(o instanceof BigInteger) {
+						if(pb.compareTo((BigInteger)o) < 0) {
+							pb = (BigInteger)o;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof Double) {
+						if(pb.doubleValue() < ((Double)o).doubleValue()) {
+							pd = (Double)o;
+							pb = null;
+						} else {
+							return Boolean.FALSE;
+						}
+					} else {
+						throw new IllegalArgumentException();
+					}
+				} else if(pd != null) {
+					d = pd.doubleValue();
+					if(!(o instanceof Number)) {
+						throw new IllegalArgumentException();
+					} else if(d < ((Number)o).doubleValue()) {
+						pd = new Double(((Number)o).doubleValue());
+						pb = null;
+						pi = null;
 					} else {
 						return Boolean.FALSE;
 					}
-				} catch(ClassCastException e) {
-					throw new IllegalArgumentException();
+				} else {
+					if(o instanceof Integer) {
+						pi = (Integer)o;
+					} else if(o instanceof BigInteger) {
+						pb = (BigInteger)o;
+					} else if(o instanceof Double) {
+						pd = (Double)o;
+					} else {
+						throw new IllegalArgumentException();
+					}
 				}
 			}
 			return Boolean.TRUE;
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable EQN = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			Integer pi = null;
+			BigInteger pb = null;
+			Double pd = null;
+			Number pn = null;
+			double d;
+
+			for(Object o : args) {
+				if(o instanceof Double) {
+					if(pn.doubleValue() != ((Number)o).doubleValue()) {
+						return Boolean.FALSE;
+					}
+				} else if(pi != null) {
+					if(o instanceof Integer) {
+						if(pi.compareTo((Integer)o) != 0) {
+							return Boolean.FALSE;
+						}
+					} else if(o instanceof BigInteger) {
+						return Boolean.FALSE;
+					} else {
+						throw new IllegalArgumentException();
+					}
+				} else if(pb != null) {
+					if(o instanceof Integer) {
+						return Boolean.FALSE;
+					} else if(o instanceof BigInteger) {
+						if(pb.compareTo((BigInteger)o) != 0) {
+							return Boolean.FALSE;
+						}
+					} else {
+						throw new IllegalArgumentException();
+					}
+				} else if(pd != null) {
+					d = pd.doubleValue();
+					if(!(o instanceof Number)) {
+						throw new IllegalArgumentException();
+					} else if(d != ((Number)o).doubleValue()) {
+						return Boolean.FALSE;
+					}
+				} else {
+					if(o instanceof Integer) {
+						pi = (Integer)o;
+					} else if(o instanceof BigInteger) {
+						pb = (BigInteger)o;
+					} else if(o instanceof Double) {
+						pd = (Double)o;
+					} else {
+						throw new IllegalArgumentException();
+					}
+					pn = (Number)o;
+				}
+			}
+			return Boolean.TRUE;
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable PLUS = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			BigInteger pb = null, a;
+			Double pd = null;
+
+			for(Object o : args) {
+				if(pb != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = pb.add(a);
+					} else {
+						pd = pb.doubleValue() + ((Number)o).doubleValue();
+						pb = null;
+					}
+				} else if(pd != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pd = pd.doubleValue() + a.doubleValue();
+					} else {
+						pd = pd.doubleValue() + ((Number)o).doubleValue();
+					}
+				} else {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = a;
+					} else {
+						pd = (Double)o;
+					}
+				}
+			}
+			return pd != null ? pd : pb != null ?
+					LispAtto.toObject(pb) : new Integer(0);
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable MINUS = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			BigInteger pb = null, a;
+			Double pd = null;
+
+			for(Object o : args) {
+				if(pb != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = pb.subtract(a);
+					} else {
+						pd = pb.doubleValue() - ((Number)o).doubleValue();
+						pb = null;
+					}
+				} else if(pd != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pd = pd.doubleValue() - a.doubleValue();
+					} else {
+						pd = pd.doubleValue() - ((Number)o).doubleValue();
+					}
+				} else {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = a;
+					} else {
+						pd = (Double)o;
+					}
+				}
+			}
+
+			if(args.length != 1) {
+				return pd != null ? pd : pb != null ?
+						LispAtto.toObject(pb) : new Integer(0);
+			} else if(pd != null) {
+				return -pd.doubleValue();
+			} else {
+				return LispAtto.toObject(pb.negate());
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable MUL = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			BigInteger pb = null, a;
+			Double pd = null;
+
+			for(Object o : args) {
+				if(pb != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = pb.multiply(a);
+					} else {
+						pd = pb.doubleValue() * ((Number)o).doubleValue();
+						pb = null;
+					}
+				} else if(pd != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pd = pd.doubleValue() * a.doubleValue();
+					} else {
+						pd = pd.doubleValue() * ((Number)o).doubleValue();
+					}
+				} else {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = a;
+					} else {
+						pd = (Double)o;
+					}
+				}
+			}
+			return pd != null ? pd : pb != null ?
+					LispAtto.toObject(pb) : new Integer(1);
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable DIV = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			BigInteger pb = null, a;
+			Double pd = null;
+
+			for(Object o : args) {
+				if(pb != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = pb.divide(a);
+					} else {
+						pd = pb.doubleValue() / ((Number)o).doubleValue();
+						pb = null;
+					}
+				} else if(pd != null) {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pd = pd.doubleValue() / a.doubleValue();
+					} else {
+						pd = pd.doubleValue() / ((Number)o).doubleValue();
+					}
+				} else {
+					if((a = LispAtto.toBigInteger(o)) != null) {
+						pb = a;
+					} else {
+						pd = (Double)o;
+					}
+				}
+			}
+
+			if(args.length != 1) {
+				return pd != null ? pd : pb != null ?
+						LispAtto.toObject(pb) : new Integer(0);
+			} else if(pd != null) {
+				return 1 / pd.doubleValue();
+			} else {
+				return 1 / pb.doubleValue();
+			}
 		}
 
 	};
@@ -489,6 +828,11 @@ public class SimpleEngine implements Callback {
 		env.binds.put(Symbol.get("1-"), DEC);
 		env.binds.put(Symbol.get(">"),  GT);
 		env.binds.put(Symbol.get("<"),  LT);
+		env.binds.put(Symbol.get("="),  EQN);
+		env.binds.put(Symbol.get("+"),  PLUS);
+		env.binds.put(Symbol.get("-"),  MINUS);
+		env.binds.put(Symbol.get("*"),  MUL);
+		env.binds.put(Symbol.get("/"),  DIV);
 
 		// string
 		env.binds.put(Symbol.get("string?"),        STRING);

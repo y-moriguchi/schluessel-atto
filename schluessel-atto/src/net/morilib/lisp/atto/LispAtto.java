@@ -67,6 +67,28 @@ public class LispAtto {
 		}
 	}
 
+	//
+	static BigInteger toBigInteger(Object o) {
+		if(o instanceof Integer) {
+			return BigInteger.valueOf(((Integer)o).intValue());
+		} else if(o instanceof BigInteger) {
+			return (BigInteger)o;
+		} else if(o instanceof Double) {
+			return null;
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	//
+	static Object toObject(BigInteger x) {
+		if(x.compareTo(MAXINT) > 0 || x.compareTo(MININT) < 0) {
+			return x;
+		} else {
+			return Integer.valueOf(x.intValue());
+		}
+	}
+
 	/**
 	 * 
 	 * @param o
@@ -281,6 +303,8 @@ public class LispAtto {
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch(IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch(ArithmeticException e) {
 				e.printStackTrace();
 			}
 		}
