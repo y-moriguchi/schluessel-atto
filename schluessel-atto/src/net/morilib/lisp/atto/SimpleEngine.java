@@ -176,7 +176,7 @@ public class SimpleEngine implements Callback {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Cell) {
 				((Cell)args[0]).car = args[1];
-				return SchemeAtto.UNDEF;
+				return LispAtto.UNDEF;
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -194,7 +194,27 @@ public class SimpleEngine implements Callback {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Cell) {
 				((Cell)args[0]).cdr = args[1];
-				return SchemeAtto.UNDEF;
+				return LispAtto.UNDEF;
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	/**
+	 * 
+	 */
+	public static final Appliable APPLY = new Appliable() {
+
+		public Object apply(Callback b, Object... args) {
+			Object[] a;
+
+			if(args.length != 2) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Appliable) {
+				a = LispAtto.toArray(args[1]);
+				return ((Appliable)args[0]).apply(b, a);
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -221,7 +241,7 @@ public class SimpleEngine implements Callback {
 			} else if(args[0] instanceof Number) {
 				return new Double(((Number)args[0]).doubleValue() + 1);
 			} else {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(args[0].toString());
 			}
 		}
 
@@ -462,10 +482,13 @@ public class SimpleEngine implements Callback {
 		env.binds.put(Symbol.get("eqv?"),     EQV);
 		env.binds.put(Symbol.get("set-car!"), SET_CAR);
 		env.binds.put(Symbol.get("set-cdr!"), SET_CDR);
-		env.binds.put(Symbol.get("1+"),       INC);
-		env.binds.put(Symbol.get("1-"),       DEC);
-		env.binds.put(Symbol.get(">"),        GT);
-		env.binds.put(Symbol.get("<"),        LT);
+		env.binds.put(Symbol.get("apply"),    APPLY);
+
+		// arithmetic
+		env.binds.put(Symbol.get("1+"), INC);
+		env.binds.put(Symbol.get("1-"), DEC);
+		env.binds.put(Symbol.get(">"),  GT);
+		env.binds.put(Symbol.get("<"),  LT);
 
 		// string
 		env.binds.put(Symbol.get("string?"),        STRING);
@@ -498,7 +521,7 @@ public class SimpleEngine implements Callback {
 	@Override
 	public Object doIf(Environment v, Object cond, Object dotrue) {
 		return cond.equals(Boolean.FALSE) ?
-				SchemeAtto.UNDEF : SchemeAtto.traverse(this, v, dotrue);
+				LispAtto.UNDEF : LispAtto.traverse(this, v, dotrue);
 	}
 
 	/* (non-Javadoc)
@@ -508,8 +531,8 @@ public class SimpleEngine implements Callback {
 	public Object doIf(Environment v, Object cond, Object dotrue,
 			Object dofalse) {
 		return cond.equals(Boolean.FALSE) ?
-				SchemeAtto.traverse(this, v, dofalse) :
-					SchemeAtto.traverse(this, v, dotrue);
+				LispAtto.traverse(this, v, dofalse) :
+					LispAtto.traverse(this, v, dotrue);
 	}
 
 	/* (non-Javadoc)
@@ -519,8 +542,8 @@ public class SimpleEngine implements Callback {
 	public Object doDefine(Environment v, Object sym, Object tobound) {
 		if(sym instanceof Symbol) {
 			v.binds.put((Symbol)sym,
-					SchemeAtto.traverse(this, v, tobound));
-			return SchemeAtto.UNDEF;
+					LispAtto.traverse(this, v, tobound));
+			return LispAtto.UNDEF;
 		} else {
 			throw new IllegalArgumentException(sym.toString());
 		}
@@ -541,10 +564,10 @@ public class SimpleEngine implements Callback {
 	public Object doSet(Environment v, Object sym, Object toset) {
 		if(sym instanceof Symbol) {
 			if(!v.set((Symbol)sym,
-					SchemeAtto.traverse(this, v, toset))) {
+					LispAtto.traverse(this, v, toset))) {
 				throw new IllegalArgumentException();
 			}
-			return SchemeAtto.UNDEF;
+			return LispAtto.UNDEF;
 		} else {
 			throw new IllegalArgumentException(sym.toString());
 		}
@@ -555,10 +578,10 @@ public class SimpleEngine implements Callback {
 	 */
 	@Override
 	public Object doBegin(Environment v, Object... body) {
-		Object r = SchemeAtto.UNDEF;
+		Object r = LispAtto.UNDEF;
 
 		for(Object o : body) {
-			r = SchemeAtto.traverse(this, v, o);
+			r = LispAtto.traverse(this, v, o);
 		}
 		return r;
 	}

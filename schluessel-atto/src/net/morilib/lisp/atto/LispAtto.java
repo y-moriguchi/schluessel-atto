@@ -23,7 +23,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SchemeAtto {
+public class LispAtto {
 
 	/**
 	 * 
@@ -49,19 +49,19 @@ public class SchemeAtto {
 	/**
 	 * 
 	 */
-	public SchemeAtto() {
+	public LispAtto() {
 		try {
 			// setup macro
 			macroenv = new Environment();
 			SimpleEngine.INSTANCE.init(macroenv);
 			eval(SimpleEngine.INSTANCE, macroenv,
-					SchemeAtto.class.getResourceAsStream(
+					LispAtto.class.getResourceAsStream(
 							"macro-atto.scm"));
 
 			// setup environment
 			env = new Environment();
 			SimpleEngine.INSTANCE.init(env);
-			eval(SchemeAtto.class.getResourceAsStream("lib.scm"));
+			eval(LispAtto.class.getResourceAsStream("lib.scm"));
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -96,7 +96,7 @@ public class SchemeAtto {
 	 * @return
 	 */
 	public static Cell toList(Object... objs) {
-		Cell l = null, a;
+		Cell l = null, r = Cell.NIL, a;
 
 		if(objs.length > 0) {
 			for(Object o : objs) {
@@ -105,14 +105,12 @@ public class SchemeAtto {
 					l.cdr = a;
 					l = a;
 				} else {
-					l = new Cell(o, null);
+					r = l = new Cell(o, null);
 				}
 			}
 			l.cdr = Cell.NIL;
-			return l;
-		} else {
-			return Cell.NIL;
 		}
+		return r;
 	}
 
 	/**
@@ -266,13 +264,14 @@ public class SchemeAtto {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {
-		SchemeAtto s = new SchemeAtto();
+		LispAtto s = new LispAtto();
 		Object o, p = UNDEF;
 		Reader rd;
 
 		rd = new InputStreamReader(System.in);
 		while(true) {
 			try {
+				System.out.print(" >");
 				if((o = AttoParser.read(rd)) == null) {
 					System.exit(0);
 				} else {
