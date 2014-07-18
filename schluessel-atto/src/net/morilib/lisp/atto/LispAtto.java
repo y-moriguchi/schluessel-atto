@@ -23,10 +23,15 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The main class of Schluessel Atto.
+ * 
+ * @author Yuichiro MORIGUCHI
+ */
 public class LispAtto {
 
 	/**
-	 * 
+	 * The object which represents undefined.
 	 */
 	public static final Object UNDEF = new java.io.Serializable() {
 
@@ -47,7 +52,7 @@ public class LispAtto {
 	Environment env;
 
 	/**
-	 * 
+	 * The constructor of the class.
 	 */
 	public LispAtto() {
 		try {
@@ -90,9 +95,10 @@ public class LispAtto {
 	}
 
 	/**
+	 * convert the given list to an array.
 	 * 
-	 * @param o
-	 * @return
+	 * @param o an object to be converted
+	 * @return a converted array
 	 */
 	public static Object[] toArray(Object o) {
 		List<Object> l;
@@ -113,9 +119,10 @@ public class LispAtto {
 	}
 
 	/**
+	 * convert the given array to a cons cell.
 	 * 
-	 * @param objs
-	 * @return
+	 * @param objs an array to be converted
+	 * @return a converted cons cell
 	 */
 	public static Cell toList(Object... objs) {
 		Cell l = null, r = Cell.NIL, a;
@@ -136,11 +143,12 @@ public class LispAtto {
 	}
 
 	/**
+	 * traverse an object by a visitor.
 	 * 
-	 * @param b
-	 * @param v
-	 * @param o
-	 * @return
+	 * @param b a visitor to traverse
+	 * @param v an environment
+	 * @param o an object to be traversed
+	 * @return an traversed object
 	 */
 	public static Object traverse(Callback b, Environment v,
 			Object o) {
@@ -204,11 +212,12 @@ public class LispAtto {
 	}
 
 	/**
+	 * read and evaluate from the reader by a visitor.
 	 * 
-	 * @param b
-	 * @param v
-	 * @param rd
-	 * @return
+	 * @param b a visitor
+	 * @param v an environment
+	 * @param rd a reader to be read
+	 * @return an evaluated object
 	 * @throws IOException
 	 */
 	public static Object eval(Callback b, Environment v,
@@ -223,11 +232,12 @@ public class LispAtto {
 	}
 
 	/**
+	 * read and evaluate from the input stream by a visitor.
 	 * 
-	 * @param b
-	 * @param v
-	 * @param ins
-	 * @return
+	 * @param b a visitor
+	 * @param v an environment
+	 * @param rd a reader to be read
+	 * @return an evaluated object
 	 * @throws IOException
 	 */
 	public static Object eval(Callback b, Environment v,
@@ -236,9 +246,10 @@ public class LispAtto {
 	}
 
 	/**
+	 * expand macros of an object and evaluate the expanded object.
 	 * 
-	 * @param p
-	 * @return
+	 * @param p an object to be evaluated
+	 * @return an evaluated object
 	 */
 	public Object eval(Object p) {
 		Object o = p;
@@ -253,9 +264,10 @@ public class LispAtto {
 	}
 
 	/**
+	 * read from a reader, expand macros of an read object and evaluate the object.
 	 * 
-	 * @param rd
-	 * @return
+	 * @param rd a reader to be read
+	 * @return an evaluated object
 	 * @throws IOException
 	 */
 	public Object eval(Reader rd) throws IOException {
@@ -271,9 +283,10 @@ public class LispAtto {
 	}
 
 	/**
+	 * read from an input stream, expand macros of an read object and evaluate the object.
 	 * 
-	 * @param in
-	 * @return
+	 * @param in a reader to be read
+	 * @return an evaluated object
 	 * @throws IOException
 	 */
 	public Object eval(InputStream in) throws IOException {
@@ -281,8 +294,9 @@ public class LispAtto {
 	}
 
 	/**
+	 * read-eval-print-loop of Schluessel Atto.
 	 * 
-	 * @param args
+	 * @param args the command line argument
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {

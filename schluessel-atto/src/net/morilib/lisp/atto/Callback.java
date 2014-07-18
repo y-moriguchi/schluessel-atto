@@ -15,75 +15,88 @@
  */
 package net.morilib.lisp.atto;
 
+/**
+ * An interface of the visitor of Schluessel Atto evaluator.
+ * 
+ * @author Yuichiro MORIGUCHI
+ */
 public interface Callback {
 
 	/**
+	 * Initialize the given environment.
 	 * 
-	 * @param env
+	 * @param env an environment
 	 */
 	public void init(Environment env);
 
 	/**
+	 * This will be called if the evaluator applies.
 	 * 
-	 * @param env
-	 * @param f
-	 * @param args
-	 * @return
+	 * @param env  an environment
+	 * @param f    an appliable object
+	 * @param args arguments
+	 * @return the result which this method is called
 	 */
 	public Object apply(Environment env, Object f, Object... args);
 
 	/**
+	 * This will be called if the evaluator processes the if special-form.
 	 * 
-	 * @param env
-	 * @param cond
-	 * @param dotrue
-	 * @return
+	 * @param env    an environment
+	 * @param cond   a condition
+	 * @param dotrue an object which will be executed if the condition is true
+	 * @return the result which this method is called
 	 */
 	public Object doIf(Environment env, Object cond, Object dotrue);
 
 	/**
+	 * This will be called if the evaluator processes the if special-form.
 	 * 
-	 * @param env
-	 * @param cond
-	 * @param dotrue
-	 * @param dofalse
-	 * @return
+	 * @param env     an environment
+	 * @param cond    a condition
+	 * @param dotrue  an object which will be executed if the condition is true
+	 * @param dofalse an object which will be executed if the condition is false
+	 * @return the result which this method is called
 	 */
 	public Object doIf(Environment env, Object cond, Object dotrue,
 			Object dofalse);
 
 	/**
+	 * This will be called if the evaluator processed the define special-form.
 	 * 
-	 * @param env
-	 * @param sym
-	 * @param tobound
-	 * @return
+	 * @param env an environment
+	 * @param sym a symbol to bound
+	 * @param tobound an object to be bound
+	 * @return the result which this method is called
 	 */
 	public Object doDefine(Environment env, Object sym, Object tobound);
 
 	/**
+	 * This will be called if the evaluator processed the lambda special-form.
 	 * 
-	 * @param env
-	 * @param args
-	 * @param body
-	 * @return
+	 * @param env an environment
+	 * @param args arguments of this procedure
+	 * @param body the body of this procedure
+	 * @return the result which this method is called
 	 */
 	public Object doLambda(Environment env, Object args, Object... body);
 
 	/**
+	 * This will be called if the evaluator processed the set! special-form.
 	 * 
-	 * @param env
-	 * @param sym
-	 * @param toset
-	 * @return
+	 * @param env an environment
+	 * @param sym a symbol to set
+	 * @param toset an object to be set
+	 * @return the result which this method is called
 	 */
 	public Object doSet(Environment env, Object sym, Object toset);
 
 	/**
+	 * This will be called if the evaluator processed the begin special-form.
 	 * 
-	 * @param env
-	 * @param body
-	 * @return
+	 * @param env an environment
+	 * @param body the body of this procedure
+	 * @return the result which this method is called
 	 */
 	public Object doBegin(Environment env, Object... body);
 

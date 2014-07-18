@@ -15,10 +15,15 @@
  */
 package net.morilib.lisp.atto;
 
+/**
+ * A class of the cons cell.
+ * 
+ * @author Yuichiro MORIGUCHI
+ */
 public class Cell {
 
 	/**
-	 * 
+	 * The nil object.
 	 */
 	public static Cell NIL = new Cell(null, null) {
 
@@ -29,12 +34,12 @@ public class Cell {
 	};
 
 	/**
-	 * 
+	 * the car part of the cell.
 	 */
 	public Object car;
 
 	/**
-	 * 
+	 * the cdr part of the cell.
 	 */
 	public Object cdr;
 

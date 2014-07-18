@@ -18,37 +18,20 @@ package net.morilib.lisp.atto;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A class represents symbols.
+ * 
+ * @author Yuichiro MORIGUCHI
+ */
 public class Symbol {
 
-	/**
-	 * 
-	 */
-	public static Symbol IF = new Symbol("if");
-
-	/**
-	 * 
-	 */
-	public static Symbol QUOTE = new Symbol("quote");
-
-	/**
-	 * 
-	 */
-	public static Symbol LAMBDA = new Symbol("lambda");
-
-	/**
-	 * 
-	 */
-	public static Symbol SET = new Symbol("set!");
-
-	/**
-	 * 
-	 */
-	public static Symbol DEFINE = new Symbol("define");
-
-	/**
-	 * 
-	 */
-	public static Symbol BEGIN = new Symbol("begin");
+	//
+	static Symbol IF = new Symbol("if");
+	static Symbol QUOTE = new Symbol("quote");
+	static Symbol LAMBDA = new Symbol("lambda");
+	static Symbol SET = new Symbol("set!");
+	static Symbol DEFINE = new Symbol("define");
+	static Symbol BEGIN = new Symbol("begin");
 
 	//
 	private static Map<String, Symbol> symbols =
@@ -73,9 +56,10 @@ public class Symbol {
 	}
 
 	/**
+	 * get a symbol which corresponds to the given string.
 	 * 
-	 * @param s
-	 * @return
+	 * @param s a symbol name
+	 * @return a symbol
 	 */
 	public static Symbol get(String s) {
 		Symbol r;
@@ -89,8 +73,9 @@ public class Symbol {
 	}
 
 	/**
+	 * get the symbol name.
 	 * 
-	 * @return
+	 * @return symbol name
 	 */
 	public String getName() {
 		return name;

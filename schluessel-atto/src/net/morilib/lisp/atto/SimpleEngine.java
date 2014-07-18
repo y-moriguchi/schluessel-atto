@@ -18,6 +18,11 @@ package net.morilib.lisp.atto;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * A simple evaluator of Schluessel Atto.
+ * 
+ * @author Yuichiro MORIGUCHI
+ */
 public class SimpleEngine implements Callback {
 
 	//
@@ -27,10 +32,8 @@ public class SimpleEngine implements Callback {
 			BigInteger.valueOf((long)Integer.MIN_VALUE - 1l);
 	static final SimpleEngine INSTANCE = new SimpleEngine();
 
-	/**
-	 * 
-	 */
-	public static final Appliable CONS = new Appliable() {
+	//
+	static final Appliable CONS = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 2) {
@@ -42,10 +45,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable EQ = new Appliable() {
+	//
+	static final Appliable EQ = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Object p = null;
@@ -62,10 +63,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable EQV = new Appliable() {
+	//
+	static final Appliable EQV = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Object p = null;
@@ -82,10 +81,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable CAR = new Appliable() {
+	//
+	static final Appliable CAR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -99,10 +96,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable CDR = new Appliable() {
+	//
+	static final Appliable CDR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -116,10 +111,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable ATOM = new Appliable() {
+	//
+	static final Appliable ATOM = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -131,10 +124,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable NULL = new Appliable() {
+	//
+	static final Appliable NULL = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -146,10 +137,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable SYMBOL = new Appliable() {
+	//
+	static final Appliable SYMBOL = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -161,10 +150,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable ERROR = new Appliable() {
+	//
+	static final Appliable ERROR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -176,10 +163,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable SET_CAR = new Appliable() {
+	//
+	static final Appliable SET_CAR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -194,10 +179,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable SET_CDR = new Appliable() {
+	//
+	static final Appliable SET_CDR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -212,10 +195,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable APPLY = new Appliable() {
+	//
+	static final Appliable APPLY = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Object[] a;
@@ -232,10 +213,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable INC = new Appliable() {
+	//
+	static final Appliable INC = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			int x;
@@ -257,10 +236,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable DEC = new Appliable() {
+	//
+	static final Appliable DEC = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			int x;
@@ -282,10 +259,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable GT = new Appliable() {
+	//
+	static final Appliable GT = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -361,10 +336,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable LT = new Appliable() {
+	//
+	static final Appliable LT = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -445,10 +418,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable EQN = new Appliable() {
+	//
+	static final Appliable EQN = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -507,10 +478,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable PLUS = new Appliable() {
+	//
+	static final Appliable PLUS = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -544,10 +513,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable MINUS = new Appliable() {
+	//
+	static final Appliable MINUS = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -588,10 +555,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable MUL = new Appliable() {
+	//
+	static final Appliable MUL = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -625,10 +590,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable DIV = new Appliable() {
+	//
+	static final Appliable DIV = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -669,10 +632,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable STRING = new Appliable() {
+	//
+	static final Appliable STRING = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -684,10 +645,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable SUBSTRING = new Appliable() {
+	//
+	static final Appliable SUBSTRING = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 3) {
@@ -704,10 +663,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable STRING_REF = new Appliable() {
+	//
+	static final Appliable STRING_REF = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -722,10 +679,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable STRING_LENGTH = new Appliable() {
+	//
+	static final Appliable STRING_LENGTH = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -739,10 +694,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable STRING_APPEND = new Appliable() {
+	//
+	static final Appliable STRING_APPEND = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			StringBuffer a = new StringBuffer();
@@ -755,10 +708,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable STRING_SYMBOL = new Appliable() {
+	//
+	static final Appliable STRING_SYMBOL = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -770,10 +721,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable SYMBOL_STRING = new Appliable() {
+	//
+	static final Appliable SYMBOL_STRING = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -787,10 +736,8 @@ public class SimpleEngine implements Callback {
 
 	};
 
-	/**
-	 * 
-	 */
-	public static final Appliable VECTOR = new Appliable() {
+	//
+	static final Appliable VECTOR = new Appliable() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
