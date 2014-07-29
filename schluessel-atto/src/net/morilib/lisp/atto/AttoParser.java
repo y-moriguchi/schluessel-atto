@@ -84,7 +84,7 @@ public class AttoParser   {
 	}
 
 
-private int _unreadl = -1;
+	private int _unreadl = -1;
 
 	void INCLUDE(java.io.Reader rd) {
 		streamStack.push(rd);
@@ -1154,24 +1154,69 @@ private int _unreadl = -1;
 		String $$ = b.toString();
 
 		switch(STATE) {
-		case 11:
-			// State7      
-return null;
-		case 14:
+		case 24:
+			// State6         
+return shp($$);
+		case 19:
+			// State6         
+return shp($$);
+		case 30:
+			// State36        
+return oct($$);
+		case 13:
 			// State11               
 return Symbol.get($$);
-		case 27:
-			// State25        
+		case 20:
+			// State10   
+return $$;
+		case 12:
+			// State11               
+return Symbol.get($$);
+		case 22:
+			// State6         
+return shp($$);
+		case 26:
+			// State23        
 return ch1($$);
 		case 1:
 			// State11               
 return Symbol.get($$);
-		case 24:
+		case 21:
 			// State6         
 return shp($$);
-		case 10:
-			// State12         
-return _int($$);
+		case 29:
+			// State34        
+return hex($$);
+		case 31:
+			// State32        
+return bin($$);
+		case 17:
+			// State21       
+return MT.UNS;
+		case 9:
+			// State27   
+return $$;
+		case 28:
+			// State24        
+return chn($$);
+		case 18:
+			// State13        
+return dbl($$);
+		case 6:
+			// State27   
+return $$;
+		case 5:
+			// State20           
+return MT.get($$);
+		case 2:
+			// State9      
+return null;
+		case 11:
+			// State7      
+return null;
+		case 32:
+			// State2         
+return str($$);
 		case 15:
 			// State13        
 return dbl($$);
@@ -1181,85 +1226,41 @@ return ch1($$);
 		case 8:
 			// State20           
 return MT.get($$);
-		case 13:
-			// State11               
-return Symbol.get($$);
-		case 19:
-			// State6         
-return shp($$);
-		case 29:
-			// State34        
-return hex($$);
-		case 6:
-			// State27   
-return $$;
-		case 22:
-			// State6         
-return shp($$);
-		case 26:
-			// State23        
-return ch1($$);
-		case 32:
-			// State2         
-return str($$);
-		case 16:
-			// State13        
-return dbl($$);
-		case 12:
-			// State11               
-return Symbol.get($$);
-		case 20:
-			// State10   
-return $$;
-		case 9:
-			// State27   
-return $$;
-		case 5:
-			// State20           
-return MT.get($$);
-		case 2:
-			// State9      
-return null;
-		case 21:
-			// State6         
-return shp($$);
-		case 18:
-			// State13        
-return dbl($$);
-		case 7:
-			// State11               
-return Symbol.get($$);
-		case 17:
-			// State21       
-return MT.UNS;
-		case 30:
-			// State36        
-return oct($$);
-		case 28:
-			// State24        
-return chn($$);
 		case 23:
 			// State6         
 return shp($$);
-		case 31:
-			// State32        
-return bin($$);
+		case 7:
+			// State11               
+return Symbol.get($$);
+		case 16:
+			// State13        
+return dbl($$);
+		case 10:
+			// State12         
+return _int($$);
+		case 27:
+			// State25        
+return ch1($$);
+		case 14:
+			// State11               
+return Symbol.get($$);
 		default:  return null;
 		}
 	}
 
 	boolean lexer_isdead() {
-return (false || STATE == 6 || STATE == 26 || STATE == 32 || STATE == 20 || STATE == 5 || STATE == 17);
+return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STATE == 5 || STATE == 32);
 	}
 
 	int _read1ul() throws java.io.IOException {
 		int c;
 
-		if(_unreadl == -1) {
-			c = _read1l();
-		} else {
+		if(_unreadl != -1) {
 			c = _unreadl;
 			_unreadl = -1;
+		} else if((c = _read1l()) == '\r' && (c = _read1l()) != '\n') {
+			_unreadl = c;
+			c = '\r';
 		}
 		return c;
 	}
@@ -1515,83 +1516,83 @@ return (false || STATE == 6 || STATE == 26 || STATE == 32 || STATE == 20 || STAT
 	@SuppressWarnings("unchecked")
 	int AttoParser_execaction(Object  $c) {
 		switch(STATE) {
-		case 12:
-			// State9        
-			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+		case 16:
+			break;
+		case 15:
+			break;
+		case 11:
 			break;
 		case 9:
 			// State38         
 			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
 			break;
-		case 16:
+		case 2:
+			// lst                                      
+			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
 			break;
 		case 3:
 			// vec                                      
 			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
 			break;
-		case 14:
-			// State37      
-			_ = Cell.NIL;
-			break;
-		case 13:
-			// State10         
-			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
-			break;
-		case 0:
-			break;
-		case 15:
+		case 21:
+			// State13            
+			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
 			break;
 		case 20:
-			break;
-		case 4:
-			// meta      
-			(__stv[__slen - 1][4]) = $c;
 			break;
 		case 8:
 			// State17             
 			_ = mta(((MT)(__stv[__slen - 1][4])), _);
 			break;
+		case 1:
+			// State8   
+			_ = null;
+			break;
 		case 5:
 			// State19     
 			_ = unw($c);
+			break;
+		case 12:
+			// State9        
+			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+			break;
+		case 10:
+			break;
+		case 4:
+			// meta      
+			(__stv[__slen - 1][4]) = $c;
+			break;
+		case 19:
+			break;
+		case 6:
 			break;
 		case 18:
 			// State6          
 			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
 			break;
-		case 19:
-			break;
-		case 7:
-			break;
-		case 11:
-			break;
-		case 1:
-			// State8   
-			_ = null;
-			break;
-		case 2:
-			// lst                                      
-			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
-			break;
-		case 21:
-			// State13            
-			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
-			break;
-		case 6:
-			break;
-		case 10:
-			break;
 		case 17:
 			// State5        
 			((java.util.List<Object>)(__stv[__slen - 1][2])).add(_);
+			break;
+		case 13:
+			// State10         
+			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
+			break;
+		case 14:
+			// State37      
+			_ = Cell.NIL;
+			break;
+		case 7:
+			break;
+		case 0:
 			break;
 		}
 		return 1;
 	}
 
 	boolean AttoParser_isend() {
-		return (STATE == 17 ||
-				STATE == 0 ||
+		return (STATE == 0 ||
+				STATE == 17 ||
 				STATE == 16 ||
 				STATE == 2 ||
 				STATE == 3 ||
@@ -1893,6 +1894,10 @@ return (false || STATE == 6 || STATE == 26 || STATE == 32 || STATE == 20 || STAT
 			if(yieldObject == null)  throw new NullPointerException();
 			return yieldObject;
 		}
+	}
+
+	static void puts(String s) {
+		System.out.println(s);
 	}
 
 	boolean parse(java.io.InputStream rd) throws java.io.IOException {

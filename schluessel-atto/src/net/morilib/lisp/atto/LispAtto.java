@@ -305,15 +305,18 @@ public class LispAtto {
 		Reader rd;
 
 		rd = new InputStreamReader(System.in);
+		System.out.print(" >");
 		while(true) {
 			try {
-				System.out.print(" >");
 				if((o = AttoParser.read(rd)) == null) {
 					System.exit(0);
+				} else if(o == AttoParser.INVALIDTOKEN) {
+					continue;
 				} else {
 					p = s.eval(o);
 					System.out.println(p);
 				}
+				System.out.print(" >");
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch(IllegalArgumentException e) {
