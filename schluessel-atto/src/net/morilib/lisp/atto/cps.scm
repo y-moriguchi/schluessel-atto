@@ -46,8 +46,7 @@
     (cond ((null? a)
             (let loop ((v v)
                        (w w)
-                       (c (append (cons f (reverse v))
-                       (list c))))
+                       (c (append (cons f (list c)) (reverse v))))
               (cond ((null? w) c)
                     ((eq? (car w) <dummy>) (loop (cdr v) (cdr w) c))
                     (else
@@ -81,20 +80,38 @@
         (convert-if2 a c))))
 
 (define convert-quote (lambda (a c) a))
-(define convert-begin (lambda (a c) (convert-complex a c)))
+(define convert-begin (lambda (a c) (convert-complex (cdr a) c)))
 (define convert-define
   (lambda (a c)
     (list 'define (cadr x) (convert-s (caddr a) c))))
 
+(define convert-lambda
+  (lambda (a c)
+    (list 'lambda (cons <cont> (cadr a)) (convert-complex (cddr a) c))))
+
+(define convert-complex
+  (lambda (a c)
+    (let loop ((a (reverse a)) (c c))
+      (cond ((null? a) c)
+            ((null? (cdr a)) (convert-s (car a) c))
+            ((simple? (car a)) (loop (cdr a) c))
+            (else (loop (cdr a)
+                        (list 'lambda
+                              (list (newvar))
+                              (convert-s (car a) c))))))))
+
 (define convert-s
   (lambda (a c)
-    (cond ((simple? a)           (list <cont> a))
+    (cond ((simple? a)           (list c a))
           ((eq? (car a) 'if)     (convert-if     a c))
           ((eq? (car a) 'quote)  (convert-quote  a c))
           ((eq? (car a) 'begin)  (convert-begin  a c))
           ((eq? (car a) 'define) (convert-define a c))
+          ((eq? (car a) 'lambda) (convert-lambda a c))
 ;         ((eq? (car a) 'set!)   (convert-set!   a c))
           (else
             (convert-f (car a) (cdr a) '() '() c)))))
+
+(define cps (lambda (a) (convert-s a <cont>)))
 
 ;
