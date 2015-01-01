@@ -80,14 +80,14 @@
         (convert-if2 a c))))
 
 (define convert-quote (lambda (a c) a))
-(define convert-begin (lambda (a c) (convert-complex (reverse (cdr a)) c #t)))
+(define convert-begin (lambda (a c) (convert-complex (cdr a) c)))
 (define convert-define
   (lambda (a c)
     (list 'define (cadr x) (convert-s (caddr a) c))))
 
 (define convert-lambda
   (lambda (a c)
-    (list 'lambda (cons <cont> (cadr a)) (convert-complex (reverse (cddr a)) c #t))))
+    (list 'lambda (cons <cont> (cadr a)) (convert-complex (cddr a) c))))
 
 (define convert-set!2
   (lambda (a c)
@@ -95,8 +95,11 @@
       (list 'lambda
             (list t)
             (list c (list 'set! (cadr a) t))))))
-    
+
 (define convert-complex
+  (lambda (a c) (convert-complex2 (reverse a) c #t)))
+
+(define convert-complex2
   (lambda (a c z)
     (cond ((null? a) c)
           (z
