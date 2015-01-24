@@ -220,10 +220,7 @@ public class LispAtto {
 			}
 		} else if(a[0] == Symbol.ISBULITIN) {
 			if(a.length == 2) {
-				if((p = v.find(a[1])) == null) {
-					return Boolean.FALSE;
-				}
-				p = v.find(p);
+				p = v.find(traverse(b, v, a[1]));
 				return Boolean.valueOf(
 						p != null && p instanceof Builtin);
 			} else {
@@ -303,6 +300,7 @@ public class LispAtto {
 			o = new Cell(Symbol.get("lambda"),
 					new Cell(Cell.NIL, new Cell(o, Cell.NIL)));
 			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
+//System.out.println(o);
 			o = new Cell(o, new Cell(CONTK, Cell.NIL));
 		}
 		o = traverse(SimpleEngine.INSTANCE, env, o);

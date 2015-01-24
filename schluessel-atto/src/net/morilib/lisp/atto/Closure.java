@@ -64,7 +64,7 @@ public class Closure implements Appliable {
 	/* (non-Javadoc)
 	 * @see net.morilib.lisp.atto.Appliable#apply(net.morilib.lisp.atto.Callback, java.lang.Object[])
 	 */
-	public Object apply(Callback b, Object... args) {
+	public Object apply(Callback b, Environment e, Object... args) {
 		Object r = Cell.NIL;
 		Environment e1;
 

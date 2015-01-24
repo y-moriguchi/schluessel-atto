@@ -45,20 +45,24 @@
   (lambda (f c)
     (if (builtin? f) (list f) (cons f (list c)))))
 
+(define convert-f2
+  (lambda (v w c)
+    (cond ((null? w) c)
+          ((eq? (car w) <dummy>) (convert-f2 (cdr v) (cdr w) c))
+          (else
+            (convert-f2 (cdr v)
+                        (cdr w)
+                        (convert-s (car w)
+                                   (list 'lambda (list (car v)) c)))))))
+
 (define convert-f
   (lambda (f a v w c)
-    (cond ((null? a)
-            (let loop ((v v)
-                       (w w)
-                       (c (append (convert-f-c f c) (reverse v))))
-              (cond ((null? w) c)
-                    ((eq? (car w) <dummy>) (loop (cdr v) (cdr w) c))
-                    (else
-                      (loop (cdr v)
-                            (cdr w)
-                            (convert-s (car w) (list 'lambda (list (car v)) c)))))))
+    (cond ((null? a) (convert-f2 v w (append (convert-f-c f c) (reverse v))))
           ((atom? a) (error "list must be proper"))
-          ((simple? (car a)) (convert-f f (cdr a) (cons (car a) v) (cons <dummy> w) c))
+          ((simple? (car a))
+            (convert-f f (cdr a) (cons (car a) v) (cons <dummy> w) c))
+          ((and (not (null? (car a))) (eq? (caar a) 'lambda))
+            (convert-f f (cdr a) (cons (convert-s (car a) c) v) (cons <dummy> w) c))
           (else
             (let ((t (newvar)))
               (convert-f f (cdr a) (cons t v) (cons (car a) w) c))))))
@@ -72,7 +76,8 @@
 
 (define convert-if2
   (lambda (a c)
-    (if (simple? (cadr a)) (convert-if3 (cadr a) a c)
+    (if (simple? (cadr a))
+        (convert-if3 (cadr a) a c)
         (let ((t (newvar)))
           (convert-s (cadr a)
                      (list 'lambda (list t) (convert-if3 t a c)))))))
@@ -87,7 +92,11 @@
 (define convert-begin (lambda (a c) (convert-complex (cdr a) c)))
 (define convert-define
   (lambda (a c)
-    (list 'define (cadr a) (convert-s (caddr a) c))))
+    (cond ((null? (cadr a)) a)
+          ((atom? (cadr a)) a)
+          ((eq? (caadr a) 'lambda)
+            (list 'define (cadr a) (convert-s (caddr a) c)))
+          (else a))))
 
 (define convert-lambda
   (lambda (a c)
@@ -95,34 +104,33 @@
 
 (define convert-set!2
   (lambda (a c)
-    (let ((t (newvar)))
-      (list 'lambda
-            (list t)
-            (list c (list 'set! (cadr a) t))))))
+    (if (simple? (caddr a))
+        (list 'set! (cadr a) (caddr a))
+        (let ((t (newvar)))
+          (convert-s (caddr a)
+                     (list 'lambda (list t) (list 'set (cadr a) (caddr a))))))))
 
 (define convert-complex
-  (lambda (a c) (convert-complex2 (reverse a) c #t)))
+  (lambda (a c) (convert-complex2 a c (null? (cdr a)))))
 
 (define convert-complex2
   (lambda (a c z)
     (cond ((null? a) c)
           (z
-            (cond ((simple? (car a))   (convert-s (car a) c))
-                  ((eq? (caar a) 'set) (convert-set!2 a c))
-                  (else                (convert-s (car a) c))))
+            (cond ((simple? (car a))    (convert-s (car a) c))
+                  ((eq? (caar a) 'set!) (convert-set!2 a c))
+                  (else                 (convert-s (car a) c))))
           ((simple? (car a)) (loop (cdr a) c))
           ((eq? (caar a) 'set!)
             (let ((t (newvar)))
               (convert-complex (cdr a)
-                               (list 'lambda
-                                     (list t)
-                                     (list 'set! (cadr a) t))
-                               #f)))
+                               (convert-set!2 (car a) c)
+                               (null? (cdr a)))))
           (else (convert-complex (cdr a)
                                  (list 'lambda
                                        (list (newvar))
                                        (convert-s (car a) c)))
-                                       #f))))
+                                       (null? (cdr a))))))
 
 (define convert-s
   (lambda (a c)

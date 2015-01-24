@@ -29,6 +29,6 @@ public interface Appliable {
 	 * @param args arguments
 	 * @return
 	 */
-	public Object apply(Callback b, Object... args);
+	public Object apply(Callback b, Environment e, Object... args);
 
 }

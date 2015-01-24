@@ -784,6 +784,65 @@ public class SimpleEngine implements Callback {
 
 	};
 
+	//
+	static final Builtin DEBUG = new Builtin() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				System.out.println(args[0]);
+				return args[0];
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	//
+	static final Builtin IDENTITY = new Builtin() {
+
+		public Object apply(Callback b, Object... as) {
+			if(as.length != 1) {
+				throw new IllegalArgumentException();
+			} else {
+				return as[0];
+			}
+		}
+
+	};
+
+	// not Built-in
+	static final Appliable CALLCC = new Appliable() {
+
+		public Object apply(Callback b, Environment e, Object... as) {
+			final Appliable a;
+
+			if(as.length != 2) {
+				throw new IllegalArgumentException();
+			} else if(as[1] instanceof Builtin) {
+				return b.apply(e, as[0], as[1]);
+			} else if(as[1] instanceof Appliable) {
+				a = (Appliable)as[0];
+				return b.apply(e, as[1], IDENTITY, new Appliable() {
+
+					@Override
+					public Object apply(Callback b, Environment e,
+							Object... args) {
+						if(args.length == 2) {
+							return b.apply(e, a, args[1]);
+						} else {
+							throw new IllegalArgumentException();
+						}
+					}
+
+				});
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
 	/* (non-Javadoc)
 	 * @see net.morilib.lisp.atto.Callback#init(net.morilib.lisp.atto.Environment)
 	 */
@@ -831,6 +890,10 @@ public class SimpleEngine implements Callback {
 		// others
 		env.binds.put(Symbol.get("number->string"), NUMBER_STRING);
 		env.binds.put(Symbol.get("print"), PRINT);
+		env.binds.put(Symbol.get("debug"), DEBUG);
+
+		//
+		env.binds.put(Symbol.get("call/cc"), CALLCC);
 	}
 
 	/* (non-Javadoc)
@@ -839,7 +902,7 @@ public class SimpleEngine implements Callback {
 	@Override
 	public Object apply(Environment v, Object f, Object... args) {
 		if(f instanceof Appliable) {
-			return ((Appliable)f).apply(this, args);
+			return ((Appliable)f).apply(this, v, args);
 		} else {
 			throw new IllegalArgumentException(f.toString());
 		}

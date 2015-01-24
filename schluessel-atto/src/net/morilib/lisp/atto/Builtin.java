@@ -18,6 +18,21 @@ package net.morilib.lisp.atto;
 /**
  * 
  */
-public interface Builtin extends Appliable {
+public abstract class Builtin implements Appliable {
+
+	/**
+	 * 
+	 * @param b
+	 * @param args
+	 * @return
+	 */
+	public abstract Object apply(Callback b, Object... args);
+
+	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Appliable#apply(net.morilib.lisp.atto.Callback, net.morilib.lisp.atto.Environment, java.lang.Object[])
+	 */
+	public Object apply(Callback b, Environment e, Object... args) {
+		return apply(b, args);
+	}
 
 }
