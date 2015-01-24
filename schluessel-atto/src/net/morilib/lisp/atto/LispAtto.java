@@ -300,7 +300,7 @@ public class LispAtto {
 			o = new Cell(Symbol.get("lambda"),
 					new Cell(Cell.NIL, new Cell(o, Cell.NIL)));
 			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
-//System.out.println(o);
+System.out.println(o);
 			o = new Cell(o, new Cell(CONTK, Cell.NIL));
 		}
 		o = traverse(SimpleEngine.INSTANCE, env, o);
