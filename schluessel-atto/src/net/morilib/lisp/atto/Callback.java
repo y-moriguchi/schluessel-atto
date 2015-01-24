@@ -30,6 +30,13 @@ public interface Callback {
 	public void init(Environment env);
 
 	/**
+	 * Initialize the given environment for continuation-passing style.
+	 * 
+	 * @param env an environment
+	 */
+	public void initCPS(Environment env);
+
+	/**
 	 * This will be called if the evaluator applies.
 	 * 
 	 * @param env  an environment

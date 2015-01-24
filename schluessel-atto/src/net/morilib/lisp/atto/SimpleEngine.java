@@ -892,7 +892,65 @@ public class SimpleEngine implements Callback {
 		env.binds.put(Symbol.get("print"), PRINT);
 		env.binds.put(Symbol.get("debug"), DEBUG);
 
-		//
+		// continuation
+		env.binds.put(Symbol.get("call/cc"), CALLCC);
+	}
+
+	//
+	private void cpsbind(Environment env, String s, Appliable a) {
+		env.binds.put(Symbol.get(s), new CPSWrapper(a));
+	}
+
+	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Callback#initCPS(net.morilib.lisp.atto.Environment)
+	 */
+	@Override
+	public void initCPS(Environment env) {
+		// pure lisp
+		cpsbind(env, "cons",  CONS);
+		cpsbind(env, "eq?",   EQ);
+		cpsbind(env, "car",   CAR);
+		cpsbind(env, "cdr",   CDR);
+		cpsbind(env, "atom?", ATOM);
+
+		// additional
+		cpsbind(env, "null?",    NULL);
+		cpsbind(env, "symbol?",  SYMBOL);
+		cpsbind(env, "error",    ERROR);
+		cpsbind(env, "eqv?",     EQV);
+		cpsbind(env, "set-car!", SET_CAR);
+		cpsbind(env, "set-cdr!", SET_CDR);
+		cpsbind(env, "apply",    APPLY);
+
+		// arithmetic
+		cpsbind(env, "1+", INC);
+		cpsbind(env, "1-", DEC);
+		cpsbind(env, ">",  GT);
+		cpsbind(env, "<",  LT);
+		cpsbind(env, "=",  EQN);
+		cpsbind(env, "+",  PLUS);
+		cpsbind(env, "-",  MINUS);
+		cpsbind(env, "*",  MUL);
+		cpsbind(env, "/",  DIV);
+
+		// string
+		cpsbind(env, "string?",        STRING);
+		cpsbind(env, "substring",      SUBSTRING);
+		cpsbind(env, "string-ref",     STRING_REF);
+		cpsbind(env, "string-length",  STRING_LENGTH);
+		cpsbind(env, "string-append",  STRING_APPEND);
+		cpsbind(env, "string->symbol", STRING_SYMBOL);
+		cpsbind(env, "symbol->string", SYMBOL_STRING);
+
+		// vector
+		cpsbind(env, "vector?", VECTOR);
+
+		// others
+		cpsbind(env, "number->string", NUMBER_STRING);
+		cpsbind(env, "print", PRINT);
+		cpsbind(env, "debug", DEBUG);
+
+		// continuation
 		env.binds.put(Symbol.get("call/cc"), CALLCC);
 	}
 

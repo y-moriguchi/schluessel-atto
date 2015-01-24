@@ -70,19 +70,17 @@ public class LispAtto {
 					LispAtto.class.getResourceAsStream(
 							"macro-atto.scm"));
 
-			// setup environment
-			env = new Environment();
-			SimpleEngine.INSTANCE.init(env);
-			eval(LispAtto.class.getResourceAsStream("lib.scm"));
-
 			// setup CPS
 			cps = new Environment();
 			SimpleEngine.INSTANCE.init(cps);
 			eval(cps, LispAtto.class.getResourceAsStream("lib.scm"));
 			eval(cps, LispAtto.class.getResourceAsStream("cps.scm"));
-
-			// init
 			init = true;
+
+			// setup environment
+			env = new Environment();
+			SimpleEngine.INSTANCE.initCPS(env);
+			eval(LispAtto.class.getResourceAsStream("lib.scm"));
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -218,14 +216,14 @@ public class LispAtto {
 			} else {
 				throw new IllegalArgumentException();
 			}
-		} else if(a[0] == Symbol.ISBULITIN) {
-			if(a.length == 2) {
-				p = v.find(traverse(b, v, a[1]));
-				return Boolean.valueOf(
-						p != null && p instanceof Builtin);
-			} else {
-				throw new IllegalArgumentException();
-			}
+//		} else if(a[0] == Symbol.ISBULITIN) {
+//			if(a.length == 2) {
+//				p = v.find(traverse(b, v, a[1]));
+//				return Boolean.valueOf(
+//						p != null && p instanceof Builtin);
+//			} else {
+//				throw new IllegalArgumentException();
+//			}
 		} else {
 			z = new Object[a.length - 1];
 			for(int k = 1; k < a.length; k++) {

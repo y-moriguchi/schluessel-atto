@@ -17,6 +17,7 @@
 
 (define <cont> (string->symbol "<cont>"))
 (define <dummy> (string->symbol "<dummy>"))
+(define builtin? (lambda (x) #f))
 
 (define newvar
   (lambda ()
