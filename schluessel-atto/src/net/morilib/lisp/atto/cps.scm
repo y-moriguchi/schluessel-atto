@@ -27,7 +27,7 @@
   (lambda (a)
     (cond ((atom? a) #t)
           ((null? a) #t)
-;         ((builtin? (car a)) (simple-list? (cdr a)))
+          ((builtin? (car a)) (simple-list? (cdr a)))
           (else #f))))
 
 (define simple-list?
@@ -41,12 +41,16 @@
   (lambda (a k)
     (k (list <cont> a))))
 
+(define convert-f-c
+  (lambda (f c)
+    (if (builtin? f) (list f) (cons f (list c)))))
+
 (define convert-f
   (lambda (f a v w c)
     (cond ((null? a)
             (let loop ((v v)
                        (w w)
-                       (c (append (cons f (list c)) (reverse v))))
+                       (c (append (convert-f-c f c) (reverse v))))
               (cond ((null? w) c)
                     ((eq? (car w) <dummy>) (loop (cdr v) (cdr w) c))
                     (else
@@ -83,7 +87,7 @@
 (define convert-begin (lambda (a c) (convert-complex (cdr a) c)))
 (define convert-define
   (lambda (a c)
-    (list 'define (cadr x) (convert-s (caddr a) c))))
+    (list 'define (cadr a) (convert-s (caddr a) c))))
 
 (define convert-lambda
   (lambda (a c)

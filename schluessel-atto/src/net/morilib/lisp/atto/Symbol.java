@@ -32,6 +32,7 @@ public class Symbol {
 	static Symbol SET = new Symbol("set!");
 	static Symbol DEFINE = new Symbol("define");
 	static Symbol BEGIN = new Symbol("begin");
+	static Symbol ISBULITIN = new Symbol("builtin?");
 
 	//
 	private static Map<String, Symbol> symbols =
@@ -39,12 +40,13 @@ public class Symbol {
 
 	//
 	static {
-		symbols.put("if",     IF);
-		symbols.put("quote",  QUOTE);
-		symbols.put("lambda", LAMBDA);
-		symbols.put("set!",   SET);
-		symbols.put("define", DEFINE);
-		symbols.put("begin",  BEGIN);
+		symbols.put("if",       IF);
+		symbols.put("quote",    QUOTE);
+		symbols.put("lambda",   LAMBDA);
+		symbols.put("set!",     SET);
+		symbols.put("define",   DEFINE);
+		symbols.put("begin",    BEGIN);
+		symbols.put("builtin?", ISBULITIN);
 	}
 
 	//

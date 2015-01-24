@@ -42,6 +42,11 @@ public class LispAtto {
 	};
 
 	//
+	private static final Cell CONTK = new Cell(Symbol.get("lambda"),
+			new Cell(new Cell(Symbol.get("k"), Cell.NIL),
+					new Cell(Symbol.get("k"), Cell.NIL)));
+
+	//
 	static final BigInteger MAXINT =
 			BigInteger.valueOf(Integer.MAX_VALUE);
 	static final BigInteger MININT =
@@ -50,6 +55,8 @@ public class LispAtto {
 	//
 	Environment macroenv;
 	Environment env;
+	Environment cps;
+	private boolean init = false;
 
 	/**
 	 * The constructor of the class.
@@ -67,6 +74,15 @@ public class LispAtto {
 			env = new Environment();
 			SimpleEngine.INSTANCE.init(env);
 			eval(LispAtto.class.getResourceAsStream("lib.scm"));
+
+			// setup CPS
+			cps = new Environment();
+			SimpleEngine.INSTANCE.init(cps);
+			eval(cps, LispAtto.class.getResourceAsStream("lib.scm"));
+			eval(cps, LispAtto.class.getResourceAsStream("cps.scm"));
+
+			// init
+			init = true;
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -202,6 +218,17 @@ public class LispAtto {
 			} else {
 				throw new IllegalArgumentException();
 			}
+		} else if(a[0] == Symbol.ISBULITIN) {
+			if(a.length == 2) {
+				if((p = v.find(a[1])) == null) {
+					return Boolean.FALSE;
+				}
+				p = v.find(p);
+				return Boolean.valueOf(
+						p != null && p instanceof Builtin);
+			} else {
+				throw new IllegalArgumentException();
+			}
 		} else {
 			z = new Object[a.length - 1];
 			for(int k = 1; k < a.length; k++) {
@@ -245,20 +272,39 @@ public class LispAtto {
 		return eval(b, v, new InputStreamReader(ins));
 	}
 
+	private Object cps(Object o) {
+		Object p = o;
+
+		p = new Cell(Symbol.get("quote"), new Cell(p, Cell.NIL));
+		p = new Cell(Symbol.get("cps"), new Cell(p, Cell.NIL));
+		return p;
+	}
+
 	/**
 	 * expand macros of an object and evaluate the expanded object.
 	 * 
 	 * @param p an object to be evaluated
 	 * @return an evaluated object
 	 */
-	public Object eval(Object p) {
+	public Object eval(Environment env, Object p) {
 		Object o = p;
 
 		o = new Cell(Symbol.get("eval-macro"), new Cell(
 				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
 				Cell.NIL));
 		o = traverse(SimpleEngine.INSTANCE, macroenv, o);
-//		System.out.println(o);
+		if(!init) {
+			// do nothing
+		} else if(!(p instanceof Cell)) {
+			// do nothing
+		} else if(((Cell)p).car.equals(Symbol.get("define"))) {
+			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
+		} else {
+			o = new Cell(Symbol.get("lambda"),
+					new Cell(Cell.NIL, new Cell(o, Cell.NIL)));
+			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
+			o = new Cell(o, new Cell(CONTK, Cell.NIL));
+		}
 		o = traverse(SimpleEngine.INSTANCE, env, o);
 		return o;
 	}
@@ -270,14 +316,15 @@ public class LispAtto {
 	 * @return an evaluated object
 	 * @throws IOException
 	 */
-	public Object eval(Reader rd) throws IOException {
+	public Object eval(Environment env,
+			Reader rd) throws IOException {
 		Object o, p = UNDEF;
 
 		while(true) {
 			if((o = AttoParser.read(rd)) == null) {
 				return p;
 			} else {
-				p = eval(o);
+				p = eval(env, o);
 			}
 		}
 	}
@@ -289,8 +336,41 @@ public class LispAtto {
 	 * @return an evaluated object
 	 * @throws IOException
 	 */
+	public Object eval(Environment env,
+			InputStream in) throws IOException {
+		return eval(env, new InputStreamReader(in));
+	}
+
+	/**
+	 * expand macros of an object and evaluate the expanded object.
+	 * 
+	 * @param p an object to be evaluated
+	 * @return an evaluated object
+	 */
+	public Object eval(Object p) {
+		return eval(env, p);
+	}
+
+	/**
+	 * read from a reader, expand macros of an read object and evaluate the object.
+	 * 
+	 * @param rd a reader to be read
+	 * @return an evaluated object
+	 * @throws IOException
+	 */
+	public Object eval(Reader rd) throws IOException {
+		return eval(env, rd);
+	}
+
+	/**
+	 * read from an input stream, expand macros of an read object and evaluate the object.
+	 * 
+	 * @param in a reader to be read
+	 * @return an evaluated object
+	 * @throws IOException
+	 */
 	public Object eval(InputStream in) throws IOException {
-		return eval(new InputStreamReader(in));
+		return eval(env, in);
 	}
 
 	/**

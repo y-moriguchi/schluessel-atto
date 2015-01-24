@@ -41,7 +41,9 @@ public class Closure implements Appliable {
 		Object p = args;
 
 		for(int k = 0; p != Cell.NIL; k++) {
-			if(p instanceof Symbol) {
+			if(as[k] == null) {
+				throw new NullPointerException();
+			} else if(p instanceof Symbol) {
 				a = new Object[as.length - k];
 				System.arraycopy(as, k, a, 0, as.length - k);
 				e1.binds.put((Symbol)p, LispAtto.toList(a));

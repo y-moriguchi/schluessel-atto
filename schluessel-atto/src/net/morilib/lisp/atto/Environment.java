@@ -63,7 +63,9 @@ public class Environment {
 	 * @return true if the object is set
 	 */
 	public boolean set(Symbol sym, Object val) {
-		if(binds.containsKey(sym)) {
+		if(val == null) {
+			throw new NullPointerException();
+		} else if(binds.containsKey(sym)) {
 			binds.put(sym, val);
 			return true;
 		} else if(root != null) {

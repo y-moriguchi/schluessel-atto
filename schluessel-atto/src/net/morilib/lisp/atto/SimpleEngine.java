@@ -33,10 +33,12 @@ public class SimpleEngine implements Callback {
 	static final SimpleEngine INSTANCE = new SimpleEngine();
 
 	//
-	static final Appliable CONS = new Appliable() {
+	static final Builtin CONS = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
-			if(args.length == 2) {
+			if(args[0] == null || args[1] == null) {
+				throw new NullPointerException();
+			} else if(args.length == 2) {
 				return new Cell(args[0], args[1]);
 			} else {
 				throw new IllegalArgumentException();
@@ -46,7 +48,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable EQ = new Appliable() {
+	static final Builtin EQ = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Object p = null;
@@ -64,7 +66,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable EQV = new Appliable() {
+	static final Builtin EQV = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Object p = null;
@@ -82,10 +84,12 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable CAR = new Appliable() {
+	static final Builtin CAR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0].equals(Cell.NIL)) {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Cell) {
 				return ((Cell)args[0]).car;
@@ -97,10 +101,12 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable CDR = new Appliable() {
+	static final Builtin CDR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0].equals(Cell.NIL)) {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Cell) {
 				return ((Cell)args[0]).cdr;
@@ -112,7 +118,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable ATOM = new Appliable() {
+	static final Builtin ATOM = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -125,7 +131,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable NULL = new Appliable() {
+	static final Builtin NULL = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -138,7 +144,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable SYMBOL = new Appliable() {
+	static final Builtin SYMBOL = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -151,7 +157,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable ERROR = new Appliable() {
+	static final Builtin ERROR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -164,7 +170,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable SET_CAR = new Appliable() {
+	static final Builtin SET_CAR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -180,7 +186,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable SET_CDR = new Appliable() {
+	static final Builtin SET_CDR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -196,7 +202,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable APPLY = new Appliable() {
+	static final Builtin APPLY = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Object[] a;
@@ -205,7 +211,7 @@ public class SimpleEngine implements Callback {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Appliable) {
 				a = LispAtto.toArray(args[1]);
-				return ((Appliable)args[0]).apply(b, a);
+				return ((Builtin)args[0]).apply(b, a);
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -214,7 +220,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable INC = new Appliable() {
+	static final Builtin INC = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			int x;
@@ -237,7 +243,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable DEC = new Appliable() {
+	static final Builtin DEC = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			int x;
@@ -260,7 +266,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable GT = new Appliable() {
+	static final Builtin GT = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -337,7 +343,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable LT = new Appliable() {
+	static final Builtin LT = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -419,7 +425,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable EQN = new Appliable() {
+	static final Builtin EQN = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			Integer pi = null;
@@ -479,7 +485,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable PLUS = new Appliable() {
+	static final Builtin PLUS = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -514,7 +520,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable MINUS = new Appliable() {
+	static final Builtin MINUS = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -556,7 +562,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable MUL = new Appliable() {
+	static final Builtin MUL = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -591,7 +597,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable DIV = new Appliable() {
+	static final Builtin DIV = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			BigInteger pb = null, a;
@@ -633,7 +639,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable STRING = new Appliable() {
+	static final Builtin STRING = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -646,7 +652,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable SUBSTRING = new Appliable() {
+	static final Builtin SUBSTRING = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 3) {
@@ -664,7 +670,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable STRING_REF = new Appliable() {
+	static final Builtin STRING_REF = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 2) {
@@ -680,7 +686,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable STRING_LENGTH = new Appliable() {
+	static final Builtin STRING_LENGTH = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -695,7 +701,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable STRING_APPEND = new Appliable() {
+	static final Builtin STRING_APPEND = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			StringBuffer a = new StringBuffer();
@@ -709,7 +715,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable STRING_SYMBOL = new Appliable() {
+	static final Builtin STRING_SYMBOL = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
@@ -722,7 +728,7 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable SYMBOL_STRING = new Appliable() {
+	static final Builtin SYMBOL_STRING = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length != 1) {
@@ -737,11 +743,40 @@ public class SimpleEngine implements Callback {
 	};
 
 	//
-	static final Appliable VECTOR = new Appliable() {
+	static final Builtin VECTOR = new Builtin() {
 
 		public Object apply(Callback b, Object... args) {
 			if(args.length == 1) {
 				return new Boolean(args[0] instanceof List);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	//
+	static final Builtin NUMBER_STRING = new Builtin() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length != 1) {
+				throw new IllegalArgumentException();
+			} else if(args[0] instanceof Number) {
+				return (args[0]).toString();
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+	};
+
+	//
+	static final Builtin PRINT = new Builtin() {
+
+		public Object apply(Callback b, Object... args) {
+			if(args.length == 1) {
+				System.out.println(args[0]);
+				return LispAtto.UNDEF;
 			} else {
 				throw new IllegalArgumentException();
 			}
@@ -792,6 +827,10 @@ public class SimpleEngine implements Callback {
 
 		// vector
 		env.binds.put(Symbol.get("vector?"), VECTOR);
+
+		// others
+		env.binds.put(Symbol.get("number->string"), NUMBER_STRING);
+		env.binds.put(Symbol.get("print"), PRINT);
 	}
 
 	/* (non-Javadoc)

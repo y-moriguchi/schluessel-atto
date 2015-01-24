@@ -272,7 +272,7 @@
   (replace-local-vals x (add-local-env-letrec (car x) e))))
 
 (define replace-local-inst (lambda (x e)
-  (if (eq? 'lambda (remove-scope (car x)))
+  (if (if (eq? 'lambda (remove-scope (car x))) (if (null? (cdr x)) #f #t) #f)
       (cons 'lambda (replace-local-lambda (cdr x) e))
       (if (eq? 'letrec (remove-scope (car x)))
           (cons 'letrec (replace-local-letrec (cdr x) e))
