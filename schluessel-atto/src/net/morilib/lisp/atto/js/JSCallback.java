@@ -16,9 +16,10 @@ package net.morilib.lisp.atto.js;
  * limitations under the License.
  */
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.morilib.lisp.atto.AttoTraverser;
-import net.morilib.lisp.atto.AttoUtils;
 import net.morilib.lisp.atto.Callback;
 import net.morilib.lisp.atto.Cell;
 import net.morilib.lisp.atto.Environment;
@@ -131,14 +132,43 @@ public class JSCallback implements Callback {
 		}
 	}
 
+	private void toarray(int l, Symbol r) {
+		out.print("var a = $mille.a.toArray(arguments,");
+		out.print(l);
+		out.println(");");
+		out.print("this.bind('");
+		out.print(r.getName());
+		out.println("',$mille.listToCell(a));");
+	}
+
 	@Override
 	public Object doLambda(Environment env, Object args, Object... body) {
-		Object[] a;
-
 		if(args instanceof Cell) {
-			out.print("$mille.closure($mille.newenv(this), function(");
-			a = AttoUtils.toArray(args);
-			for(int i = 0; i < a.length; i++) {
+			List<Symbol> l = new ArrayList<Symbol>();
+			Object o = args;
+			Symbol r = null;
+
+			while(true) {
+				if(Cell.NIL.equals(o)) {
+					break;
+				} else if(o instanceof Cell) {
+					if(((Cell)o).car instanceof Symbol) {
+						l.add((Symbol)((Cell)o).car);
+						o = ((Cell)o).cdr;
+					} else {
+						throw new IllegalArgumentException(
+								((Cell)o).car.toString());
+					}
+				} else if(o instanceof Symbol) {
+					r = (Symbol)o;
+					break;
+				} else {
+					throw new IllegalArgumentException(o.toString());
+				}
+			}
+
+			out.print("$mille.closure(this, function(");
+			for(int i = 0; i < l.size(); i++) {
 				if(i > 0) {
 					out.print(',');
 				}
@@ -146,35 +176,53 @@ public class JSCallback implements Callback {
 				out.print(i);
 			}
 			out.println(") {");
-			for(int i = 0; i < a.length; i++) {
+			for(int i = 0; i < l.size(); i++) {
 				out.print("this.bind('");
-				out.print(((Symbol)a[i]).getName());
+				out.print(l.get(i).getName());
 				out.print("', a");
 				out.print(i);
 				out.print(");");
 			}
 
-			for(Object o : body) {
-				AttoTraverser.traverse(this, env, o);
-				out.println(';');
+			if(r != null) {
+				toarray(l.size(), r);
 			}
+		} else if(args instanceof Symbol) {
+			out.println("$mille.closure(this, function() {");
+			toarray(0, (Symbol)args);
 		} else {
-			// TODO Auto-generated method stub
-			throw new UnsupportedOperationException();
+			throw new IllegalArgumentException(args.toString());
 		}
+		doBegin(env, body);
 		return this;
 	}
 
 	@Override
 	public Object doSet(Environment env, Object sym, Object toset) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		if(sym instanceof Symbol) {
+			out.print("(function() {");
+			out.print("this.set(");
+			out.print(((Symbol)sym).getName());
+			out.print(",");
+			AttoTraverser.traverse(this, env, toset);
+			out.print("); return undefined;");
+			out.println("})();");
+		} else {
+			throw new IllegalArgumentException(sym.toString());
+		}
+		return this;
 	}
 
 	@Override
 	public Object doBegin(Environment env, Object... body) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+		out.print("(function() {var ret;");
+		for(Object o : body) {
+			out.print("ret=(");
+			AttoTraverser.traverse(this, env, o);
+			out.println(");");
+		}
+		out.println(" return ret;})();");
+		return this;
 	}
 
 }
