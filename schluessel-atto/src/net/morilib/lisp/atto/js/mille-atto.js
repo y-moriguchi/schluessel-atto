@@ -19,9 +19,9 @@ var $env;
 $mille.a = {};
 $mille.a.toArray = function(o) {
 	var l, k, r;
-	l = arguments.length > 1 ? arguments[2] : 0;
+	l = arguments.length > 1 ? arguments[1] : 0;
 	r = [];
-	for(k = l; k > o.length; k += 1) {
+	for(k = l; k < o.length; k += 1) {
 		r.push(o[k]);
 	}
 	return r;
@@ -61,7 +61,7 @@ $mille.o.error = function(e) {
 	throw e;
 }
 
-Trampoline = function(f) {
+function Trampoline(f) {
 	a = $mille.a.toArray(arguments, 1);
 	this.thunk = function() {
 		return f.apply(null, a);
@@ -75,7 +75,7 @@ Trampoline.apply = function(o) {
 	return r;
 };
 
-Datum = function(typ) {
+function Datum(typ) {
 	this.typ = function() {
 		return typ;
 	};
@@ -151,7 +151,7 @@ $mille.trampoline = function(f) {
 $mille.closure = function(e, f) {
 	return function() {
 		var env = $mille.newenv(e);
-		return f.apply(env, $mille.toArray(arguments));
+		return f.apply(env, $mille.a.toArray(arguments));
 	}
 }
 $mille.apply = function(o) {
@@ -166,7 +166,7 @@ $mille.apply = function(o) {
 $mille.newenv = function(e) {
 	var diese = {};
 	var vars = {};
-	that.find = function(v) {
+	diese.find = function(v) {
 		if(vars[v] !== undefined) {
 			return vars[v];
 		} else if(e === undefined || e === null) {

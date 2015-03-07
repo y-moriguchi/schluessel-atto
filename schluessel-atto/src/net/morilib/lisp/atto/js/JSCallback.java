@@ -183,6 +183,7 @@ public class JSCallback implements Callback {
 				out.print(i);
 				out.print(");");
 			}
+			out.println();
 
 			if(r != null) {
 				toarray(l.size(), r);
@@ -193,7 +194,9 @@ public class JSCallback implements Callback {
 		} else {
 			throw new IllegalArgumentException(args.toString());
 		}
+		out.print("return ");
 		doBegin(env, body);
+		out.println(";})");
 		return this;
 	}
 
@@ -201,12 +204,12 @@ public class JSCallback implements Callback {
 	public Object doSet(Environment env, Object sym, Object toset) {
 		if(sym instanceof Symbol) {
 			out.print("(function() {");
-			out.print("this.set(");
+			out.print("this.set('");
 			out.print(((Symbol)sym).getName());
-			out.print(",");
+			out.print("',");
 			AttoTraverser.traverse(this, env, toset);
 			out.print("); return undefined;");
-			out.println("})();");
+			out.println("}).call(this);");
 		} else {
 			throw new IllegalArgumentException(sym.toString());
 		}
@@ -221,7 +224,7 @@ public class JSCallback implements Callback {
 			AttoTraverser.traverse(this, env, o);
 			out.println(");");
 		}
-		out.println(" return ret;})();");
+		out.println(" return ret;}).call(this)");
 		return this;
 	}
 

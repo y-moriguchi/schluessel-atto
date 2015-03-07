@@ -17,9 +17,14 @@ package net.morilib.lisp.atto.js;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import net.morilib.lisp.atto.AttoParser;
 import net.morilib.lisp.atto.AttoTraverser;
@@ -37,11 +42,12 @@ public class LispAttoJS {
 	//
 	Environment macroenv;
 	JSCallback jscall;
+	PrintWriter pw;
 
 	/**
 	 * The constructor of the class.
 	 */
-	public LispAttoJS() {
+	public LispAttoJS(Writer wr) {
 		try {
 			// setup macro
 			macroenv = new Environment();
@@ -51,8 +57,8 @@ public class LispAttoJS {
 							"macro-atto.scm"));
 
 			//
-			jscall = new JSCallback(new PrintWriter(
-					new OutputStreamWriter(System.out), true));
+			pw = new PrintWriter(wr, true);
+			jscall = new JSCallback(pw);
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -72,6 +78,7 @@ public class LispAttoJS {
 //				Cell.NIL));
 //		o = AttoTraverser.traverse(SimpleEngine.getInstance(), macroenv, o);
 		o = AttoTraverser.traverse(jscall, env, o);
+		pw.flush();
 		return o;
 	}
 
@@ -82,9 +89,22 @@ public class LispAttoJS {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {
-		LispAttoJS s = new LispAttoJS();
+		LispAttoJS s;
 		Object o;
 		Reader rd;
+		StringWriter sw;
+		ScriptEngineManager mn;
+		ScriptEngine en;
+
+		try {
+			mn = new ScriptEngineManager();
+			en = mn.getEngineByName("javascript");
+			en.eval(new InputStreamReader(
+					LispAttoJS.class.getResourceAsStream(
+							"mille-atto.js")));
+		} catch(ScriptException e1) {
+			throw new RuntimeException(e1);
+		}
 
 		rd = new InputStreamReader(System.in);
 		System.out.print(" >");
@@ -95,7 +115,18 @@ public class LispAttoJS {
 				} else if(AttoParser.isInvaild(o)) {
 					continue;
 				} else {
+					String js;
+					Object r;
+
+					sw = new StringWriter();
+					s = new LispAttoJS(sw);
 					s.eval(new Environment(), o);
+					js = sw.toString();
+					js = "(function(){return " + js +
+							";}).call($mille.genv);";
+System.err.println(js);
+					r = en.eval(js);
+					System.out.println(r);
 				}
 				System.out.print(" >");
 			} catch(IOException e) {
@@ -104,6 +135,8 @@ public class LispAttoJS {
 				e.printStackTrace();
 			} catch(ArithmeticException e) {
 				e.printStackTrace();
+			} catch(ScriptException e1) {
+				throw new RuntimeException(e1);
 			}
 		}
 	}
