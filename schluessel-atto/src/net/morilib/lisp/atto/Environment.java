@@ -29,11 +29,16 @@ public class Environment {
 	Environment root;
 	Map<Symbol, Object> binds = new HashMap<Symbol, Object>();
 
-	//
-	Environment() {}
+	/**
+	 * 
+	 */
+	public Environment() {}
 
-	//
-	Environment(Environment root) {
+	/**
+	 * 
+	 * @param root
+	 */
+	public Environment(Environment root) {
 		this.root = root;
 	}
 

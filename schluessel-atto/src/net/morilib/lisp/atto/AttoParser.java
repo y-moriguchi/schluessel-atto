@@ -2007,7 +2007,7 @@ return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STAT
 	}
 
 	private static Object toint(BigInteger x) {
-		return LispAtto.toObject(x);
+		return AttoUtils.toObject(x);
 	}
 
 	private static Object bin(String s) {
@@ -2061,6 +2061,14 @@ return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STAT
 
 	private static Object vec(java.util.List<Object> l) {
 		return l;
+	}
+
+	/**
+	 * 
+	 * @param o
+	 */
+	public static boolean isInvaild(Object o) {
+		return o == INVALIDTOKEN;
 	}
 
 	/**

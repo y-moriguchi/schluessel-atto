@@ -46,7 +46,7 @@ public class Closure implements Appliable {
 			} else if(p instanceof Symbol) {
 				a = new Object[as.length - k];
 				System.arraycopy(as, k, a, 0, as.length - k);
-				e1.binds.put((Symbol)p, LispAtto.toList(a));
+				e1.binds.put((Symbol)p, AttoUtils.toList(a));
 				return;
 			} else if(!(p instanceof Cell)) {
 				throw new IllegalArgumentException();
@@ -71,7 +71,7 @@ public class Closure implements Appliable {
 		e1 = new Environment(env);
 		_bind(b, e1, args);
 		for(Object o : body) {
-			r = LispAtto.traverse(b, e1, o);
+			r = AttoTraverser.traverse(b, e1, o);
 		}
 		return r;
 	}

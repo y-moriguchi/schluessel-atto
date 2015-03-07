@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The main class of Schluessel Atto.
@@ -45,12 +42,6 @@ public class LispAtto {
 	private static final Cell CONTK = new Cell(Symbol.get("lambda"),
 			new Cell(new Cell(Symbol.get("k"), Cell.NIL),
 					new Cell(Symbol.get("k"), Cell.NIL)));
-
-	//
-	static final BigInteger MAXINT =
-			BigInteger.valueOf(Integer.MAX_VALUE);
-	static final BigInteger MININT =
-			BigInteger.valueOf(Integer.MIN_VALUE);
 
 	//
 	Environment macroenv;
@@ -86,153 +77,6 @@ public class LispAtto {
 		}
 	}
 
-	//
-	static BigInteger toBigInteger(Object o) {
-		if(o instanceof Integer) {
-			return BigInteger.valueOf(((Integer)o).intValue());
-		} else if(o instanceof BigInteger) {
-			return (BigInteger)o;
-		} else if(o instanceof Double) {
-			return null;
-		} else {
-			throw new IllegalArgumentException();
-		}
-	}
-
-	//
-	static Object toObject(BigInteger x) {
-		if(x.compareTo(MAXINT) > 0 || x.compareTo(MININT) < 0) {
-			return x;
-		} else {
-			return Integer.valueOf(x.intValue());
-		}
-	}
-
-	/**
-	 * convert the given list to an array.
-	 * 
-	 * @param o an object to be converted
-	 * @return a converted array
-	 */
-	public static Object[] toArray(Object o) {
-		List<Object> l;
-		Cell c;
-
-		if(!(o instanceof Cell)) {
-			throw new IllegalArgumentException();
-		}
-
-		l = new ArrayList<Object>();
-		for(c = (Cell)o; c != Cell.NIL; c = (Cell)c.cdr) {
-			l.add(c.car);
-			if(!(c.cdr instanceof Cell)) {
-				throw new IllegalArgumentException();
-			}
-		}
-		return l.toArray(new Object[0]);
-	}
-
-	/**
-	 * convert the given array to a cons cell.
-	 * 
-	 * @param objs an array to be converted
-	 * @return a converted cons cell
-	 */
-	public static Cell toList(Object... objs) {
-		Cell l = null, r = Cell.NIL, a;
-
-		if(objs.length > 0) {
-			for(Object o : objs) {
-				if(l != null) {
-					a = new Cell(o, null);
-					l.cdr = a;
-					l = a;
-				} else {
-					r = l = new Cell(o, null);
-				}
-			}
-			l.cdr = Cell.NIL;
-		}
-		return r;
-	}
-
-	/**
-	 * traverse an object by a visitor.
-	 * 
-	 * @param b a visitor to traverse
-	 * @param v an environment
-	 * @param o an object to be traversed
-	 * @return an traversed object
-	 */
-	public static Object traverse(Callback b, Environment v,
-			Object o) {
-		Object[] a, z;
-		Object p;
-
-		if(o instanceof Symbol) {
-			if((p = v.find(o)) == null) {
-				throw new IllegalArgumentException(
-						"unbound symbol: " + o);
-			} else {
-				return p;
-			}
-		} else if(!(o instanceof Cell) || o == Cell.NIL) {
-			return o;
-		} else if((a = toArray(o))[0] == Symbol.IF) {
-			if(a.length == 3) {
-				return b.doIf(v, traverse(b, v, a[1]), a[2]);
-			} else if(a.length == 4) {
-				return b.doIf(v, traverse(b, v, a[1]), a[2], a[3]);
-			} else {
-				throw new IllegalArgumentException();
-			}
-		} else if(a[0] == Symbol.LAMBDA) {
-			z = new Object[a.length - 2];
-			for(int k = 2; k < a.length; k++) {
-				z[k - 2] = a[k];
-			}
-			return b.doLambda(v, a[1], z);
-		} else if(a[0] == Symbol.QUOTE) {
-			if(a.length == 2) {
-				return a[1];
-			} else {
-				throw new IllegalArgumentException();
-			}
-		} else if(a[0] == Symbol.BEGIN) {
-			z = new Object[a.length - 1];
-			for(int k = 1; k < a.length; k++) {
-				z[k - 1] = a[k];
-			}
-			return b.doBegin(v, z);
-		} else if(a[0] == Symbol.DEFINE) {
-			if(a.length == 3) {
-				return b.doDefine(v, a[1], a[2]);
-			} else {
-				throw new IllegalArgumentException();
-			}
-		} else if(a[0] == Symbol.SET) {
-			if(a.length == 3) {
-				return b.doSet(v, a[1], a[2]);
-			} else {
-				throw new IllegalArgumentException();
-			}
-//		} else if(a[0] == Symbol.ISBULITIN) {
-//			if(a.length == 2) {
-//				p = v.find(traverse(b, v, a[1]));
-//				return Boolean.valueOf(
-//						p != null && p instanceof Builtin);
-//			} else {
-//				throw new IllegalArgumentException();
-//			}
-		} else {
-			z = new Object[a.length - 1];
-			for(int k = 1; k < a.length; k++) {
-				z[k - 1] = traverse(b, v, a[k]);
-			}
-			return b.apply(v, traverse(b, v, a[0]), z);
-		}
-	}
-
 	/**
 	 * read and evaluate from the reader by a visitor.
 	 * 
@@ -248,7 +92,7 @@ public class LispAtto {
 
 		b.init(v);
 		while((o = AttoParser.read(rd)) != null) {
-			p = traverse(b, v, o);
+			p = AttoTraverser.traverse(b, v, o);
 		}
 		return p;
 	}
@@ -287,20 +131,20 @@ public class LispAtto {
 		o = new Cell(Symbol.get("eval-macro"), new Cell(
 				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
 				Cell.NIL));
-		o = traverse(SimpleEngine.INSTANCE, macroenv, o);
+		o = AttoTraverser.traverse(SimpleEngine.INSTANCE, macroenv, o);
 		if(!init) {
 			// do nothing
 		} else if(!(p instanceof Cell)) {
 			// do nothing
 		} else if(((Cell)p).car.equals(Symbol.get("define"))) {
-			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
+			o = AttoTraverser.traverse(SimpleEngine.INSTANCE, cps, cps(o));
 		} else {
 			o = new Cell(Symbol.get("lambda"),
 					new Cell(Cell.NIL, new Cell(o, Cell.NIL)));
-			o = traverse(SimpleEngine.INSTANCE, cps, cps(o));
+			o = AttoTraverser.traverse(SimpleEngine.INSTANCE, cps, cps(o));
 			o = new Cell(o, new Cell(CONTK, Cell.NIL));
 		}
-		o = traverse(SimpleEngine.INSTANCE, env, o);
+		o = AttoTraverser.traverse(SimpleEngine.INSTANCE, env, o);
 		return o;
 	}
 

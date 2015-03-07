@@ -43,8 +43,12 @@ public class Cell {
 	 */
 	public Object cdr;
 
-	//
-	Cell(Object a, Object d) {
+	/**
+	 * 
+	 * @param a
+	 * @param d
+	 */
+	public Cell(Object a, Object d) {
 		car = a;
 		cdr = d;
 	}

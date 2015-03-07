@@ -37,6 +37,22 @@ public interface Callback {
 	public void initCPS(Environment env);
 
 	/**
+	 * 
+	 * @param env
+	 * @param o
+	 * @return
+	 */
+	public Object find(Environment env, Object o);
+
+	/**
+	 * 
+	 * @param env
+	 * @param o
+	 * @return
+	 */
+	public Object value(Environment env, Object o);
+
+	/**
 	 * This will be called if the evaluator applies.
 	 * 
 	 * @param env  an environment

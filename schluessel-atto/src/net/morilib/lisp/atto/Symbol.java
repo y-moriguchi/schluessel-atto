@@ -25,14 +25,35 @@ import java.util.Map;
  */
 public class Symbol {
 
-	//
-	static Symbol IF = new Symbol("if");
-	static Symbol QUOTE = new Symbol("quote");
-	static Symbol LAMBDA = new Symbol("lambda");
-	static Symbol SET = new Symbol("set!");
-	static Symbol DEFINE = new Symbol("define");
-	static Symbol BEGIN = new Symbol("begin");
-	static Symbol ISBULITIN = new Symbol("builtin?");
+	/**
+	 * 
+	 */
+	public static Symbol IF = new Symbol("if");
+
+	/**
+	 * 
+	 */
+	public static Symbol QUOTE = new Symbol("quote");
+
+	/**
+	 * 
+	 */
+	public static Symbol LAMBDA = new Symbol("lambda");
+
+	/**
+	 * 
+	 */
+	public 	static Symbol SET = new Symbol("set!");
+
+	/**
+	 * 
+	 */
+	public 	static Symbol DEFINE = new Symbol("define");
+
+	/**
+	 * 
+	 */
+	public 	static Symbol BEGIN = new Symbol("begin");
 
 	//
 	private static Map<String, Symbol> symbols =
@@ -46,7 +67,6 @@ public class Symbol {
 		symbols.put("set!",     SET);
 		symbols.put("define",   DEFINE);
 		symbols.put("begin",    BEGIN);
-		symbols.put("builtin?", ISBULITIN);
 	}
 
 	//

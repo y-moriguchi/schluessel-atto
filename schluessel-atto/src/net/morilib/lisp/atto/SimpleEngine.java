@@ -32,6 +32,14 @@ public class SimpleEngine implements Callback {
 			BigInteger.valueOf((long)Integer.MIN_VALUE - 1l);
 	static final SimpleEngine INSTANCE = new SimpleEngine();
 
+	/**
+	 * 
+	 * @return
+	 */
+	public static SimpleEngine getInstance() {
+		return INSTANCE;
+	}
+
 	//
 	static final Builtin CONS = new Builtin() {
 
@@ -210,7 +218,7 @@ public class SimpleEngine implements Callback {
 			if(args.length != 2) {
 				throw new IllegalArgumentException();
 			} else if(args[0] instanceof Appliable) {
-				a = LispAtto.toArray(args[1]);
+				a = AttoUtils.toArray(args[1]);
 				return ((Builtin)args[0]).apply(b, a);
 			} else {
 				throw new IllegalArgumentException();
@@ -493,20 +501,20 @@ public class SimpleEngine implements Callback {
 
 			for(Object o : args) {
 				if(pb != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = pb.add(a);
 					} else {
 						pd = pb.doubleValue() + ((Number)o).doubleValue();
 						pb = null;
 					}
 				} else if(pd != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pd = pd.doubleValue() + a.doubleValue();
 					} else {
 						pd = pd.doubleValue() + ((Number)o).doubleValue();
 					}
 				} else {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = a;
 					} else {
 						pd = (Double)o;
@@ -514,7 +522,7 @@ public class SimpleEngine implements Callback {
 				}
 			}
 			return pd != null ? pd : pb != null ?
-					LispAtto.toObject(pb) : new Integer(0);
+					AttoUtils.toObject(pb) : new Integer(0);
 		}
 
 	};
@@ -528,20 +536,20 @@ public class SimpleEngine implements Callback {
 
 			for(Object o : args) {
 				if(pb != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = pb.subtract(a);
 					} else {
 						pd = pb.doubleValue() - ((Number)o).doubleValue();
 						pb = null;
 					}
 				} else if(pd != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pd = pd.doubleValue() - a.doubleValue();
 					} else {
 						pd = pd.doubleValue() - ((Number)o).doubleValue();
 					}
 				} else {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = a;
 					} else {
 						pd = (Double)o;
@@ -551,11 +559,11 @@ public class SimpleEngine implements Callback {
 
 			if(args.length != 1) {
 				return pd != null ? pd : pb != null ?
-						LispAtto.toObject(pb) : new Integer(0);
+						AttoUtils.toObject(pb) : new Integer(0);
 			} else if(pd != null) {
 				return -pd.doubleValue();
 			} else {
-				return LispAtto.toObject(pb.negate());
+				return AttoUtils.toObject(pb.negate());
 			}
 		}
 
@@ -570,20 +578,20 @@ public class SimpleEngine implements Callback {
 
 			for(Object o : args) {
 				if(pb != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = pb.multiply(a);
 					} else {
 						pd = pb.doubleValue() * ((Number)o).doubleValue();
 						pb = null;
 					}
 				} else if(pd != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pd = pd.doubleValue() * a.doubleValue();
 					} else {
 						pd = pd.doubleValue() * ((Number)o).doubleValue();
 					}
 				} else {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = a;
 					} else {
 						pd = (Double)o;
@@ -591,7 +599,7 @@ public class SimpleEngine implements Callback {
 				}
 			}
 			return pd != null ? pd : pb != null ?
-					LispAtto.toObject(pb) : new Integer(1);
+					AttoUtils.toObject(pb) : new Integer(1);
 		}
 
 	};
@@ -605,20 +613,20 @@ public class SimpleEngine implements Callback {
 
 			for(Object o : args) {
 				if(pb != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = pb.divide(a);
 					} else {
 						pd = pb.doubleValue() / ((Number)o).doubleValue();
 						pb = null;
 					}
 				} else if(pd != null) {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pd = pd.doubleValue() / a.doubleValue();
 					} else {
 						pd = pd.doubleValue() / ((Number)o).doubleValue();
 					}
 				} else {
-					if((a = LispAtto.toBigInteger(o)) != null) {
+					if((a = AttoUtils.toBigInteger(o)) != null) {
 						pb = a;
 					} else {
 						pd = (Double)o;
@@ -628,7 +636,7 @@ public class SimpleEngine implements Callback {
 
 			if(args.length != 1) {
 				return pd != null ? pd : pb != null ?
-						LispAtto.toObject(pb) : new Integer(0);
+						AttoUtils.toObject(pb) : new Integer(0);
 			} else if(pd != null) {
 				return 1 / pd.doubleValue();
 			} else {
@@ -955,11 +963,42 @@ public class SimpleEngine implements Callback {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Callback#value(net.morilib.lisp.atto.Environment, java.lang.Object)
+	 */
+	@Override
+	public Object find(Environment env, Object o) {
+		Object p;
+
+		if((p = env.find(o)) == null) {
+			throw new IllegalArgumentException(
+					"unbound symbol: " + o);
+		} else {
+			return value(env, p);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Callback#value(net.morilib.lisp.atto.Environment, java.lang.Object)
+	 */
+	@Override
+	public Object value(Environment env, Object o) {
+		return o;
+	}
+
+	/* (non-Javadoc)
 	 * @see net.morilib.lisp.atto.Callback#apply(net.morilib.lisp.atto.Environment, java.lang.Object, java.lang.Object[])
 	 */
 	@Override
-	public Object apply(Environment v, Object f, Object... args) {
+	public Object apply(Environment v, Object g, Object... args) {
+		Object[] z;
+		Object f;
+
+		f = AttoTraverser.traverse(this, v, g);
 		if(f instanceof Appliable) {
+			z = new Object[args.length];
+			for(int k = 0; k < args.length; k++) {
+				z[k] = AttoTraverser.traverse(this, v, args[k]);
+			}
 			return ((Appliable)f).apply(this, v, args);
 		} else {
 			throw new IllegalArgumentException(f.toString());
@@ -972,7 +1011,7 @@ public class SimpleEngine implements Callback {
 	@Override
 	public Object doIf(Environment v, Object cond, Object dotrue) {
 		return cond.equals(Boolean.FALSE) ?
-				LispAtto.UNDEF : LispAtto.traverse(this, v, dotrue);
+				LispAtto.UNDEF : AttoTraverser.traverse(this, v, dotrue);
 	}
 
 	/* (non-Javadoc)
@@ -982,8 +1021,8 @@ public class SimpleEngine implements Callback {
 	public Object doIf(Environment v, Object cond, Object dotrue,
 			Object dofalse) {
 		return cond.equals(Boolean.FALSE) ?
-				LispAtto.traverse(this, v, dofalse) :
-					LispAtto.traverse(this, v, dotrue);
+				AttoTraverser.traverse(this, v, dofalse) :
+					AttoTraverser.traverse(this, v, dotrue);
 	}
 
 	/* (non-Javadoc)
@@ -993,7 +1032,7 @@ public class SimpleEngine implements Callback {
 	public Object doDefine(Environment v, Object sym, Object tobound) {
 		if(sym instanceof Symbol) {
 			v.binds.put((Symbol)sym,
-					LispAtto.traverse(this, v, tobound));
+					AttoTraverser.traverse(this, v, tobound));
 			return LispAtto.UNDEF;
 		} else {
 			throw new IllegalArgumentException(sym.toString());
@@ -1015,7 +1054,7 @@ public class SimpleEngine implements Callback {
 	public Object doSet(Environment v, Object sym, Object toset) {
 		if(sym instanceof Symbol) {
 			if(!v.set((Symbol)sym,
-					LispAtto.traverse(this, v, toset))) {
+					AttoTraverser.traverse(this, v, toset))) {
 				throw new IllegalArgumentException();
 			}
 			return LispAtto.UNDEF;
@@ -1032,7 +1071,7 @@ public class SimpleEngine implements Callback {
 		Object r = LispAtto.UNDEF;
 
 		for(Object o : body) {
-			r = LispAtto.traverse(this, v, o);
+			r = AttoTraverser.traverse(this, v, o);
 		}
 		return r;
 	}
