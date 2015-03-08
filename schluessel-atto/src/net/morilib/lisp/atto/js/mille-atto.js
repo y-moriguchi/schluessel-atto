@@ -98,6 +98,12 @@ $mille.nil = $mille.cons(null, null);
 $mille.isNull = function(o) {
 	return ($mille.datumTypeOf(o, 'cell') && o.isNull());
 }
+$mille.isPair = function(o) {
+	return ($mille.datumTypeOf(o, 'cell') && !o.isNull());
+}
+$mille.isAtom = function(o) {
+	return !$mille.datumTypeOf(o, 'cell');
+}
 $mille.car = function(o) {
 	if($mille.datumTypeOf(o, 'cell') && o.car !== null) {
 		return o.car;
@@ -108,6 +114,22 @@ $mille.car = function(o) {
 $mille.cdr = function(o) {
 	if($mille.datumTypeOf(o, 'cell') && o.cdr !== null) {
 		return o.cdr;
+	} else {
+		$mille.o.error('Not cons');
+	}
+}
+$mille.setCar = function(o, x) {
+	if($mille.datumTypeOf(o, 'cell') && o.car !== null) {
+		o.car = x;
+		return undefined;
+	} else {
+		$mille.o.error('Not cons');
+	}
+}
+$mille.setCdr = function(o, x) {
+	if($mille.datumTypeOf(o, 'cell') && o.car !== null) {
+		o.cdr = x;
+		return undefined;
 	} else {
 		$mille.o.error('Not cons');
 	}
@@ -154,14 +176,22 @@ $mille.closure = function(e, f) {
 		return f.apply(env, $mille.a.toArray(arguments));
 	}
 }
-$mille.apply = function(o) {
-	var a;
-	a = $mille.a.toArray(arguments, 1);
+$mille.applya = function(o, a) {
 	if($mille.o.isFunction(o)) {
 		return o.apply(null, a);
 	} else if(o instanceof Trampoline) {
 		return Trampoline.apply(o);
 	}
+}
+$mille.apply = function(o) {
+	var a;
+	a = $mille.a.toArray(arguments, 1);
+	return $mille.applya(o, a);
+}
+$mille.applyCell = function(o, l) {
+	var a;
+	a = $mille.cellToList(l);
+	return $mille.applya(o, a);
 }
 $mille.newenv = function(e) {
 	var diese = {};
@@ -190,11 +220,167 @@ $mille.newenv = function(e) {
 	return diese;
 }
 
+$mille.checkNumber = function(x) {
+	if(!$mille.o.isNumber(arguments[k])) {
+		$mille.o.error('the type of the object is not number');
+	}
+}
+$mille.checkInteger = function(x) {
+	if(!$mille.o.isInteger(arguments[k])) {
+		$mille.o.error('the type of the object is not integer');
+	}
+}
+$mille.checkNaturalNumber = function(x, zero) {
+	if(!$mille.o.isInteger(arguments[k]) || arguments[k] < zero) {
+		$mille.o.error('the type of the object is not natural number');
+	}
+}
+$mille.checkString = function(x) {
+	if(!$mille.o.isString(arguments[k])) {
+		$mille.o.error('the type of the object is not string');
+	}
+}
+
+$mille.compare = function(f, check) {
+	if(check === undefined) {
+		cf = function(x) { return true; }
+	} else {
+		cf = check;
+	}
+	return function() {
+		var k, v = null;
+		for(k = 0; k < arguments.length; k++) {
+			cf(argument[k]);
+			if(v === null || f(v, arguments[k])) {
+				v = arguments[k];
+			} else {
+				return false;
+			}
+		}
+		return true;		
+	}
+}
+$mille.compareNumber = function(f) {
+	return $mille.compare(f, $mille.checkNumber);
+}
+$mille.eq = $mille.compare(function(x, y) { return x === y; });
+$mille.arith1 = function(f, d) {
+	return function() {
+		var k, v = d;
+		for(k = 0; k < arguments.length, k++) {
+			$mille.checkNumber(arguments[k]);
+			v = f(v, arguments[k]);
+		}
+		return v;
+	};
+}
+$mille.arith2 = function(f, unary) {
+	return function() {
+		var k, v;
+		if(argument.lenght < 1) {
+			$mille.o.error('Too few arguments');
+		} else if(argument.length === 1) {
+			return unary(arguments[0]);
+		} else {
+			v = arguments[0];
+			for(k = 1; k < arguments.length, k++) {
+				$mille.checkNumber(arguments[k]);
+				v = f(v, arguments[k]);
+			}
+		}
+		return v;
+	};
+}
+$mille.unary = function(f) {
+	return function(x) {
+		$mille.checkNumber(arguments[k]);
+		return f(x);
+	};
+}
+
+$mille.checkStringLength = function(x, l) {
+	if(l >= x.length) {
+		$mille.o.error('Argument out of range');
+	}
+}
+$mille.substring = function(x, start, end) {
+	$mille.checkString(x);
+	$mille.checkInteger(start);
+	$mille.checkInteger(end);
+	return x.substring(x, start, end);
+}
+$mille.stringRef = function(x, k) {
+	$mille.checkString(x);
+	$mille.checkInteger(k);
+	$mille.checkStringLength(x, k);
+	return x.charCodeAt(k);
+}
+$mille.stringLength = function(x) {
+	$mille.checkString(x);
+	return x.length;
+}
+$mille.stringAppend = function() {
+	var k, v = "";
+	for(k = 0; k < arguments.length; k++) {
+		$mille.checkString(arguments[k]);
+		v += arguments[k];
+	}
+	return v;
+}
+
+$mille.checkSymbol = function(x) {
+	$mille.checkString(x);
+}
+$mille.stringToSymbol = function(x) {
+	$mille.checkString(x);
+	return x;
+}
+$mille.symbolToSymbol = function(x) {
+	$mille.checkSymbol(x);
+	return x;
+}
+
+$mille.isVector = function(x) {
+	return $mille.a.isArray(x);
+}
+$mille.numberToString = function(x) {
+	$mille.checkNumber(x);
+	return x.toString();
+}
+
 $mille.genv = $mille.newenv();
 $mille.bindg = function(b, fn) {
 	$mille.genv.bind(b, $mille.closure($mille.genv, fn));
 }
 $mille.bindg('cons', $mille.cons);
+$mille.bindg('eq?', $mille.eq);
+$mille.bindg('eqv?', $mille.eq);
 $mille.bindg('car', $mille.car);
 $mille.bindg('cdr', $mille.cdr);
+$mille.bindg('atom?', $mille.isAtom);
 $mille.bindg('null?', $mille.isNull);
+$mille.bindg('symbol?', $mille.o.isString);
+$mille.bindg('error', $mille.o.error);
+$mille.bindg('set-car!', $mille.setCar);
+$mille.bindg('set-cdr!', $mille.setCdr);
+$mille.bindg('apply', $mille.applyCell);
+$mille.bindg('1+', $mille.unary(function(x) { return x + 1; });
+$mille.bindg('1-', $mille.unary(function(x) { return x - 1; });
+$mille.bindg('>', $mille.compareNumber(function(x, y) { return x > y; });
+$mille.bindg('<', $mille.compareNumber(function(x, y) { return x < y; });
+$mille.bindg('=', $mille.compareNumber(function(x, y) { return x === y; });
+$mille.bindg('+', $mille.arith1(function(x, y) { return x + y; }, 0));
+$mille.bindg('-', $mille.arith2(function(x, y) { return x - y; },
+		function(x) { return -x; }));
+$mille.bindg('*', $mille.arith1(function(x, y) { return x * y; }, 1));
+$mille.bindg('/', $mille.arith2(function(x, y) { return x / y; },
+		function(x) { return 1 / x; }));
+$mille.bindg('string?', $mille.o.isString);
+$mille.bindg('substring', $mille.substring);
+$mille.bindg('string-ref', $mille.stringRef);
+$mille.bindg('string-length', $mille.stringLength);
+$mille.bindg('string-append', $mille.stringAppend);
+$mille.bindg('string->symbol', $mille.stringToSymbol);
+$mille.bindg('symbol->string', $mille.symbolToString);
+$mille.bindg('vector', $mille.isVector);
+$mille.bindg('number->string', $mille.numberToString);
