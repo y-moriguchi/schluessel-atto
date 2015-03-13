@@ -20,7 +20,7 @@ $mille.a = {};
 $mille.a.toArray = function(o) {
 	var l, k, r;
 	l = arguments.length > 1 ? arguments[1] : 0;
-	r = [];
+	r = arguments.length > 2 ? arguments[2].concat() : [];
 	for(k = l; k < o.length; k += 1) {
 		r.push(o[k]);
 	}
@@ -173,7 +173,7 @@ $mille.trampoline = function(f) {
 $mille.closure = function(e, f) {
 	return function() {
 		var env = $mille.newenv(e);
-		return f.apply(env, $mille.a.toArray(arguments));
+		return f.apply(null, $mille.a.toArray(arguments, 0, [env]));
 	}
 }
 $mille.applya = function(o, a) {
@@ -221,23 +221,23 @@ $mille.newenv = function(e) {
 }
 
 $mille.checkNumber = function(x) {
-	if(!$mille.o.isNumber(arguments[k])) {
-		$mille.o.error('the type of the object is not number');
+	if(!$mille.o.isNumber(x)) {
+		$mille.o.error('the type of the object is not number:' + x);
 	}
 }
 $mille.checkInteger = function(x) {
-	if(!$mille.o.isInteger(arguments[k])) {
-		$mille.o.error('the type of the object is not integer');
+	if(!$mille.o.isInteger(x)) {
+		$mille.o.error('the type of the object is not integer:' + x);
 	}
 }
 $mille.checkNaturalNumber = function(x, zero) {
-	if(!$mille.o.isInteger(arguments[k]) || arguments[k] < zero) {
-		$mille.o.error('the type of the object is not natural number');
+	if(!$mille.o.isInteger(x) || x < zero) {
+		$mille.o.error('the type of the object is not natural number:' + x);
 	}
 }
 $mille.checkString = function(x) {
-	if(!$mille.o.isString(arguments[k])) {
-		$mille.o.error('the type of the object is not string');
+	if(!$mille.o.isString(x)) {
+		$mille.o.error('the type of the object is not string:' + x);
 	}
 }
 
@@ -250,7 +250,7 @@ $mille.compare = function(f, check) {
 	return function() {
 		var k, v = null;
 		for(k = 0; k < arguments.length; k++) {
-			cf(argument[k]);
+			cf(arguments[k]);
 			if(v === null || f(v, arguments[k])) {
 				v = arguments[k];
 			} else {
@@ -267,7 +267,7 @@ $mille.eq = $mille.compare(function(x, y) { return x === y; });
 $mille.arith1 = function(f, d) {
 	return function() {
 		var k, v = d;
-		for(k = 0; k < arguments.length, k++) {
+		for(k = 0; k < arguments.length; k++) {
 			$mille.checkNumber(arguments[k]);
 			v = f(v, arguments[k]);
 		}
@@ -277,13 +277,13 @@ $mille.arith1 = function(f, d) {
 $mille.arith2 = function(f, unary) {
 	return function() {
 		var k, v;
-		if(argument.lenght < 1) {
+		if(arguments.length < 1) {
 			$mille.o.error('Too few arguments');
-		} else if(argument.length === 1) {
+		} else if(arguments.length === 1) {
 			return unary(arguments[0]);
 		} else {
 			v = arguments[0];
-			for(k = 1; k < arguments.length, k++) {
+			for(k = 1; k < arguments.length; k++) {
 				$mille.checkNumber(arguments[k]);
 				v = f(v, arguments[k]);
 			}
@@ -293,7 +293,7 @@ $mille.arith2 = function(f, unary) {
 }
 $mille.unary = function(f) {
 	return function(x) {
-		$mille.checkNumber(arguments[k]);
+		$mille.checkNumber(x);
 		return f(x);
 	};
 }
@@ -350,7 +350,9 @@ $mille.numberToString = function(x) {
 
 $mille.genv = $mille.newenv();
 $mille.bindg = function(b, fn) {
-	$mille.genv.bind(b, $mille.closure($mille.genv, fn));
+	$mille.genv.bind(b, $mille.closure($mille.genv, function($e) {
+		return fn.apply(null, $mille.a.toArray(arguments, 1));
+	}));
 }
 $mille.bindg('cons', $mille.cons);
 $mille.bindg('eq?', $mille.eq);
@@ -364,11 +366,11 @@ $mille.bindg('error', $mille.o.error);
 $mille.bindg('set-car!', $mille.setCar);
 $mille.bindg('set-cdr!', $mille.setCdr);
 $mille.bindg('apply', $mille.applyCell);
-$mille.bindg('1+', $mille.unary(function(x) { return x + 1; });
-$mille.bindg('1-', $mille.unary(function(x) { return x - 1; });
-$mille.bindg('>', $mille.compareNumber(function(x, y) { return x > y; });
-$mille.bindg('<', $mille.compareNumber(function(x, y) { return x < y; });
-$mille.bindg('=', $mille.compareNumber(function(x, y) { return x === y; });
+$mille.bindg('1+', $mille.unary(function(x) { return x + 1; }));
+$mille.bindg('1-', $mille.unary(function(x) { return x - 1; }));
+$mille.bindg('>', $mille.compareNumber(function(x, y) { return x > y; }));
+$mille.bindg('<', $mille.compareNumber(function(x, y) { return x < y; }));
+$mille.bindg('=', $mille.compareNumber(function(x, y) { return x === y; }));
 $mille.bindg('+', $mille.arith1(function(x, y) { return x + y; }, 0));
 $mille.bindg('-', $mille.arith2(function(x, y) { return x - y; },
 		function(x) { return -x; }));
@@ -384,3 +386,4 @@ $mille.bindg('string->symbol', $mille.stringToSymbol);
 $mille.bindg('symbol->string', $mille.symbolToString);
 $mille.bindg('vector', $mille.isVector);
 $mille.bindg('number->string', $mille.numberToString);
+$env = $mille.genv;

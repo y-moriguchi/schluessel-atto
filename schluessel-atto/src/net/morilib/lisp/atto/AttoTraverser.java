@@ -38,9 +38,9 @@ public final class AttoTraverser {
 			return b.value(v, o);
 		} else if((a = AttoUtils.toArray(o))[0] == Symbol.IF) {
 			if(a.length == 3) {
-				return b.doIf(v, traverse(b, v, a[1]), a[2]);
+				return b.doIf(v, a[1], a[2]);
 			} else if(a.length == 4) {
-				return b.doIf(v, traverse(b, v, a[1]), a[2], a[3]);
+				return b.doIf(v, a[1], a[2], a[3]);
 			} else {
 				throw new IllegalArgumentException();
 			}

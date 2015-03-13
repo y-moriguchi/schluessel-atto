@@ -999,7 +999,7 @@ public class SimpleEngine implements Callback {
 			for(int k = 0; k < args.length; k++) {
 				z[k] = AttoTraverser.traverse(this, v, args[k]);
 			}
-			return ((Appliable)f).apply(this, v, args);
+			return ((Appliable)f).apply(this, v, z);
 		} else {
 			throw new IllegalArgumentException(f.toString());
 		}
@@ -1010,7 +1010,10 @@ public class SimpleEngine implements Callback {
 	 */
 	@Override
 	public Object doIf(Environment v, Object cond, Object dotrue) {
-		return cond.equals(Boolean.FALSE) ?
+		Object c;
+
+		c = AttoTraverser.traverse(this, v, cond);
+		return c.equals(Boolean.FALSE) ?
 				LispAtto.UNDEF : AttoTraverser.traverse(this, v, dotrue);
 	}
 
@@ -1020,7 +1023,10 @@ public class SimpleEngine implements Callback {
 	@Override
 	public Object doIf(Environment v, Object cond, Object dotrue,
 			Object dofalse) {
-		return cond.equals(Boolean.FALSE) ?
+		Object c;
+
+		c = AttoTraverser.traverse(this, v, cond);
+		return c.equals(Boolean.FALSE) ?
 				AttoTraverser.traverse(this, v, dofalse) :
 					AttoTraverser.traverse(this, v, dotrue);
 	}

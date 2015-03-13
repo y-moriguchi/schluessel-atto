@@ -50,7 +50,7 @@ public class JSCallback implements Callback {
 	public Object find(Environment env, Object o) {
 		if(o instanceof Symbol) {
 			out.print(" ");
-			out.print("this.find('");
+			out.print("$env.find('");
 			out.print(((Symbol)o).getName());
 			out.print("')");
 			out.print(" ");
@@ -76,6 +76,8 @@ public class JSCallback implements Callback {
 			out.print('"');
 			out.print(o);
 			out.print('"');
+		} else if(o instanceof Boolean) {
+			out.print(o);
 		} else {
 			out.print("#<object>");
 		}
@@ -121,11 +123,11 @@ public class JSCallback implements Callback {
 	@Override
 	public Object doDefine(Environment env, Object sym, Object tobound) {
 		if(sym instanceof Symbol) {
-			out.print("this.bind('");
+			out.print("$env.bind('");
 			out.print(((Symbol)sym).getName());
 			out.print("', ");
 			AttoTraverser.traverse(this, env, tobound);
-			out.println(");");
+			out.print(");");
 			return this;
 		} else {
 			throw new IllegalArgumentException(sym.toString());
@@ -135,10 +137,10 @@ public class JSCallback implements Callback {
 	private void toarray(int l, Symbol r) {
 		out.print("var a = $mille.a.toArray(arguments,");
 		out.print(l);
-		out.println(");");
-		out.print("this.bind('");
+		out.print(");");
+		out.print("$env.bind('");
 		out.print(r.getName());
-		out.println("',$mille.listToCell(a));");
+		out.print("',$mille.listToCell(a));");
 	}
 
 	@Override
@@ -167,36 +169,35 @@ public class JSCallback implements Callback {
 				}
 			}
 
-			out.print("$mille.closure(this, function(");
+			out.print("$mille.closure($env, function($env");
 			for(int i = 0; i < l.size(); i++) {
-				if(i > 0) {
-					out.print(',');
-				}
+				out.print(',');
 				out.print("a");
 				out.print(i);
 			}
-			out.println(") {");
+			out.print(") {");
 			for(int i = 0; i < l.size(); i++) {
-				out.print("this.bind('");
+				out.print("$env.bind('");
 				out.print(l.get(i).getName());
 				out.print("', a");
 				out.print(i);
+				out.print(" === undefined ? null : a");
+				out.print(i);
 				out.print(");");
 			}
-			out.println();
 
 			if(r != null) {
 				toarray(l.size(), r);
 			}
 		} else if(args instanceof Symbol) {
-			out.println("$mille.closure(this, function() {");
+			out.print("$mille.closure($env, function($env) {");
 			toarray(0, (Symbol)args);
 		} else {
 			throw new IllegalArgumentException(args.toString());
 		}
 		out.print("return ");
 		doBegin(env, body);
-		out.println(";})");
+		out.print(";})");
 		return this;
 	}
 
@@ -204,12 +205,12 @@ public class JSCallback implements Callback {
 	public Object doSet(Environment env, Object sym, Object toset) {
 		if(sym instanceof Symbol) {
 			out.print("(function() {");
-			out.print("this.set('");
+			out.print("$env.set('");
 			out.print(((Symbol)sym).getName());
 			out.print("',");
 			AttoTraverser.traverse(this, env, toset);
 			out.print("); return undefined;");
-			out.println("}).call(this);");
+			out.print("})()");
 		} else {
 			throw new IllegalArgumentException(sym.toString());
 		}
@@ -222,9 +223,9 @@ public class JSCallback implements Callback {
 		for(Object o : body) {
 			out.print("ret=(");
 			AttoTraverser.traverse(this, env, o);
-			out.println(");");
+			out.print(");");
 		}
-		out.println(" return ret;}).call(this)");
+		out.print(" return ret;})()");
 		return this;
 	}
 

@@ -28,9 +28,11 @@ import javax.script.ScriptException;
 
 import net.morilib.lisp.atto.AttoParser;
 import net.morilib.lisp.atto.AttoTraverser;
+import net.morilib.lisp.atto.Cell;
 import net.morilib.lisp.atto.Environment;
 import net.morilib.lisp.atto.LispAtto;
 import net.morilib.lisp.atto.SimpleEngine;
+import net.morilib.lisp.atto.Symbol;
 
 /**
  * The main class of Schluessel Atto JS.
@@ -55,12 +57,41 @@ public class LispAttoJS {
 			LispAtto.eval(SimpleEngine.getInstance(), macroenv,
 					LispAttoJS.class.getResourceAsStream(
 							"macro-atto.scm"));
+			readmacro();
 
 			//
 			pw = new PrintWriter(wr, true);
 			jscall = new JSCallback(pw);
 		} catch(IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void readmacro() {
+		Reader rd = new InputStreamReader(
+				LispAttoJS.class.getResourceAsStream("macro-lib.scm"));
+		Object o;
+
+		while(true) {
+			try {
+				if((o = AttoParser.read(rd)) == null) {
+					return;
+				} else if(AttoParser.isInvaild(o)) {
+					continue;
+				} else {
+					o = new Cell(Symbol.get("eval-macro"), new Cell(
+							new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
+							Cell.NIL));
+					AttoTraverser.traverse(SimpleEngine.getInstance(),
+							macroenv, o);
+				}
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			} catch(IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch(ArithmeticException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -73,10 +104,11 @@ public class LispAttoJS {
 	public Object eval(Environment env, Object p) {
 		Object o = p;
 
-//		o = new Cell(Symbol.get("eval-macro"), new Cell(
-//				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
-//				Cell.NIL));
-//		o = AttoTraverser.traverse(SimpleEngine.getInstance(), macroenv, o);
+		o = new Cell(Symbol.get("eval-macro"), new Cell(
+				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
+				Cell.NIL));
+		o = AttoTraverser.traverse(SimpleEngine.getInstance(),
+				macroenv, o);
 		o = AttoTraverser.traverse(jscall, env, o);
 		pw.flush();
 		return o;
@@ -122,9 +154,6 @@ public class LispAttoJS {
 					s = new LispAttoJS(sw);
 					s.eval(new Environment(), o);
 					js = sw.toString();
-					js = "(function(){return " + js +
-							";}).call($mille.genv);";
-System.err.println(js);
 					r = en.eval(js);
 					System.out.println(r);
 				}
