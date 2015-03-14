@@ -61,6 +61,7 @@ public class JSCallback implements Callback {
 		return this;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object value(Environment env, Object o) {
 		out.print(" ");
@@ -78,6 +79,25 @@ public class JSCallback implements Callback {
 			out.print('"');
 		} else if(o instanceof Boolean) {
 			out.print(o);
+		} else if(o.equals(Cell.NIL)) {
+			out.print("$mille.nil");
+		} else if(o instanceof java.util.List) {
+			java.util.List l = (java.util.List)o;
+
+			out.print("[");
+			for(int i = 0; i < l.size(); i++) {
+				if(i > 0) {
+					out.print(",");
+				}
+				value(env, l.get(i));
+			}
+			out.print("]");
+		} else if(o instanceof Cell) {
+			out.print("$mille.cons(");
+			value(env, ((Cell)o).car);
+			out.print(",");
+			value(env, ((Cell)o).cdr);
+			out.print(")");
 		} else {
 			out.print("#<object>");
 		}
@@ -127,7 +147,7 @@ public class JSCallback implements Callback {
 			out.print(((Symbol)sym).getName());
 			out.print("', ");
 			AttoTraverser.traverse(this, env, tobound);
-			out.print(");");
+			out.print(")");
 			return this;
 		} else {
 			throw new IllegalArgumentException(sym.toString());
@@ -136,7 +156,7 @@ public class JSCallback implements Callback {
 
 	private void toarray(int l, Symbol r) {
 		out.print("var a = $mille.a.toArray(arguments,");
-		out.print(l);
+		out.print(l + 1);
 		out.print(");");
 		out.print("$env.bind('");
 		out.print(r.getName());

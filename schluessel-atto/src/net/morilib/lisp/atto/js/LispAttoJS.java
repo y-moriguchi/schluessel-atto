@@ -16,6 +16,7 @@
 package net.morilib.lisp.atto.js;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -114,6 +115,16 @@ public class LispAttoJS {
 		return o;
 	}
 
+	private static void loadJs(String load,
+			ScriptEngineManager mn, ScriptEngine en) {
+		try {
+			en.eval(new InputStreamReader(
+					LispAttoJS.class.getResourceAsStream(load)));
+		} catch(ScriptException e1) {
+			throw new RuntimeException(e1);
+		}
+	}
+
 	/**
 	 * read-eval-print-loop of Schluessel Atto.
 	 * 
@@ -127,19 +138,24 @@ public class LispAttoJS {
 		StringWriter sw;
 		ScriptEngineManager mn;
 		ScriptEngine en;
+		InputStream is;
+		String pr;
 
-		try {
-			mn = new ScriptEngineManager();
-			en = mn.getEngineByName("javascript");
-			en.eval(new InputStreamReader(
-					LispAttoJS.class.getResourceAsStream(
-							"mille-atto.js")));
-		} catch(ScriptException e1) {
-			throw new RuntimeException(e1);
+		mn = new ScriptEngineManager();
+		en = mn.getEngineByName("javascript");
+		loadJs("mille-atto.js", mn, en);
+
+		if(args.length > 0) {
+			pr = "";
+			is = LispAttoJS.class.getResourceAsStream("lib.scm");
+		} else {
+			loadJs("lib.js", mn, en);
+			pr = " >";
+			is = System.in;
 		}
 
-		rd = new InputStreamReader(System.in);
-		System.out.print(" >");
+		rd = new InputStreamReader(is);
+		System.out.print(pr);
 		while(true) {
 			try {
 				if((o = AttoParser.read(rd)) == null) {
@@ -154,18 +170,22 @@ public class LispAttoJS {
 					s = new LispAttoJS(sw);
 					s.eval(new Environment(), o);
 					js = sw.toString();
-					r = en.eval(js);
-					System.out.println(r);
+					if(args.length > 0) {
+						System.out.println(js);
+					} else {
+						r = en.eval(js);
+						System.out.println(r);
+					}
 				}
-				System.out.print(" >");
+				System.out.print(pr);
 			} catch(IOException e) {
 				e.printStackTrace();
 			} catch(IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch(ArithmeticException e) {
 				e.printStackTrace();
-			} catch(ScriptException e1) {
-				throw new RuntimeException(e1);
+			} catch(ScriptException e) {
+				e.printStackTrace();
 			}
 		}
 	}

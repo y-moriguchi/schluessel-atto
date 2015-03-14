@@ -108,14 +108,14 @@ $mille.car = function(o) {
 	if($mille.datumTypeOf(o, 'cell') && o.car !== null) {
 		return o.car;
 	} else {
-		$mille.o.error('Not cons');
+		$mille.o.error('Not cons: ' + o);
 	}
 }
 $mille.cdr = function(o) {
 	if($mille.datumTypeOf(o, 'cell') && o.cdr !== null) {
 		return o.cdr;
 	} else {
-		$mille.o.error('Not cons');
+		$mille.o.error('Not cons: ' + o);
 	}
 }
 $mille.setCar = function(o, x) {
@@ -123,7 +123,7 @@ $mille.setCar = function(o, x) {
 		o.car = x;
 		return undefined;
 	} else {
-		$mille.o.error('Not cons');
+		$mille.o.error('Not cons: ' + o);
 	}
 }
 $mille.setCdr = function(o, x) {
@@ -131,37 +131,42 @@ $mille.setCdr = function(o, x) {
 		o.cdr = x;
 		return undefined;
 	} else {
-		$mille.o.error('Not cons');
+		$mille.o.error('Not cons: ' + o);
 	}
 }
 $mille.listToCell = function(o) {
-	var k, c, d;
+	var k, c, d, r;
+
 	if(!$mille.a.isArray(o)) {
 		return o;
 	} else if(o.length > 0) {
 		for(k = 0; k < o.length; k += 1) {
 			d = $mille.cons($mille.listToCell(o[k]), $mille.nil);
-			if(c !== undefined) {
+			if(r === undefined) {
+				r = d;
+			} else {
 				c.cdr = d;
 			}
+			c = d;
 		}
-		return c;
+		return r;
 	} else {
 		return $mille.nil;
 	}
 };
 $mille.cellToList = function(l, notproper) {
 	var a = [], p;
-	p = notproper !== undefined ? notproper : function(l, p) {
-		$mille.o.error('Not proper list');
+
+	p = notproper !== undefined ? notproper : function(l) {
+		$mille.o.error('Not proper list: ' + l);
 	};
 	while(true) {
-		if(!(l instanceof Cell)) {
-			return p(a, p);
+		if(!$mille.datumTypeOf(l, 'cell')) {
+			return p(l);
 		} else if(l.isNull()) {
 			return a;
 		} else {
-			a.push(cellToList(a.car));
+			a.push($mille.cellToList(l.car, function(l) { return l; }));
 			l = l.cdr;
 		}
 	}
@@ -242,6 +247,8 @@ $mille.checkString = function(x) {
 }
 
 $mille.compare = function(f, check) {
+	var cf;
+
 	if(check === undefined) {
 		cf = function(x) { return true; }
 	} else {
