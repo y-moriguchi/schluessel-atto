@@ -184,8 +184,6 @@ $mille.closure = function(e, f) {
 $mille.applya = function(o, a) {
 	if($mille.o.isFunction(o)) {
 		return o.apply(null, a);
-	} else if(o instanceof Trampoline) {
-		return Trampoline.apply(o);
 	}
 }
 $mille.apply = function(o) {
