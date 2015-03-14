@@ -243,6 +243,31 @@ $mille.checkString = function(x) {
 		$mille.o.error('the type of the object is not string:' + x);
 	}
 }
+$mille.checkLength = function(x, l) {
+	if(l < 0 || l >= x.length) {
+		$mille.o.error('Argument out of range:' + l);
+	}
+}
+$mille.checkVector = function(x) {
+	if(!$mille.a.isArray(x)) {
+		$mille.o.error('the type of the object is not vector:' + x);
+	}
+}
+$mille.checkList = function(x) {
+	if(!$mille.isPair(x) && !$mille.isNull(x)) {
+		$mille.o.error('the type of the object is not list:' + x);
+	}
+}
+$mille.checkInteger = function(x) {
+	if(!$mille.o.isInteger(x)) {
+		$mille.o.error('the type of the object is not integer:' + x);
+	}
+}
+$mille.checkZero = function(x) {
+	if(x === 0) {
+		$mille.o.error('divide by zero');
+	}
+}
 
 $mille.compare = function(f, check) {
 	var cf;
@@ -303,11 +328,6 @@ $mille.unary = function(f) {
 	};
 }
 
-$mille.checkStringLength = function(x, l) {
-	if(l >= x.length) {
-		$mille.o.error('Argument out of range');
-	}
-}
 $mille.substring = function(x, start, end) {
 	$mille.checkString(x);
 	$mille.checkInteger(start);
@@ -317,7 +337,7 @@ $mille.substring = function(x, start, end) {
 $mille.stringRef = function(x, k) {
 	$mille.checkString(x);
 	$mille.checkInteger(k);
-	$mille.checkStringLength(x, k);
+	$mille.checkLength(x, k);
 	return x.charCodeAt(k);
 }
 $mille.stringLength = function(x) {
@@ -348,9 +368,110 @@ $mille.symbolToSymbol = function(x) {
 $mille.isVector = function(x) {
 	return $mille.a.isArray(x);
 }
+$mille.makeVector = function(k, fill) {
+	var r = [], i;
+	for(i = 0; i < k; i++) {
+		r.push(fill);
+	}
+	return r;
+}
+$mille.vector = function() {
+	return $mille.a.toArray(arguments);
+}
+$mille.vectorLength = function(v) {
+	$mille.checkVector(v);
+	return v.length;
+}
+$mille.vectorRef = function(v, k) {
+	$mille.checkVector(v);
+	$mille.checkLength(v, k);
+	return v[k];
+}
+$mille.vectorSet = function(v, k, o) {
+	$mille.checkVector(v);
+	$mille.checkLength(v, k);
+	v[k] = o;
+	return undefined;
+}
+$mille.vectorToList = function(v) {
+	$mille.checkVector(v);
+	return $mille.listToCell(v);
+}
+$mille.listToVector = function(l) {
+	$mille.checkList(l);
+	return $mille.cellToList(l);
+}
+$mille.vectorFill = function(v, fill) {
+	var i;
+	$mille.checkVector(v);
+	for(i = 0; i < v.length; i++) {
+		v[i] = fill;
+	}
+	return undefined;
+}
+
 $mille.numberToString = function(x) {
 	$mille.checkNumber(x);
 	return x.toString();
+}
+$mille.isProcedure = function(x) {
+	return $mille.o.isFunction(x);
+}
+
+$mille.not = function(x) {
+	return x === false ? true : false;
+}
+$mille.isBoolean = function(x) {
+	return x === true || x === false;
+}
+
+$mille.isNumber = function(x) {
+	return $mille.o.isNumber(x);
+}
+$mille.isReal = function(x) {
+	return $mille.o.isNumber(x);
+}
+$mille.isInteger = function(x) {
+	return $mille.o.isInteger(x);
+}
+$mille.isExact = function(x) {
+	return $mille.o.isInteger(x);
+}
+$mille.isInexact = function(x) {
+	return !$mille.isExact(x);
+}
+$mille.abs = function(x) {
+	return Math.abs(x);
+}
+$mille.quotient = function(x, y) {
+	var n;
+	$mille.checkInteger(x);
+	$mille.checkInteger(y);
+	$mille.checkZero(y);
+	n = x / y;
+	return n > 0 ? Math.floor(n) : Math.ceil(n);
+}
+$mille.remainder = function(x, y) {
+	$mille.checkInteger(x);
+	$mille.checkInteger(y);
+	$mille.checkZero(y);
+	return x % y;
+}
+$mille.modulo = function(x, y) {
+	$mille.checkInteger(x);
+	$mille.checkInteger(y);
+	$mille.checkZero(y);
+	if(x === 0) {
+		return 0;
+	} else if(x > 0 && y > 0) {
+		return x % y;
+	} else if(x < 0 && y < 0) {
+		return -((-x) % (-y));
+	} else if(x < 0 && y > 0) {
+		return (x % y) + y;
+	} else {
+		return (x % y) - y;
+	}
 }
 
 $mille.genv = $mille.newenv();
@@ -389,6 +510,25 @@ $mille.bindg('string-length', $mille.stringLength);
 $mille.bindg('string-append', $mille.stringAppend);
 $mille.bindg('string->symbol', $mille.stringToSymbol);
 $mille.bindg('symbol->string', $mille.symbolToString);
-$mille.bindg('vector', $mille.isVector);
+$mille.bindg('vector?', $mille.isVector);
 $mille.bindg('number->string', $mille.numberToString);
+
+$mille.bindg('make-vector', $mille.makeVector);
+$mille.bindg('vector-length', $mille.vectorLength);
+$mille.bindg('vector-ref', $mille.vectorRef);
+$mille.bindg('vector-set!', $mille.vectorSet);
+$mille.bindg('vector->list', $mille.vectorToList);
+$mille.bindg('list->vector', $mille.listToVector);
+$mille.bindg('vector-fill!', $mille.vectorFill);
+$mille.bindg('not', $mille.not);
+$mille.bindg('boolean?', $mille.isBoolean);
+$mille.bindg('number?', $mille.isNumber);
+$mille.bindg('real?', $mille.isReal);
+$mille.bindg('integer?', $mille.isInteger);
+$mille.bindg('exact?', $mille.isExact);
+$mille.bindg('inexact?', $mille.isInexact);
+$mille.bindg('abs', $mille.abs);
+$mille.bindg('remainder', $mille.remainder);
+$mille.bindg('quotient', $mille.quotient);
+$mille.bindg('modulo', $mille.modulo);
 $env = $mille.genv;

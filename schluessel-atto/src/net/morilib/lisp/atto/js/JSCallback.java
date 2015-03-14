@@ -119,9 +119,9 @@ public class JSCallback implements Callback {
 
 	@Override
 	public Object doIf(Environment env, Object cond, Object dotrue) {
-		out.print('(');
+		out.print("(!((");
 		AttoTraverser.traverse(this, env, cond);
-		out.print(" ? ");
+		out.print(")===false) ? ");
 		AttoTraverser.traverse(this, env, dotrue);
 		out.print(" : undefined)");
 		return this;
@@ -130,9 +130,9 @@ public class JSCallback implements Callback {
 	@Override
 	public Object doIf(Environment env, Object cond, Object dotrue,
 			Object dofalse) {
-		out.print('(');
+		out.print("(!((");
 		AttoTraverser.traverse(this, env, cond);
-		out.print(" ? ");
+		out.print(")===false) ? ");
 		AttoTraverser.traverse(this, env, dotrue);
 		out.print(" : ");
 		AttoTraverser.traverse(this, env, dofalse);
