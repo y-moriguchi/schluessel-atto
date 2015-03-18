@@ -49,10 +49,16 @@ public class JSCallback implements Callback {
 	@Override
 	public Object find(Environment env, Object o) {
 		if(o instanceof Symbol) {
+			String s = ((Symbol)o).getName();
+
 			out.print(" ");
-			out.print("$env.find('");
-			out.print(((Symbol)o).getName());
-			out.print("')");
+			if(s.indexOf('.') > 0) {
+				out.print(s);
+			} else {
+				out.print("$env.find('");
+				out.print(((Symbol)o).getName());
+				out.print("')");
+			}
 			out.print(" ");
 		} else {
 			value(env, o);

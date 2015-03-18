@@ -126,6 +126,32 @@ public class LispAttoJS {
 	}
 
 	/**
+	 * 
+	 * @param rd
+	 * @param out
+	 * @throws IOException
+	 */
+	public static void outputJS(Reader rd,
+			PrintWriter out) throws IOException {
+		LispAttoJS s;
+		Object o;
+		StringWriter sw;
+
+		while(true) {
+			if((o = AttoParser.read(rd)) == null) {
+				return;
+			} else if(AttoParser.isInvaild(o)) {
+				continue;
+			} else {
+				sw = new StringWriter();
+				s = new LispAttoJS(sw);
+				s.eval(new Environment(), o);
+				out.println(sw.toString());
+			}
+		}
+	}
+
+	/**
 	 * read-eval-print-loop of Schluessel Atto.
 	 * 
 	 * @param args the command line argument
