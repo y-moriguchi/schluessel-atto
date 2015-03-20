@@ -107,13 +107,27 @@ public class JSCallback implements Callback {
 
 	@Override
 	public Object apply(Environment env, Object f, Object... args) {
-		out.print("$mille.apply(");
-		AttoTraverser.traverse(this, env, f);
-		for(Object o : args) {
-			out.print(',');
-			AttoTraverser.traverse(this, env, o);
+		String s;
+		if(args.length >= 1 && f instanceof Symbol &&
+				(s = ((Symbol)f).getName()).length() >= 2 &&
+				s.startsWith(".")) {
+			out.print("$mille.applyObject('");
+			out.print(s.substring(1));
+			out.print("'");
+			for(int i = 0; i < args.length; i++) {
+				out.print(',');
+				AttoTraverser.traverse(this, env, args[i]);
+			}
+			out.print(')');
+		} else {
+			out.print("$mille.apply(");
+			AttoTraverser.traverse(this, env, f);
+			for(Object o : args) {
+				out.print(',');
+				AttoTraverser.traverse(this, env, o);
+			}
+			out.print(')');
 		}
-		out.print(')');
 		return this;
 	}
 

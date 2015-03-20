@@ -240,6 +240,10 @@ $mille.newenv = function(e, that) {
 	};
 	return diese;
 };
+$mille.applyObject = function(x, obj) {
+	var z = obj[x].apply(obj, $mille.a.toArray(arguments, 2));
+	return z;
+};
 $mille.getGlobal = function() {
 	$mille.global = this;
 };
