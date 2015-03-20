@@ -175,7 +175,7 @@ public class LispAttoJS {
 			pr = "";
 			is = LispAttoJS.class.getResourceAsStream("lib.scm");
 		} else {
-			loadJs("lib.js", mn, en);
+			loadJs("milia-lib.js", mn, en);
 			pr = " >";
 			is = System.in;
 		}

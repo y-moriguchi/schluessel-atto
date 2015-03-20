@@ -49,16 +49,10 @@ public class JSCallback implements Callback {
 	@Override
 	public Object find(Environment env, Object o) {
 		if(o instanceof Symbol) {
-			String s = ((Symbol)o).getName();
-
 			out.print(" ");
-			if(s.indexOf('.') > 0) {
-				out.print(s);
-			} else {
-				out.print("$env.find('");
-				out.print(((Symbol)o).getName());
-				out.print("')");
-			}
+			out.print("$env.find('");
+			out.print(((Symbol)o).getName());
+			out.print("')");
 			out.print(" ");
 		} else {
 			value(env, o);
@@ -195,7 +189,7 @@ public class JSCallback implements Callback {
 				}
 			}
 
-			out.print("$mille.closure($env, function($env");
+			out.print("$mille.closure($env, this, function($env");
 			for(int i = 0; i < l.size(); i++) {
 				out.print(',');
 				out.print("a");
@@ -216,7 +210,7 @@ public class JSCallback implements Callback {
 				toarray(l.size(), r);
 			}
 		} else if(args instanceof Symbol) {
-			out.print("$mille.closure($env, function($env) {");
+			out.print("$mille.closure($env, this, function($env) {");
 			toarray(0, (Symbol)args);
 		} else {
 			throw new IllegalArgumentException(args.toString());
@@ -230,13 +224,11 @@ public class JSCallback implements Callback {
 	@Override
 	public Object doSet(Environment env, Object sym, Object toset) {
 		if(sym instanceof Symbol) {
-			out.print("(function() {");
-			out.print("$env.set('");
+			out.print("($env.set('");
 			out.print(((Symbol)sym).getName());
 			out.print("',");
 			AttoTraverser.traverse(this, env, toset);
-			out.print("); return undefined;");
-			out.print("})()");
+			out.print("), undefined)");
 		} else {
 			throw new IllegalArgumentException(sym.toString());
 		}
@@ -245,13 +237,16 @@ public class JSCallback implements Callback {
 
 	@Override
 	public Object doBegin(Environment env, Object... body) {
-		out.print("(function() {var ret;");
-		for(Object o : body) {
-			out.print("ret=(");
-			AttoTraverser.traverse(this, env, o);
-			out.print(");");
+		out.print("(");
+		for(int i = 0; i < body.length; i++) {
+			if(i > 0) {
+				out.print(',');
+			}
+			out.print("(");
+			AttoTraverser.traverse(this, env, body[i]);
+			out.print(")");
 		}
-		out.print(" return ret;})()");
+		out.print(")");
 		return this;
 	}
 
