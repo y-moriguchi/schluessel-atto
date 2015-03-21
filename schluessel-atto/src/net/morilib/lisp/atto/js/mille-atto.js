@@ -238,6 +238,18 @@ $mille.newenv = function(e, that) {
 			e.set(v, o);
 		}
 	};
+	diese.apply = function(v, a) {
+		var x;
+		x = diese.find(v);
+		if($mille.o.isFunction(x)) {
+			x.apply(null, a);
+		} else {
+			$mille.o.error('Found no functions');
+		}
+	}
+	diese.call = function(v) {
+		diese.apply(v, $mille.a.toArray(arguments, 1));
+	}
 	return diese;
 };
 $mille.applyObject = function(x, obj) {
