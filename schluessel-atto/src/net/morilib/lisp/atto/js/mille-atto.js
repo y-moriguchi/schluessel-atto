@@ -57,8 +57,39 @@ $mille.o.isInteger = function(o) {
 			o < 9007199254740992 &&
 			Math.floor(o) === o);
 };
+$mille.o.isObject = function(o) {
+	return (o instanceof Object && !(o instanceof Array));
+};
 $mille.o.error = function(e) {
 	throw e;
+};
+$mille.o.mapEntries = function(o, f) {
+	var v, r;
+	r = [];
+	for(v in o) {
+		if(o.hasOwnProperty(v)) {
+			r.push(f(v, o[v]));
+		}
+	}
+	return r;
+};
+$mille.o.keys = function(o) {
+	return $mille.o.mapEntries(o, function(k, v) {
+		return k;
+	});
+};
+$mille.o.values = function(o) {
+	return $mille.o.mapEntries(o, function(k, v) {
+		return v;
+	});
+};
+$mille.o.entries = function(o) {
+	return $mille.o.mapEntries(o, function(k, v) {
+		return {
+			key: k,
+			value: v
+		};
+	});
 };
 
 function Trampoline(f) {
@@ -306,6 +337,11 @@ $mille.checkZero = function(x) {
 		$mille.o.error('divide by zero');
 	}
 };
+$mille.checkObject = function(x) {
+	if(!$mille.o.isObject(x)) {
+		$mille.o.error('the type of the object is not object:' + x);
+	}
+};
 
 $mille.compare = function(f, check) {
 	var cf;
@@ -512,6 +548,87 @@ $mille.modulo = function(x, y) {
 	}
 };
 
+$mille.isObject = function(o) {
+	return $mille.o.isObject(o);
+};
+$mille.objectRef = function(o, i) {
+	$mille.checkObject(o);
+	return o[i];
+};
+$mille.objectSet = function(o, i, x) {
+	$mille.checkObject(o);
+	o[i] = x;
+	return undefined;
+};
+$mille.objectKeys = function(o) {
+	$mille.checkObject(o);
+	return $mille.listToCell($mille.o.keys(o));
+}
+$mille.objectValues = function(o) {
+	$mille.checkObject(o);
+	return $mille.listToCell($mille.o.values(o));
+}
+$mille.objectToList = function(o) {
+	var a, i;
+	if($mille.a.isArray(o)) {
+		a = [];
+		for(i = 0; i < o.length; i++) {
+			a[i] = $mille.objectToList(o[i]);
+		}
+		return $mille.listToCell(a);
+	} else if($mille.o.isObject(o)) {
+		a = $mille.o.entries(o);
+		for(i = 0; i < a.length; i++) {
+			a[i] = $mille.cons(
+					$mille.objectToList(a[i].key),
+					$mille.objectToList(a[i].value));
+		}
+		return $mille.listToCell(a);
+	} else {
+		return o;
+	}
+}
+
+$mille.isEqual = function(o, p) {
+	var i, v;
+	if($mille.isPair(o)) {
+		if($mille.isPair(p)) {
+			return ($mille.isEqual(o.car, p.car) &&
+					$mille.isEqual(o.cdr, p.cdr));
+		} else {
+			return false;
+		}
+	} else if($mille.isNull(o)) {
+		return $mille.isNull(p);
+	} else if($mille.a.isArray(o)) {
+		if(!$mille.a.isArray(p)) {
+			return false;
+		} else if(o.length !== p.length) {
+			return false;
+		} else {
+			for(i = 0; i < o.length; i++) {
+				if(!$mille.isEqual(o[i], p[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+	} else if($mille.o.isObject(o)) {
+		for(v in o) {
+			if(!o.hasOwnProperty(v)) {
+				// do nothing
+			} else if(!p.hasOwnProperty(v)) {
+				return false;
+			} else if(!$mille.isEqual(o[v], p[v])) {
+				return false;
+			}
+		}
+		return true;
+	} else {
+		return o === p;
+	}
+};
+
 $mille.genv = $mille.newenv(undefined, this);
 $mille.bindg = function(b, fn) {
 	$mille.genv.bind(b, $mille.closure($mille.genv, this, function(e) {
@@ -569,4 +686,13 @@ $mille.bindg('abs', $mille.abs);
 $mille.bindg('remainder', $mille.remainder);
 $mille.bindg('quotient', $mille.quotient);
 $mille.bindg('modulo', $mille.modulo);
+
+$mille.bindg('object?', $mille.isObject);
+$mille.bindg('object-ref', $mille.objectRef);
+$mille.bindg('object-set!', $mille.objectSet);
+$mille.bindg('object-keys', $mille.objectKeys);
+$mille.bindg('object-values', $mille.objectValues);
+$mille.bindg('object->list', $mille.objectToList);
+
+$mille.bindg('equal?', $mille.isEqual);
 $env = $mille.genv;
