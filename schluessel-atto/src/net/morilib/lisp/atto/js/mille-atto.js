@@ -111,6 +111,18 @@ function Datum(typ) {
 		return typ;
 	};
 };
+Datum.prototype.toString = function() {
+	var f;
+	f = this[this.typ() + 'ToString'];
+	if(f === undefined) {
+		return 'Datum';
+	} else {
+		return f.call(this);
+	}
+};
+Datum.prototype.symbolToString = function() {
+	return this.name;
+};
 
 $mille.datumTypeOf = function(o, typ) {
 	return ((o instanceof Datum) && o.typ() === typ);
@@ -342,6 +354,16 @@ $mille.checkObject = function(x) {
 		$mille.o.error('the type of the object is not object:' + x);
 	}
 };
+$mille.checkSymbol = function(x) {
+	if(!$mille.datumTypeOf(x, 'symbol')) {
+		$mille.o.error('the type of the object is not symbol:' + x);
+	}
+};
+$mille.checkCharacter = function(x) {
+	if(!$mille.o.isInteger(x) || x < 0 || x > 65535) {
+		$mille.o.error('the type of the object is not character:' + x);
+	}
+};
 
 $mille.compare = function(f, check) {
 	var cf;
@@ -427,16 +449,27 @@ $mille.stringAppend = function() {
 	return v;
 };
 
+$mille.symbols = {};
+$mille.getSymbol = function(s) {
+	var v;
+	v = $mille.symbols[s];
+	if(v === undefined) {
+		v = new Datum('symbol');
+		v.name = s;
+		$mille.symbols[s] = v;
+	}
+	return v;
+};
 $mille.checkSymbol = function(x) {
-	$mille.checkString(x);
+	$mille.checkSymbol(x);
 };
 $mille.stringToSymbol = function(x) {
 	$mille.checkString(x);
-	return x;
+	return $mille.getSymbol(x);
 };
 $mille.symbolToSymbol = function(x) {
 	$mille.checkSymbol(x);
-	return x;
+	return x.name;
 };
 
 $mille.isVector = function(x) {
@@ -629,6 +662,51 @@ $mille.isEqual = function(o, p) {
 	}
 };
 
+$mille.isChar = function(o) {
+	return $mille.o.isInteger(o) && o >= 0 && o < 65536;
+}
+$mille.charUpcase = function(c) {
+	var x;
+	x = String.fromCharCode(c);
+	x = x.toUpperCase();
+	return x.charCodeAt(0);
+}
+$mille.charDowncase = function(c) {
+	var x;
+	x = String.fromCharCode(c);
+	x = x.toUpperCase();
+	return x.charCodeAt(0);
+}
+$mille.compareCharacter = function(f) {
+	return $mille.compare(f, $mille.checkCharacter);
+};
+$mille.compareCharacterCi = function(f) {
+	return $mille.compare(function(x, y) {
+		var a = $mille.charUpcase(x);
+		var b = $mille.charUpcase(y);
+		return f(a, b);
+	}, $mille.checkCharacter);
+};
+$mille.charToInteger = function(o) {
+	$mille.checkCharacter(o);
+	return o;
+};
+$mille.integerToChar = function(o) {
+	$mille.charToInteger(o);
+	if(o < 0 || o > 65535) {
+		$mille.o.error('character out of range:' + o);
+	}
+	return o;
+}
+$mille.isCharLowerCase = function(o) {
+	$mille.checkCharacter(o);
+	return $mille.charUpcase(o) !== o;
+};
+$mille.isCharUpperCase = function(o) {
+	$mille.checkCharacter(o);
+	return $mille.charDowncase(o) !== o;
+};
+
 $mille.genv = $mille.newenv(undefined, this);
 $mille.bindg = function(b, fn) {
 	$mille.genv.bind(b, $mille.closure($mille.genv, this, function(e) {
@@ -686,6 +764,8 @@ $mille.bindg('abs', $mille.abs);
 $mille.bindg('remainder', $mille.remainder);
 $mille.bindg('quotient', $mille.quotient);
 $mille.bindg('modulo', $mille.modulo);
+$mille.bindg('>=', $mille.compareNumber(function(x, y) { return x >= y; }));
+$mille.bindg('<=', $mille.compareNumber(function(x, y) { return x <= y; }));
 
 $mille.bindg('object?', $mille.isObject);
 $mille.bindg('object-ref', $mille.objectRef);
@@ -693,6 +773,24 @@ $mille.bindg('object-set!', $mille.objectSet);
 $mille.bindg('object-keys', $mille.objectKeys);
 $mille.bindg('object-values', $mille.objectValues);
 $mille.bindg('object->list', $mille.objectToList);
+
+$mille.bindg('char?', $mille.isChar);
+$mille.bindg('char>?', $mille.compareCharacter(function(x, y) { return x > y; }));
+$mille.bindg('char<?', $mille.compareCharacter(function(x, y) { return x < y; }));
+$mille.bindg('char=?', $mille.compareCharacter(function(x, y) { return x === y; }));
+$mille.bindg('char>=?', $mille.compareCharacter(function(x, y) { return x >= y; }));
+$mille.bindg('char<=?', $mille.compareCharacter(function(x, y) { return x <= y; }));
+$mille.bindg('char-ci>?', $mille.compareCharacterCi(function(x, y) { return x > y; }));
+$mille.bindg('char-ci<?', $mille.compareCharacterCi(function(x, y) { return x < y; }));
+$mille.bindg('char-ci=?', $mille.compareCharacterCi(function(x, y) { return x === y; }));
+$mille.bindg('char-ci>=?', $mille.compareCharacterCi(function(x, y) { return x >= y; }));
+$mille.bindg('char-ci<=?', $mille.compareCharacterCi(function(x, y) { return x <= y; }));
+$mille.bindg('char-upper-case?', $mille.isCharUpperCase);
+$mille.bindg('char-lower-case?', $mille.isCharLowerCase);
+$mille.bindg('char->integer', $mille.charToInteger);
+$mille.bindg('integer->char', $mille.integerToChar);
+$mille.bindg('char-upcase', $mille.charUpcase);
+$mille.bindg('char-downcase', $mille.charDowncase);
 
 $mille.bindg('equal?', $mille.isEqual);
 $env = $mille.genv;

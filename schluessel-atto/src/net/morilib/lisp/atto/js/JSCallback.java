@@ -70,15 +70,17 @@ public class JSCallback implements Callback {
 		} else if(o.equals(LispAtto.UNDEF)) {
 			out.print("undefined");
 		} else if(o instanceof Symbol) {
-			out.print('"');
+			out.print("$mille.getSymbol('");
 			out.print(((Symbol)o).getName());
-			out.print('"');
+			out.print("')");
 		} else if(o instanceof String) {
 			out.print('"');
 			out.print(o);
 			out.print('"');
 		} else if(o instanceof Boolean) {
 			out.print(o);
+		} else if(o instanceof Character) {
+			out.print((int)((Character)o).charValue());
 		} else if(o.equals(Cell.NIL)) {
 			out.print("$mille.nil");
 		} else if(o instanceof java.util.List) {
