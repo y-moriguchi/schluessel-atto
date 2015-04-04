@@ -52,7 +52,7 @@ $mille.o.isNumber = function(o) {
 };
 $mille.o.isInteger = function(o) {
 	return (typeof o === 'number' &&
-			isFinite(nVal) &&
+			isFinite(o) &&
 			o > -9007199254740992 &&
 			o < 9007199254740992 &&
 			Math.floor(o) === o);
@@ -253,8 +253,8 @@ $mille.newenv = function(e, that) {
 	var vars = {};
 	diese.find = function(v) {
 		var x, a;
-		if(vars[v] !== undefined) {
-			return vars[v];
+		if(vars['$' + v] !== undefined) {
+			return vars['$' + v];
 		} else if(e !== undefined && e !== null) {
 			return e.find(v);
 		} else {
@@ -270,11 +270,11 @@ $mille.newenv = function(e, that) {
 		}
 	};
 	diese.bind = function(v, o) {
-		vars[v] = o;
+		vars['$' + v] = o;
 	};
 	diese.set = function(v, o) {
-		if(vars[v] !== undefined) {
-			vars[v] = o;
+		if(vars['$' + v] !== undefined) {
+			vars['$' + v] = o;
 		} else if(e === undefined || e === null) {
 			$mille.o.error('Undefined Symbol ' + v);
 		} else {
@@ -667,12 +667,14 @@ $mille.isChar = function(o) {
 }
 $mille.charUpcase = function(c) {
 	var x;
+	$mille.checkCharacter(c);
 	x = String.fromCharCode(c);
 	x = x.toUpperCase();
 	return x.charCodeAt(0);
 }
 $mille.charDowncase = function(c) {
 	var x;
+	$mille.checkCharacter(c);
 	x = String.fromCharCode(c);
 	x = x.toUpperCase();
 	return x.charCodeAt(0);
@@ -705,6 +707,23 @@ $mille.isCharLowerCase = function(o) {
 $mille.isCharUpperCase = function(o) {
 	$mille.checkCharacter(o);
 	return $mille.charDowncase(o) !== o;
+};
+$mille.isCharAlphabetic = function(o) {
+	return $mille.isCharLowerCase(o) || $mille.isCharUpperCase(o);
+};
+$mille.regexmatch = function(r, o) {
+	var x;
+	$mille.checkCharacter(o);
+	x = String.fromCharCode(o);
+	return r.test(x);
+};
+$mille.regexWhitespace = /^[\u0009-\u000d\u001c-\u0020\u1680\u180e\u2000-\u2006\u2008-\u200b\u2028-\u2029\u205f\u3000]$/;
+$mille.isCharWhitespace = function(o) {
+	return $mille.regexmatch($mille.regexWhitespace, o);
+};
+$mille.regexNumeric = /^[\u0030-\u0039\u0660-\u0669\u06f0-\u06f9\u0966-\u096f\u09e6-\u09ef\u0a66-\u0a6f\u0ae6-\u0aef\u0b66-\u0b6f\u0be7-\u0bef\u0c66-\u0c6f\u0ce6-\u0cef\u0d66-\u0d6f\u0e50-\u0e59\u0ed0-\u0ed9\u0f20-\u0f29\u1040-\u1049\u1369-\u1371\u17e0-\u17e9\u1810-\u1819\u1946-\u194f\uff10-\uff19]$/;
+$mille.isCharNumeric = function(o) {
+	return $mille.regexmatch($mille.regexNumeric, o);
 };
 
 $mille.genv = $mille.newenv(undefined, this);
@@ -785,6 +804,9 @@ $mille.bindg('char-ci<?', $mille.compareCharacterCi(function(x, y) { return x < 
 $mille.bindg('char-ci=?', $mille.compareCharacterCi(function(x, y) { return x === y; }));
 $mille.bindg('char-ci>=?', $mille.compareCharacterCi(function(x, y) { return x >= y; }));
 $mille.bindg('char-ci<=?', $mille.compareCharacterCi(function(x, y) { return x <= y; }));
+$mille.bindg('char-alphabetic?', $mille.isCharAlphabetic);
+$mille.bindg('char-whitespace?', $mille.isCharWhitespace);
+$mille.bindg('char-numeric?', $mille.isCharNumeric);
 $mille.bindg('char-upper-case?', $mille.isCharUpperCase);
 $mille.bindg('char-lower-case?', $mille.isCharLowerCase);
 $mille.bindg('char->integer', $mille.charToInteger);
