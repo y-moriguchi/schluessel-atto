@@ -123,10 +123,98 @@ Datum.prototype.toString = function() {
 Datum.prototype.symbolToString = function() {
 	return this.name;
 };
-
 $mille.datumTypeOf = function(o, typ) {
 	return ((o instanceof Datum) && o.typ() === typ);
 };
+
+$mille.createMemo = function() {
+	return {
+		index: [],
+		value: []
+	}
+};
+$mille.searchMemo = function(memo, o) {
+	var i;
+	for(i = 0; i < memo.index.length; i++) {
+		if(memo.index[i] === o) {
+			return memo.value[i];
+		}
+	}
+	return undefined;
+};
+$mille.setMemo = function(memo, o, v) {
+	var i;
+	for(i = 0; i < memo.index.length; i++) {
+		if(memo.index[i] === o) {
+			memo.value[i] = v;
+		}
+	}
+	memo.index.push(o);
+	memo.value.push(v);
+};
+$mille.walkPair = function(that, memo, count) {
+	var c, v = $mille.searchMemo(memo, that);
+	if(v === -1) {
+		$mille.setMemo(memo, that, count);
+		return count + 1;
+	} else if(v > 0) {
+		return count;
+	} else if($mille.isPair(that)) {
+		$mille.setMemo(memo, that, -1);
+		c = $mille.walkPair(that.car, memo, count);
+		c = $mille.walkPair(that.cdr, memo, c);
+		return c;
+	} else {
+		return count;
+	}
+};
+$mille.cellToString = function(that, memo, memoout) {
+	var o = that, ret, i, v;
+	if($mille.isAtom(o)) {
+		return o.toString();
+	} else if($mille.isNull(o)) {
+		return '()';
+	} else {
+		v = $mille.searchMemo(memo, o);
+		if(v === undefined || v === -1) {
+			ret = '(';
+		} else if($mille.searchMemo(memoout, o)) {
+			return '#' + v + '#';
+		} else {
+			$mille.setMemo(memoout, o, true);
+			ret = '#' + v + '=(';
+		}
+
+		for(i = 0; true; i++) {
+			if($mille.isAtom(o)) {
+				if(i > 0) {
+					ret += ' ';
+				}
+				ret += '. ' + o.toString() + ')';
+				return ret;
+			} else if($mille.isNull(o)) {
+				ret += ')';
+				return ret;
+			} else {
+				if(i > 0) {
+					ret += ' ';
+				}
+				ret += $mille.cellToString(o.car, memo, memoout);
+				o = o.cdr;
+				if($mille.searchMemo(memoout, o)) {
+					ret += ' #' + $mille.searchMemo(memo, o) + '#)';
+					return ret;
+				}
+			}
+		}
+	}
+};
+Datum.prototype.cellToString = function() {
+	var memo = $mille.createMemo(), memoout = $mille.createMemo();
+	$mille.walkPair(this, memo, 1);
+	return $mille.cellToString(this, memo, memoout);
+};
+
 $mille.cons = function(c, d) {
 	var diese;
 	diese = new Datum('cell');

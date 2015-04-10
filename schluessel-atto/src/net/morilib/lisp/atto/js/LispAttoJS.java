@@ -199,6 +199,7 @@ public class LispAttoJS {
 					if(args.length > 0) {
 						System.out.println(js);
 					} else {
+						js = "(function(x){return x?x.toString():x}(" + js +"))";
 						r = en.eval(js);
 						System.out.println(r);
 					}
