@@ -202,7 +202,7 @@ $mille.cellToString = function(that, memo, memoout) {
 				ret += $mille.cellToString(o.car, memo, memoout);
 				o = o.cdr;
 				if($mille.searchMemo(memoout, o)) {
-					ret += ' #' + $mille.searchMemo(memo, o) + '#)';
+					ret += ' . #' + $mille.searchMemo(memo, o) + '#)';
 					return ret;
 				}
 			}
