@@ -536,6 +536,64 @@ $mille.stringAppend = function() {
 	}
 	return v;
 };
+$mille.isString = function(x) {
+	return $mille.o.isString(x);
+};
+$mille.makeString = function(k, ch) {
+	var c, i, ret = '';
+	$mille.checkNaturalNumber(k, 0);
+	if(ch !== undefined) {
+		$mille.checkCharacter(ch);
+	}
+	c = String.fromCharCode(ch === undefined ? 32 : ch);
+	for(i = 0; i < k; i++) {
+		ret += c;
+	}
+	return ret;
+};
+$mille.string = function() {
+	var i, ret = '';
+	for(i = 0; i < arguments.length; i++) {
+		$mille.checkCharacter(arguments[i]);
+		ret += String.fromCharCode(arguments[i]);
+	}
+	return ret;
+};
+$mille.compareString = function(f) {
+	return $mille.compare(f, $mille.checkString);
+};
+$mille.compareStringCi = function(f) {
+	return $mille.compare(function(x, y) {
+		var a = x.toUpperCase();
+		var b = y.toUpperCase();
+		return f(a, b);
+	}, $mille.checkString);
+};
+$mille.stringToList = function(s) {
+	var i, v, c, p, ret;
+	$mille.checkString(s);
+	for(i = 0; i < s.length; i++) {
+		v = s.charCodeAt(i);
+		c = $mille.cons(v, $mille.nil)
+		if(ret === undefined) {
+			ret = c;
+		} else {
+			p.cdr = c;
+		}
+		p = c;
+	}
+	return ret;
+};
+$mille.listToString = function(ls) {
+	var i, v, ret = '';
+	$mille.checkList(ls);
+	v = $mille.cellToList(ls);
+	for(i = 0; i < v.length; i++) {
+		$mille.checkCharacter(v[i]);
+		ret += String.fromCharCode(v[i]);
+	}
+	return ret;
+};
 
 $mille.symbols = {};
 $mille.getSymbol = function(s) {
@@ -848,6 +906,21 @@ $mille.bindg('substring', $mille.substring);
 $mille.bindg('string-ref', $mille.stringRef);
 $mille.bindg('string-length', $mille.stringLength);
 $mille.bindg('string-append', $mille.stringAppend);
+$mille.bindg('string?', $mille.isString);
+$mille.bindg('make-string', $mille.makeString);
+$mille.bindg('string', $mille.string);
+$mille.bindg('string>?', $mille.compareString(function(x, y) { return x > y; }));
+$mille.bindg('string<?', $mille.compareString(function(x, y) { return x < y; }));
+$mille.bindg('string=?', $mille.compareString(function(x, y) { return x === y; }));
+$mille.bindg('string>=?', $mille.compareString(function(x, y) { return x >= y; }));
+$mille.bindg('string<=?', $mille.compareString(function(x, y) { return x <= y; }));
+$mille.bindg('string-ci>?', $mille.compareStringCi(function(x, y) { return x > y; }));
+$mille.bindg('string-ci<?', $mille.compareStringCi(function(x, y) { return x < y; }));
+$mille.bindg('string-ci=?', $mille.compareStringCi(function(x, y) { return x === y; }));
+$mille.bindg('string-ci>=?', $mille.compareStringCi(function(x, y) { return x >= y; }));
+$mille.bindg('string-ci<=?', $mille.compareStringCi(function(x, y) { return x <= y; }));
+$mille.bindg('string->list', $mille.stringToList);
+$mille.bindg('list->string', $mille.listToString);
 $mille.bindg('string->symbol', $mille.stringToSymbol);
 $mille.bindg('symbol->string', $mille.symbolToString);
 $mille.bindg('vector?', $mille.isVector);

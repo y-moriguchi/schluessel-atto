@@ -115,10 +115,10 @@
         ((not (pair? l)) (error "list-tail"))
         (else (list-tail (cdr l) (- n 1))))))
 
-(define list->string (lambda (l)
-  (cond ((null? l) "")
-        (else (string-append (->string (car l))
-                             (list->string (cdr l)))))))
+;(define list->string (lambda (l)
+;  (cond ((null? l) "")
+;        (else (string-append (->string (car l))
+;                             (list->string (cdr l)))))))
 
 (define append (lambda l
   (let lp1 ((l l))
