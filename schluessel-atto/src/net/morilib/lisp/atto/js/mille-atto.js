@@ -92,18 +92,342 @@ $mille.o.entries = function(o) {
 	});
 };
 
-function Trampoline(f) {
-	a = $mille.a.toArray(arguments, 1);
-	this.thunk = function() {
-		return f.apply(null, a);
-	};
+$mille.r.isNaN = function(o) {
+	return o !== o;
 };
-Trampoline.apply = function(o) {
-	var r = o;
-	while(r instanceof Trampoline) {
-		r = o.thunk();
+$mille.r.hypot = function(x, y) {
+	return Math.sqrt(x * x + y * y);
+};
+$mille.r.sinh = function(x) {
+	return (Math.exp(x) - Math.exp(-x)) / 2;
+};
+$mille.r.cosh = function(x) {
+	return (Math.exp(x) + Math.exp(-x)) / 2;
+};
+$mille.r.tanh = function(x) {
+	return $mille.r.sinh(x) / $mille.r.cosh(x);
+};
+
+$mille.c.make = function(re, im) {
+	var that = {};
+	var iszero = function() {
+		return re === 0.0 && im === 0.0;
+	};
+
+	that.getReal = function() {
+		return re;
+	};
+	that.getImag = function() {
+		return im;
+	};
+	that.getMagnitude = function() {
+		return $mille.r.hypot(re, im);
+	};
+	that.getMagnitude2 = function() {
+		return re * re + im * im;
+	};
+	that.getAngle = function() {
+		return Math.atan2(im, re);
+	};
+	that.isReal = function() {
+		return im === 0.0;
+	};
+	that.isNaN = function() {
+		return $mille.r.isNaN(re) || $mille.r.isNaN(im);
+	};
+	that.isZero = function() {
+		return iszero();
+	};
+	that.isOne = function() {
+		return re === 1.0 && im === 0.0;
+	};
+	that.add = function(x) {
+		return $mille.c.make(re + x.getReal(), im + x.getImag());
+	};
+	that.subtract = function(x) {
+		return $mille.c.make(re - x.getReal(), im - x.getImag());
+	};
+	that.multiply = function(x) {
+		return $mille.c.make(
+				re * x.getReal() - im * x.getImag(),
+				re * x.getImag() + im * x.getReal());
+	};
+	that.divide = function(x) {
+		var mg;
+		if(x.isZero()) {
+			return $mille.c.make(NaN, NaN);
+		} else {
+			mg = x.getMagnitude2();
+			return $mille.c.make(
+					(re * x.getReal() + im * x.getImag()) / mg,
+					(im * x.getReal() - re * x.getImag()) / mg);
+		}
+	};
+	that.equals = function(x) {
+		return re === x.getReal() && im === x.getImag();
+	};
+	that.exp = function() {
+		return $mille.c.make(
+				Math.exp(re) * Math.cos(b),
+				Math.exp(re) * Math.sin(b));
+	};
+	that.log = function() {
+		var r, t;
+		if(iszero()) {
+			return $mille.c.make(-Infinity, -Math.PI / 2);
+		} else {
+			r = $mille.r.hypot(re, im);
+			t = Math.atan2(im, re);
+			return $mille.c.make(Math.log(r), t);
+		}
+	};
+	that.sin = function() {
+		var a, b;
+		if(re === 0.0) {
+			return $mille.c.make(0.0, $mille.r.sinh(im));
+		} else {
+			a = Math.sin(re) * $mille.r.cosh(im);
+			b = Math.cos(re) * $mille.r.sinh(im);
+			return $mille.c.make(a, b);
+		}
+	};
+	that.cos = function() {
+		var a, b;
+		if(re === 0.0) {
+			return $mille.c.make($mille.r.cosh(im), 0.0);
+		} else {
+			a = Math.cos(re) * $mille.r.cosh(im);
+			b = -(Math.sin(re) * $mille.r.sinh(im));
+			return $mille.c.make(a, b);
+		}
+	};
+	that.tan = function() {
+		var nm, dn;
+		if(re === 0.0) {
+			return $mille.c.make(0.0, $mille.r.tanh(im));
+		} else if(im === Infinity) {
+			nm = $mille.c.make(Math.tan(re), 1);
+			dn = $mille.c.make(1, Math.tan(re));
+			return nm.divide(dn);
+		} else if(im === -Infinity) {
+			nm = $mille.c.make(Math.tan(re), -1);
+			dn = $mille.c.make(-1, -Math.tan(re));
+			return nm.divide(dn);
+		} else {
+			return that.sin().div(that.cos());
+		}
+	};
+	that.expt = function(z) {
+		var r1, t1, rr, tr;
+		if(iszero()) {
+			return $mille.c.make(0, 0);
+		} else if(z.isZero()) {
+			return $mille.c.make(1, 0);
+		} else if(that.isOne()) {
+			return $mille.c.make(1, 0);
+		} else if(z.isOne()) {
+			return that;
+		} else {
+			r1 = $mille.r.hypot(re, im);
+			t1 = Math.atan2(im, re);
+			rr = z.getReal() * Math.log(r1) - t1 * z.getImag();
+			tr = z.getImag() * Math.log(r1) + t1 * z.getReal();
+			return $mille.c.make(
+					Math.exp(rr) * Math.cos(tr),
+					Math.exp(rr) * Math.sin(tr));
+		}
+	};
+	that.sqrt = function() {
+		if(re >= 0 && im === 0.0) {
+			return $mille.c.make(Math.sqrt(re), 0,0);
+		} else {
+			return that.expt($mille.c.make(0.5, 0));
+		}
+	};
+	that.asin = function() {
+		var z1, z2, z3;
+		if(im === 0.0 && re >= -1.0 && re <= 1.0) {
+			return $mille.c.make(Math.asin(re), 0.0);
+		} else if(re === Infinity) {
+			if(y <= 0) {
+				return $mille.c.make(Math.PI / 2, re);
+			} else {
+				return $mille.c.make(Math.PI / 2, -re);
+			}
+		} else if(re === -Infinity) {
+			if(y <= 0) {
+				return $mille.c.make(-Math.PI / 2, re);
+			} else {
+				return $mille.c.make(-Math.PI / 2, -re);
+			}
+		} else if(im === Infinity || im === -Infinity) {
+			return $mille.c.make(0, im);
+		} else {
+			z1 = $mille.c.I.multiply(that);
+			z2 = $mille.c.ONE.subtract(that.multiply(that)).sqrt();
+			z3 = z1.add(z2).log();
+			return $mille.c.make(z3.getImag(), -z3.getReal());
+		}
+	};
+	that.acos = function() {
+		if(im === 0.0 && x >= -1.0 && x <= 1.0) {
+			return $mille.c.make(Math.acos(x), 0);
+		} else {
+			return $mille.c.HALFPI.subtract(that.asin());
+		}
+	};
+	that.atan = function() {
+		var z1, z2, z3;
+		if(im === 0.0) {
+			return $mille.c.make(Math.atan(re), 0.0);
+		} else if(im === Infinity || im === -Infinity) {
+			if(re === Infinity || re === -Infinity) {
+				return $mille.c.NaN;
+			} else if(im > 0) {
+				return $mille.c.make(Math.PI / 2);
+			} else {
+				return $mille.c.make(-Math.PI / 2);
+			}
+		} else if(re === 0.0 && im === 1.0) {
+			return $mille.c.make(0, Infinity);
+		} else if(re === 0.0 && im === -1.0) {
+			return $mille.c.make(0, -Infinity);
+		} else {
+			z1 = $mille.c.ONE.add($mille.c.I.multiply(that));
+			z2 = $mille.c.ONE.subtract($mille.c.I.multiply(that));
+			z3 = z1.log().subtract(z2.log());
+			return z3.divide($mille.c.TWO_I);
+		}
+	};
+	that.toString = function() {
+		if(im > 0) {
+			return re + '+' + im + 'i';
+		} else if(im < 0) {
+			return re + '' + im + 'i';
+		} else {
+			return re + '';
+		}
+	};
+	return that;
+};
+$mille.c.HALFPI = $mille.c.make(Math.PI / 2);
+$mille.c.TWO_I = $mille.c.make(0, 2);
+$mille.c.ZERO = $mille.c.make(0, 0);
+$mille.c.ONE = $mille.c.make(1, 0);
+$mille.c.I = $mille.c.make(0, 1);
+$mille.c.NaN = $mille.c.make(NaN, NaN);
+$mille.c.toComplex = function(o) {
+	if($mille.o.isNumber(o)) {
+		return $mille.c.make(o, 0);
+	} else {
+		return o;
 	}
-	return r;
+}
+$mille.c.add = function(z, w) {
+	var o, p;
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return z + w;
+	}
+	o = $mille.c.toComplex(z);
+	p = $mille.c.toComplex(w);
+	return o.add(p);
+};
+$mille.c.subtract = function(z, w) {
+	var o, p;
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return z - w;
+	}
+	o = $mille.c.toComplex(z);
+	p = $mille.c.toComplex(w);
+	return o.subtract(p);
+};
+$mille.c.multiply = function(z, w) {
+	var o, p;
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return z * w;
+	}
+	o = $mille.c.toComplex(z);
+	p = $mille.c.toComplex(w);
+	return o.multiply(p);
+};
+$mille.c.divide = function(z, w) {
+	var o, p;
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return z / w;
+	}
+	o = $mille.c.toComplex(z);
+	p = $mille.c.toComplex(w);
+	return o.divide(p);
+};
+$mille.c.exp = function(z) {
+	if($mille.o.isNumber(z)) {
+		return Math.exp(z);
+	} else {
+		return z.exp();
+	}
+};
+$mille.c.log = function(z) {
+	if($mille.o.isNumber(z) && z > 0) {
+		return Math.log(z);
+	} else {
+		return z.log();
+	}
+};
+$mille.c.sin = function(z) {
+	if($mille.o.isNumber(z)) {
+		return Math.sin(z);
+	} else {
+		return z.sin();
+	}
+};
+$mille.c.cos = function(z) {
+	if($mille.o.isNumber(z)) {
+		return Math.sin(z);
+	} else {
+		return z.cos();
+	}
+};
+$mille.c.tan = function(z) {
+	if($mille.o.isNumber(z)) {
+		return Math.tan(z);
+	} else {
+		return z.tan();
+	}
+};
+$mille.c.expt = function(z, w) {
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return Math.pow(z, w);
+	} else {
+		return z.expt(w);
+	}
+};
+$mille.c.sqrt = function(z) {
+	if($mille.o.isNumber(z) && z >= 0.0) {
+		return Math.sqrt(z);
+	} else {
+		return z.sqrt();
+	}
+};
+$mille.c.asin = function(z) {
+	if($mille.o.isNumber(z) && z >= -1.0 && z <= 1.0) {
+		return Math.asin(z);
+	} else {
+		return z.asin();
+	}
+};
+$mille.c.acos = function(z) {
+	if($mille.o.isNumber(z) && z >= -1.0 && z <= 1.0) {
+		return Math.acos(z);
+	} else {
+		return z.acos();
+	}
+};
+$mille.c.atan = function(z) {
+	if($mille.o.isNumber(z)) {
+		return Math.atan(z);
+	} else {
+		return z.atan();
+	}
 };
 
 function Datum(typ) {
