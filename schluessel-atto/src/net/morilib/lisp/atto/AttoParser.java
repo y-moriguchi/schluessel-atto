@@ -17,6 +17,8 @@ package net.morilib.lisp.atto;
 
 import java.io.Reader;
 import java.math.BigInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The parser of Schluessel Atto.
@@ -115,1000 +117,442 @@ public class AttoParser   {
 	int lexer_step(int $c) {
 		switch(STATE) {
 		case 0:
-			if($c >= 0 && $c <= 8) {
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c == 9) {
+			} else if(($c >= 9 && $c <= '\n') || ($c == ' ')) {
 				STATE = 2;
 				return 1;
-			} else if($c == '\n') {
-				STATE = 2;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == ' ') {
-				STATE = 2;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c == '"') {
+			} else if(($c == '.')) {
 				STATE = 3;
 				return 1;
-			} else if($c == '#') {
+			} else if(($c == ',')) {
 				STATE = 4;
 				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c == '\'') {
+			} else if(($c == '#')) {
 				STATE = 5;
 				return 1;
-			} else if($c == '(') {
+			} else if(($c >= '(' && $c <= ')')) {
 				STATE = 6;
 				return 1;
-			} else if($c == ')') {
-				STATE = 6;
-				return 1;
-			} else if($c == '*') {
-				STATE = 1;
-				return 1;
-			} else if($c == '+') {
+			} else if(($c == ';')) {
 				STATE = 7;
 				return 1;
-			} else if($c == ',') {
+			} else if(($c == '+') || ($c == '-')) {
 				STATE = 8;
 				return 1;
-			} else if($c == '-') {
-				STATE = 7;
-				return 1;
-			} else if($c == '.') {
+			} else if(($c == '"')) {
 				STATE = 9;
 				return 1;
-			} else if($c == '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			} else if(($c >= '0' && $c <= '9')) {
 				STATE = 10;
 				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c == ';') {
+			} else if(($c == '\'') || ($c == '`')) {
 				STATE = 11;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c == '`') {
-				STATE = 5;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
 				return 1;
 			}
 			return 0;
 		case 11:
-			if($c >= 0 && $c <= 9) {
-				STATE = 11;
-				return 1;
-			} else if($c >= 11 && $c <= 2147483647) {
-				STATE = 11;
-				return 1;
-			}
 			return 0;
 		case 10:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c == '-') {
-				STATE = 1;
-				return 1;
-			} else if($c == '.') {
+			if(($c == 'E') || ($c == 'e')) {
 				STATE = 12;
 				return 1;
-			} else if($c == '/') {
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= 'D') || ($c >= 'F' && $c <= '_') || ($c >= 'a' && $c <= 'd') || ($c >= 'f' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			} else if(($c == '.')) {
+				STATE = 13;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
 				STATE = 10;
 				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= 'D') {
-				STATE = 1;
-				return 1;
-			} else if($c == 'E') {
-				STATE = 13;
-				return 1;
-			} else if($c >= 'F' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 'd') {
-				STATE = 1;
-				return 1;
-			} else if($c == 'e') {
-				STATE = 13;
-				return 1;
-			} else if($c >= 'f' && $c <= 2147483647) {
-				STATE = 1;
-				return 1;
-			}
-			return 0;
-		case 13:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c == '*') {
-				STATE = 1;
-				return 1;
-			} else if($c == '+') {
+			} else if(($c == '+') || ($c == '-')) {
 				STATE = 14;
 				return 1;
-			} else if($c == '-') {
-				STATE = 14;
-				return 1;
-			} else if($c >= '.' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			} else if(($c == 'i')) {
 				STATE = 15;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
 				return 1;
 			}
 			return 0;
 		case 15:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
-				STATE = 15;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
 			}
 			return 0;
 		case 14:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
-				STATE = 15;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
-				return 1;
-			}
-			return 0;
-		case 12:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			if(($c == '+') || ($c == '-')) {
 				STATE = 16;
 				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
-				return 1;
-			}
-			return 0;
-		case 16:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
-				STATE = 16;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= 'D') {
-				STATE = 1;
-				return 1;
-			} else if($c == 'E') {
-				STATE = 13;
-				return 1;
-			} else if($c >= 'F' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 'd') {
-				STATE = 1;
-				return 1;
-			} else if($c == 'e') {
-				STATE = 13;
-				return 1;
-			} else if($c >= 'f' && $c <= 2147483647) {
-				STATE = 1;
-				return 1;
-			}
-			return 0;
-		case 9:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
-				STATE = 16;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
-				return 1;
-			}
-			return 0;
-		case 8:
-			if($c == '@') {
+			} else if(($c >= '0' && $c <= '9')) {
 				STATE = 17;
 				return 1;
-			}
-			return 0;
-		case 17:
-			return 0;
-		case 7:
-			if($c >= 0 && $c <= 8) {
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c == '-') {
-				STATE = 1;
-				return 1;
-			} else if($c == '.') {
-				STATE = 12;
-				return 1;
-			} else if($c == '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			} else if(($c == '.')) {
 				STATE = 18;
-				return 1;
-			} else if($c == ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 1;
 				return 1;
 			}
 			return 0;
 		case 18:
-			if($c >= 0 && $c <= 8) {
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= 11 && $c <= 31) {
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 19;
+				return 1;
+			}
+			return 0;
+		case 19:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= 'D') || ($c >= 'F' && $c <= '_') || ($c >= 'a' && $c <= 'd') || ($c >= 'f' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c == '!') {
+			} else if(($c == 'E') || ($c == 'e')) {
+				STATE = 20;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 19;
+				return 1;
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 20:
+			if(($c >= '0' && $c <= '9')) {
+				STATE = 21;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c >= '.' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= '$' && $c <= '&') {
+			} else if(($c == '+') || ($c == '-')) {
+				STATE = 22;
+				return 1;
+			}
+			return 0;
+		case 22:
+			if(($c >= '0' && $c <= '9')) {
+				STATE = 21;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= '*' && $c <= '+') {
+			}
+			return 0;
+		case 21:
+			if(($c >= '0' && $c <= '9')) {
+				STATE = 21;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c == '-') {
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 17:
+			if(($c >= '0' && $c <= '9')) {
+				STATE = 17;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c == '-') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= 'D') || ($c >= 'F' && $c <= '_') || ($c >= 'a' && $c <= 'd') || ($c >= 'f' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c == '.') {
-				STATE = 12;
-				return 1;
-			} else if($c == '/') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			} else if(($c == '.')) {
 				STATE = 18;
 				return 1;
-			} else if($c == ':') {
+			} else if(($c == 'E') || ($c == 'e')) {
+				STATE = 20;
+				return 1;
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 16:
+			if(($c >= '0' && $c <= '9')) {
+				STATE = 17;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c == '-') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= '<' && $c <= 'D') {
+			} else if(($c == '.')) {
+				STATE = 18;
+				return 1;
+			}
+			return 0;
+		case 13:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c == 'E') {
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 23;
+				return 1;
+			}
+			return 0;
+		case 23:
+			if(($c == 'E') || ($c == 'e')) {
+				STATE = 12;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c >= '.' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= 'D') || ($c >= 'F' && $c <= '_') || ($c >= 'a' && $c <= 'd') || ($c >= 'f' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 23;
+				return 1;
+			} else if(($c == '+') || ($c == '-')) {
+				STATE = 14;
+				return 1;
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 12:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c >= '.' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 24;
+				return 1;
+			} else if(($c == '+') || ($c == '-')) {
+				STATE = 25;
+				return 1;
+			}
+			return 0;
+		case 25:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 24;
+				return 1;
+			}
+			return 0;
+		case 24:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c >= '.' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 24;
+				return 1;
+			} else if(($c == '+') || ($c == '-')) {
+				STATE = 14;
+				return 1;
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 9:
+			if(($c == '\\')) {
+				STATE = 26;
+				return 1;
+			} else if(($c >= 0 && $c <= '!') || ($c >= '#' && $c <= '[') || ($c >= ']' && $c <= 2147483647)) {
+				STATE = 9;
+				return 1;
+			} else if(($c == '"')) {
+				STATE = 27;
+				return 1;
+			}
+			return 0;
+		case 27:
+			return 0;
+		case 26:
+			if(($c >= 0 && $c <= 2147483647)) {
+				STATE = 9;
+				return 1;
+			}
+			return 0;
+		case 8:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c == '-') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c == '.')) {
 				STATE = 13;
 				return 1;
-			} else if($c >= 'F' && $c <= '_') {
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 28;
+				return 1;
+			}
+			return 0;
+		case 28:
+			if(($c == 'E') || ($c == 'e')) {
+				STATE = 12;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c == '*') || ($c == '/') || ($c == ':') || ($c >= '<' && $c <= 'D') || ($c >= 'F' && $c <= '_') || ($c >= 'a' && $c <= 'd') || ($c >= 'f' && $c <= 'h') || ($c >= 'j' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
-			} else if($c >= 'a' && $c <= 'd') {
-				STATE = 1;
-				return 1;
-			} else if($c == 'e') {
+			} else if(($c == '.')) {
 				STATE = 13;
 				return 1;
-			} else if($c >= 'f' && $c <= 2147483647) {
-				STATE = 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 28;
+				return 1;
+			} else if(($c == '+') || ($c == '-')) {
+				STATE = 14;
+				return 1;
+			} else if(($c == 'i')) {
+				STATE = 15;
+				return 1;
+			}
+			return 0;
+		case 7:
+			if(($c >= 0 && $c <= 9) || ($c >= 11 && $c <= 2147483647)) {
+				STATE = 7;
 				return 1;
 			}
 			return 0;
 		case 6:
 			return 0;
 		case 5:
-			return 0;
-		case 4:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c == '(') {
-				STATE = 20;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= 'A') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'B') {
-				STATE = 21;
-				return 1;
-			} else if($c >= 'C' && $c <= 'N') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'O') {
-				STATE = 22;
-				return 1;
-			} else if($c >= 'P' && $c <= 'W') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'X') {
-				STATE = 23;
-				return 1;
-			} else if($c >= 'Y' && $c <= '[') {
-				STATE = 19;
-				return 1;
-			} else if($c == '\\') {
-				STATE = 24;
-				return 1;
-			} else if($c >= ']' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'a') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'b') {
-				STATE = 21;
-				return 1;
-			} else if($c >= 'c' && $c <= 'n') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'o') {
-				STATE = 22;
-				return 1;
-			} else if($c >= 'p' && $c <= 'w') {
-				STATE = 19;
-				return 1;
-			} else if($c == 'x') {
-				STATE = 23;
-				return 1;
-			} else if($c >= 'y' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 24:
-			if($c >= 0 && $c <= 8) {
-				STATE = 25;
-				return 1;
-			} else if($c >= 9 && $c <= '\n') {
-				STATE = 26;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 25;
-				return 1;
-			} else if($c == ' ') {
-				STATE = 26;
-				return 1;
-			} else if($c == '!') {
-				STATE = 25;
-				return 1;
-			} else if($c >= '"' && $c <= '#') {
-				STATE = 26;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 25;
-				return 1;
-			} else if($c >= '\'' && $c <= ')') {
-				STATE = 26;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 25;
-				return 1;
-			} else if($c == ',') {
-				STATE = 26;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 25;
-				return 1;
-			} else if($c == ';') {
-				STATE = 26;
-				return 1;
-			} else if($c >= '<' && $c <= '@') {
-				STATE = 25;
-				return 1;
-			} else if($c >= 'A' && $c <= 'Z') {
-				STATE = 27;
-				return 1;
-			} else if($c >= '[' && $c <= '_') {
-				STATE = 25;
-				return 1;
-			} else if($c == '`') {
-				STATE = 26;
-				return 1;
-			} else if($c >= 'a' && $c <= 'z') {
-				STATE = 27;
-				return 1;
-			} else if($c >= '{' && $c <= 2147483647) {
-				STATE = 25;
-				return 1;
-			}
-			return 0;
-		case 27:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '@') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'A' && $c <= 'Z') {
-				STATE = 28;
-				return 1;
-			} else if($c >= '[' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 'z') {
-				STATE = 28;
-				return 1;
-			} else if($c >= '{' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 28:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '@') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'A' && $c <= 'Z') {
-				STATE = 28;
-				return 1;
-			} else if($c >= '[' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 'z') {
-				STATE = 28;
-				return 1;
-			} else if($c >= '{' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 26:
-			return 0;
-		case 25:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 23:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
+			if(($c == '(')) {
 				STATE = 29;
 				return 1;
-			} else if($c == ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '@') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'A' && $c <= 'F') {
-				STATE = 29;
-				return 1;
-			} else if($c >= 'G' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 'f') {
-				STATE = 29;
-				return 1;
-			} else if($c >= 'g' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 29:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '0' && $c <= '9') {
-				STATE = 29;
-				return 1;
-			} else if($c == ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '@') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'A' && $c <= 'F') {
-				STATE = 29;
-				return 1;
-			} else if($c >= 'G' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 'f') {
-				STATE = 29;
-				return 1;
-			} else if($c >= 'g' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 22:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '0' && $c <= '7') {
+			} else if(($c == 'O') || ($c == 'o')) {
 				STATE = 30;
 				return 1;
-			} else if($c >= '8' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 30:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '0' && $c <= '7') {
-				STATE = 30;
-				return 1;
-			} else if($c >= '8' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 21:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c == '0') {
+			} else if(($c == 'X') || ($c == 'x')) {
 				STATE = 31;
 				return 1;
-			} else if($c == '1') {
-				STATE = 31;
-				return 1;
-			} else if($c >= '2' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 31:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= '/') {
-				STATE = 19;
-				return 1;
-			} else if($c == '0') {
-				STATE = 31;
-				return 1;
-			} else if($c == '1') {
-				STATE = 31;
-				return 1;
-			} else if($c >= '2' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 20:
-			return 0;
-		case 19:
-			if($c >= 0 && $c <= 8) {
-				STATE = 19;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 19;
-				return 1;
-			} else if($c == '!') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 19;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 19;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
-				STATE = 19;
-				return 1;
-			}
-			return 0;
-		case 3:
-			if($c >= 0 && $c <= '!') {
-				STATE = 3;
-				return 1;
-			} else if($c == '"') {
+			} else if(($c == '\\')) {
 				STATE = 32;
 				return 1;
-			} else if($c >= '#' && $c <= '[') {
-				STATE = 3;
-				return 1;
-			} else if($c == '\\') {
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= 'A') || ($c >= 'C' && $c <= 'N') || ($c >= 'P' && $c <= 'W') || ($c >= 'Y' && $c <= '[') || ($c >= ']' && $c <= '_') || ($c == 'a') || ($c >= 'c' && $c <= 'n') || ($c >= 'p' && $c <= 'w') || ($c >= 'y' && $c <= 2147483647)) {
 				STATE = 33;
 				return 1;
-			} else if($c >= ']' && $c <= 2147483647) {
-				STATE = 3;
+			} else if(($c == 'B') || ($c == 'b')) {
+				STATE = 34;
+				return 1;
+			}
+			return 0;
+		case 34:
+			if(($c >= '0' && $c <= '1')) {
+				STATE = 35;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c >= '2' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 35:
+			if(($c >= '0' && $c <= '1')) {
+				STATE = 35;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c >= '2' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
 				return 1;
 			}
 			return 0;
 		case 33:
-			if($c >= 0 && $c <= 2147483647) {
-				STATE = 3;
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
 				return 1;
 			}
 			return 0;
 		case 32:
+			if(($c >= 'A' && $c <= 'Z') || ($c >= 'a' && $c <= 'z')) {
+				STATE = 36;
+				return 1;
+			} else if(($c >= 9 && $c <= '\n') || ($c == ' ') || ($c >= '"' && $c <= '#') || ($c >= '\'' && $c <= ')') || ($c == ',') || ($c == ';') || ($c == '`')) {
+				STATE = 37;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '@') || ($c >= '[' && $c <= '_') || ($c >= '{' && $c <= 2147483647)) {
+				STATE = 38;
+				return 1;
+			}
+			return 0;
+		case 38:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 37:
+			return 0;
+		case 36:
+			if(($c >= 'A' && $c <= 'Z') || ($c >= 'a' && $c <= 'z')) {
+				STATE = 39;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '@') || ($c >= '[' && $c <= '_') || ($c >= '{' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 39:
+			if(($c >= 'A' && $c <= 'Z') || ($c >= 'a' && $c <= 'z')) {
+				STATE = 39;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '@') || ($c >= '[' && $c <= '_') || ($c >= '{' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 31:
+			if(($c >= '0' && $c <= '9') || ($c >= 'A' && $c <= 'F') || ($c >= 'a' && $c <= 'f')) {
+				STATE = 40;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '@') || ($c >= 'G' && $c <= '_') || ($c >= 'g' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 40:
+			if(($c >= '0' && $c <= '9') || ($c >= 'A' && $c <= 'F') || ($c >= 'a' && $c <= 'f')) {
+				STATE = 40;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '@') || ($c >= 'G' && $c <= '_') || ($c >= 'g' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 30:
+			if(($c >= '0' && $c <= '7')) {
+				STATE = 41;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c >= '8' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 41:
+			if(($c >= '0' && $c <= '7')) {
+				STATE = 41;
+				return 1;
+			} else if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c >= '8' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 33;
+				return 1;
+			}
+			return 0;
+		case 29:
+			return 0;
+		case 4:
+			if(($c == '@')) {
+				STATE = 42;
+				return 1;
+			}
+			return 0;
+		case 42:
+			return 0;
+		case 3:
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= '/') || ($c == ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
+				STATE = 1;
+				return 1;
+			} else if(($c >= '0' && $c <= '9')) {
+				STATE = 23;
+				return 1;
+			}
 			return 0;
 		case 2:
-			if($c == 9) {
-				STATE = 2;
-				return 1;
-			} else if($c == '\n') {
-				STATE = 2;
-				return 1;
-			} else if($c == ' ') {
+			if(($c >= 9 && $c <= '\n') || ($c == ' ')) {
 				STATE = 2;
 				return 1;
 			}
 			return 0;
 		case 1:
-			if($c >= 0 && $c <= 8) {
-				STATE = 1;
-				return 1;
-			} else if($c >= 11 && $c <= 31) {
-				STATE = 1;
-				return 1;
-			} else if($c == '!') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '$' && $c <= '&') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '*' && $c <= '+') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '-' && $c <= ':') {
-				STATE = 1;
-				return 1;
-			} else if($c >= '<' && $c <= '_') {
-				STATE = 1;
-				return 1;
-			} else if($c >= 'a' && $c <= 2147483647) {
+			if(($c >= 0 && $c <= 8) || ($c >= 11 && $c <= 31) || ($c == '!') || ($c >= '$' && $c <= '&') || ($c >= '*' && $c <= '+') || ($c >= '-' && $c <= ':') || ($c >= '<' && $c <= '_') || ($c >= 'a' && $c <= 2147483647)) {
 				STATE = 1;
 				return 1;
 			}
@@ -1120,11 +564,11 @@ public class AttoParser   {
 	boolean lexer_accepted() {
 		return (STATE == 1 ||
 				STATE == 2 ||
-				STATE == 5 ||
+				STATE == 3 ||
+				STATE == 4 ||
 				STATE == 6 ||
 				STATE == 7 ||
 				STATE == 8 ||
-				STATE == 9 ||
 				STATE == 10 ||
 				STATE == 11 ||
 				STATE == 12 ||
@@ -1142,106 +586,142 @@ public class AttoParser   {
 				STATE == 25 ||
 				STATE == 24 ||
 				STATE == 27 ||
-				STATE == 26 ||
 				STATE == 29 ||
 				STATE == 28 ||
 				STATE == 31 ||
 				STATE == 30 ||
-				STATE == 32);
+				STATE == 34 ||
+				STATE == 35 ||
+				STATE == 32 ||
+				STATE == 33 ||
+				STATE == 38 ||
+				STATE == 39 ||
+				STATE == 36 ||
+				STATE == 37 ||
+				STATE == 42 ||
+				STATE == 40 ||
+				STATE == 41);
 	}
 
 	Object lexer_gettoken(StringBuffer b) {
 		String $$ = b.toString();
 
 		switch(STATE) {
-		case 24:
+		case 18:
+			// State11               
+return Symbol.get($$);
+		case 32:
 			// State6         
 return shp($$);
-		case 19:
+		case 20:
+			// State11               
+return Symbol.get($$);
+		case 34:
 			// State6         
 return shp($$);
-		case 30:
-			// State36        
-return oct($$);
+		case 14:
+			// State11               
+return Symbol.get($$);
+		case 25:
+			// State11               
+return Symbol.get($$);
+		case 27:
+			// State2         
+return str($$);
+		case 37:
+			// State23        
+return ch1($$);
+		case 21:
+			// State11               
+return Symbol.get($$);
 		case 13:
 			// State11               
 return Symbol.get($$);
-		case 20:
-			// State10   
-return $$;
-		case 12:
-			// State11               
-return Symbol.get($$);
-		case 22:
-			// State6         
-return shp($$);
-		case 26:
-			// State23        
-return ch1($$);
-		case 1:
-			// State11               
-return Symbol.get($$);
-		case 21:
-			// State6         
-return shp($$);
-		case 29:
-			// State34        
-return hex($$);
-		case 31:
-			// State32        
-return bin($$);
-		case 17:
-			// State21       
-return MT.UNS;
-		case 9:
-			// State27   
-return $$;
-		case 28:
-			// State24        
-return chn($$);
-		case 18:
+		case 23:
 			// State13        
 return dbl($$);
-		case 6:
-			// State27   
-return $$;
-		case 5:
+		case 24:
+			// State13        
+return dbl($$);
+		case 11:
 			// State20           
 return MT.get($$);
-		case 2:
-			// State9      
-return null;
-		case 11:
+		case 7:
 			// State7      
 return null;
-		case 32:
-			// State2         
-return str($$);
-		case 15:
-			// State13        
-return dbl($$);
-		case 25:
-			// State23        
-return ch1($$);
 		case 8:
-			// State20           
-return MT.get($$);
-		case 23:
-			// State6         
-return shp($$);
-		case 7:
 			// State11               
 return Symbol.get($$);
+		case 36:
+			// State25        
+return ch1($$);
+		case 29:
+			// State10   
+return $$;
 		case 16:
-			// State13        
-return dbl($$);
+			// State11               
+return Symbol.get($$);
 		case 10:
 			// State12         
 return _int($$);
-		case 27:
-			// State25        
+		case 3:
+			// State27   
+return $$;
+		case 19:
+			// State11               
+return Symbol.get($$);
+		case 35:
+			// State32        
+return bin($$);
+		case 4:
+			// State20           
+return MT.get($$);
+		case 39:
+			// State24        
+return chn($$);
+		case 41:
+			// State36        
+return oct($$);
+		case 6:
+			// State27   
+return $$;
+		case 31:
+			// State6         
+return shp($$);
+		case 1:
+			// State11               
+return Symbol.get($$);
+		case 12:
+			// State11               
+return Symbol.get($$);
+		case 2:
+			// State9      
+return null;
+		case 33:
+			// State6         
+return shp($$);
+		case 38:
+			// State23        
 return ch1($$);
-		case 14:
+		case 28:
+			// State13        
+return dbl($$);
+		case 22:
+			// State11               
+return Symbol.get($$);
+		case 40:
+			// State34        
+return hex($$);
+		case 30:
+			// State6         
+return shp($$);
+		case 42:
+			// State21       
+return MT.UNS;
+		case 15:
+			// State40        
+return cmp($$);
+		case 17:
 			// State11               
 return Symbol.get($$);
 		default:  return null;
@@ -1249,7 +729,7 @@ return Symbol.get($$);
 	}
 
 	boolean lexer_isdead() {
-return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STATE == 5 || STATE == 32);
+return (false || STATE == 27 || STATE == 37 || STATE == 11 || STATE == 29 || STATE == 6 || STATE == 42);
 	}
 
 	int _read1ul() throws java.io.IOException {
@@ -1516,75 +996,75 @@ return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STAT
 	@SuppressWarnings("unchecked")
 	int AttoParser_execaction(Object  $c) {
 		switch(STATE) {
-		case 16:
-			break;
-		case 15:
-			break;
-		case 11:
-			break;
-		case 9:
-			// State38         
-			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
-			break;
 		case 2:
 			// lst                                      
 			(__stv[__slen - 1][2]) = new java.util.ArrayList<Object>();
-			break;
-		case 3:
-			// vec                                      
-			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
-			break;
-		case 21:
-			// State13            
-			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
-			break;
-		case 20:
 			break;
 		case 8:
 			// State17             
 			_ = mta(((MT)(__stv[__slen - 1][4])), _);
 			break;
-		case 1:
-			// State8   
-			_ = null;
-			break;
-		case 5:
-			// State19     
-			_ = unw($c);
-			break;
-		case 12:
-			// State9        
-			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+		case 14:
+			// State37      
+			_ = Cell.NIL;
 			break;
 		case 10:
-			break;
-		case 4:
-			// meta      
-			(__stv[__slen - 1][4]) = $c;
-			break;
-		case 19:
-			break;
-		case 6:
-			break;
-		case 18:
-			// State6          
-			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
 			break;
 		case 17:
 			// State5        
 			((java.util.List<Object>)(__stv[__slen - 1][2])).add(_);
 			break;
+		case 6:
+			break;
+		case 4:
+			// meta      
+			(__stv[__slen - 1][4]) = $c;
+			break;
+		case 5:
+			// State19     
+			_ = unw($c);
+			break;
 		case 13:
 			// State10         
 			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
 			break;
-		case 14:
-			// State37      
-			_ = Cell.NIL;
+		case 12:
+			// State9        
+			((java.util.List<Object>)(__stv[__slen - 1][3])).add(_);
+			break;
+		case 16:
+			break;
+		case 11:
+			break;
+		case 3:
+			// vec                                      
+			(__stv[__slen - 1][3]) = new java.util.ArrayList<Object>();
+			break;
+		case 20:
+			break;
+		case 1:
+			// State8   
+			_ = null;
 			break;
 		case 7:
 			break;
+		case 21:
+			// State13            
+			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])), _);
+			break;
+		case 19:
+			break;
+		case 9:
+			// State38         
+			_ = vec(((java.util.List<Object>)(__stv[__slen - 1][3])));
+			break;
 		case 0:
+			break;
+		case 18:
+			// State6          
+			_ = lst(((java.util.List<Object>)(__stv[__slen - 1][2])));
+			break;
+		case 15:
 			break;
 		}
 		return 1;
@@ -1746,7 +1226,8 @@ return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STAT
 					st[0] = NINA_ACCEPT;  return null;
 				} else if(c == null) {
 					if(!b)  throw new TokenException();
-					st[0] = NINA_ACCEPT;  return null;
+					st[0] = NINA_ACCEPT;
+					return null;
 				} else {
 					__logprint("match failed: ", c);
 					__puttrace();
@@ -2000,6 +1481,22 @@ return (false || STATE == 20 || STATE == 26 || STATE == 17 || STATE == 6 || STAT
 		} else {
 			throw new TokenException();
 		}
+	}
+
+	private static final Pattern CMP = Pattern.compile(
+			"([\\-+]?.*)([\\-+].*)i");
+	private static Double[] cmp(String s) {
+		Matcher m;
+		Double r, i;
+
+		if((m = CMP.matcher(s)).matches()) {
+			r = Double.valueOf(m.group(1));
+			i = Double.valueOf(m.group(2));
+		} else {
+			r = new Double(0);
+			i = Double.valueOf(s.substring(0, s.length() - 1));
+		}
+		return new Double[] { r, i };
 	}
 
 	private static Double dbl(String s) {

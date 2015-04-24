@@ -92,6 +92,7 @@ $mille.o.entries = function(o) {
 	});
 };
 
+$mille.r = {};
 $mille.r.isNaN = function(o) {
 	return o !== o;
 };
@@ -108,12 +109,16 @@ $mille.r.tanh = function(x) {
 	return $mille.r.sinh(x) / $mille.r.cosh(x);
 };
 
+$mille.c = {};
 $mille.c.make = function(re, im) {
 	var that = {};
 	var iszero = function() {
 		return re === 0.0 && im === 0.0;
 	};
 
+	that.$complex = function() {
+		return "complex";
+	};
 	that.getReal = function() {
 		return re;
 	};
@@ -316,6 +321,12 @@ $mille.c.ZERO = $mille.c.make(0, 0);
 $mille.c.ONE = $mille.c.make(1, 0);
 $mille.c.I = $mille.c.make(0, 1);
 $mille.c.NaN = $mille.c.make(NaN, NaN);
+$mille.c.isComplex = function(o) {
+	return (typeof o === 'object' &&
+			o.hasOwnProperty('$complex') &&
+			$mille.o.isFunction(o.$complex) &&
+			o.$complex() === 'complex');
+};
 $mille.c.toComplex = function(o) {
 	if($mille.o.isNumber(o)) {
 		return $mille.c.make(o, 0);
@@ -323,6 +334,24 @@ $mille.c.toComplex = function(o) {
 		return o;
 	}
 }
+$mille.c.getReal = function(z) {
+	return $mille.o.isNumber(z) ? z : z.getReal();
+};
+$mille.c.getImag = function(z) {
+	return $mille.o.isNumber(z) ? 0 : z.getImag();
+};
+$mille.c.magnitude = function(z) {
+	return $mille.o.isNumber(z) ? Math.abs(z) : z.getMagnitude();
+};
+$mille.c.angle = function(z) {
+	if(!$mille.o.isNumber(z)) {
+		return z.getAngle();
+	} else if(z >= 0) {
+		return 0;
+	} else {
+		return Math.PI;
+	}
+};
 $mille.c.add = function(z, w) {
 	var o, p;
 	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
@@ -359,6 +388,18 @@ $mille.c.divide = function(z, w) {
 	p = $mille.c.toComplex(w);
 	return o.divide(p);
 };
+$mille.c.equals = function(z, w) {
+	var o, p;
+	if($mille.o.isNumber(z) && $mille.o.isNumber(w)) {
+		return z === w;
+	}
+	o = $mille.c.toComplex(z);
+	p = $mille.c.toComplex(w);
+	return o.equals(p);
+};
+$mille.c.notEquals = function(z, w) {
+	return !$mille.c.equals(z, w);
+}
 $mille.c.exp = function(z) {
 	if($mille.o.isNumber(z)) {
 		return Math.exp(z);
@@ -717,8 +758,18 @@ $mille.getGlobal = function() {
 $mille.getGlobal();
 
 $mille.checkNumber = function(x) {
-	if(!$mille.o.isNumber(x)) {
+	if(!$mille.isComplex(x)) {
 		$mille.o.error('the type of the object is not number:' + x);
+	}
+};
+$mille.checkReal = function(x) {
+	if(!$mille.o.isNumber(x)) {
+		$mille.o.error('the type of the object is not real number:' + x);
+	}
+};
+$mille.checkNonnegativeReal = function(x) {
+	if(!$mille.o.isNumber(x) || x < 0) {
+		$mille.o.error('the type of the object is not non-negative real number:' + x);
 	}
 };
 $mille.checkInteger = function(x) {
@@ -799,7 +850,7 @@ $mille.compare = function(f, check) {
 	};
 };
 $mille.compareNumber = function(f) {
-	return $mille.compare(f, $mille.checkNumber);
+	return $mille.compare(f, $mille.checkReal);
 };
 $mille.eq = $mille.compare(function(x, y) { return x === y; });
 $mille.arith1 = function(f, d) {
@@ -1003,7 +1054,7 @@ $mille.isBoolean = function(x) {
 };
 
 $mille.isNumber = function(x) {
-	return $mille.o.isNumber(x);
+	return $mille.isComplex(x);
 };
 $mille.isReal = function(x) {
 	return $mille.o.isNumber(x);
@@ -1018,6 +1069,7 @@ $mille.isInexact = function(x) {
 	return !$mille.isExact(x);
 };
 $mille.abs = function(x) {
+	$mille.checkReal(x);
 	return Math.abs(x);
 };
 $mille.quotient = function(x, y) {
@@ -1049,6 +1101,22 @@ $mille.modulo = function(x, y) {
 	} else {
 		return (x % y) - y;
 	}
+};
+$mille.floor = function(x) {
+	$mille.checkReal(x);
+	return Math.floor(x);
+};
+$mille.ceiling = function(x) {
+	$mille.checkReal(x);
+	return Math.ceil(x);
+};
+$mille.truncate = function(x) {
+	$mille.checkReal(x);
+	return x > 0 ? Math.floor(x) : Math.ceil(x);
+};
+$mille.round = function(x) {
+	$mille.checkReal(x);
+	return Math.round(x);
 };
 
 $mille.isObject = function(o) {
@@ -1196,6 +1264,119 @@ $mille.isCharNumeric = function(o) {
 	return $mille.regexmatch($mille.regexNumeric, o);
 };
 
+$mille.isComplexOnly = function(o) {
+	return $mille.c.isComplex(o);
+};
+$mille.isComplex = function(o) {
+	return $mille.o.isNumber(o) || $mille.isComplexOnly(o);
+};
+$mille.isZero = function(o) {
+	$mille.checkNumber(o);
+	return o === 0.0;
+};
+$mille.isPositive = function(o) {
+	$mille.checkNumber(o);
+	return $mille.o.isNumber(o) && o > 0;
+};
+$mille.isNegative = function(o) {
+	$mille.checkNumber(o);
+	return $mille.o.isNumber(o) && o < 0;
+};
+$mille.isOdd = function(o) {
+	$mille.checkNumber(o);
+	return $mille.o.isInteger(o) && o % 2 == 1;
+};
+$mille.isEven = function(o) {
+	$mille.checkNumber(o);
+	return $mille.o.isInteger(o) && o % 2 == 0;
+};
+$mille.max = function() {
+	var i, v, r = -Infinity;
+	for(i = 0; i < arguments.length; i++) {
+		v = arguments[i];
+		$mille.checkReal(v);
+		if(v > r) {
+			r = v;
+		}
+	}
+	return r;
+};
+$mille.min = function() {
+	var i, v, r = Infinity;
+	for(i = 0; i < arguments.length; i++) {
+		v = arguments[i];
+		$mille.checkReal(v);
+		if(v < r) {
+			r = v;
+		}
+	}
+	return r;
+};
+$mille.exp = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.exp(z);
+};
+$mille.log = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.log(z);
+};
+$mille.sin = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.sin(z);
+};
+$mille.cos = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.cos(z);
+};
+$mille.tan = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.tan(z);
+};
+$mille.asin = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.asin(z);
+};
+$mille.acos = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.acos(z);
+};
+$mille.atan = function(z, y) {
+	if(y === undefined) {
+		$mille.checkNumber(z);
+		return $mille.c.atan(z);
+	} else {
+		$mille.checkReal(z);
+		$mille.checkReal(y);
+		return Math.atan2(z, y);
+	}
+};
+$mille.makeRectangular = function(x, y) {
+	$mille.checkReal(x);
+	$mille.checkReal(y);
+	$mille.c.make(x, y);
+};
+$mille.makePolar = function(r, t) {
+	$mille.checkNonnegativeReal(x);
+	$mille.checkReal(y);
+	$mille.c.make(r * Math.cos(t), r * Math.sin(t));
+};
+$mille.realPart = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.getReal(z);
+};
+$mille.imagPart = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.getImag(z);
+};
+$mille.magnitude = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.magnitude(z);
+};
+$mille.angle = function(z) {
+	$mille.checkNumber(z);
+	return $mille.c.angle(z);
+};
+
 $mille.genv = $mille.newenv(undefined, this);
 $mille.bindg = function(b, fn) {
 	$mille.genv.bind(b, $mille.closure($mille.genv, this, function(e) {
@@ -1218,13 +1399,13 @@ $mille.bindg('1+', $mille.unary(function(x) { return x + 1; }));
 $mille.bindg('1-', $mille.unary(function(x) { return x - 1; }));
 $mille.bindg('>', $mille.compareNumber(function(x, y) { return x > y; }));
 $mille.bindg('<', $mille.compareNumber(function(x, y) { return x < y; }));
-$mille.bindg('=', $mille.compareNumber(function(x, y) { return x === y; }));
-$mille.bindg('+', $mille.arith1(function(x, y) { return x + y; }, 0));
-$mille.bindg('-', $mille.arith2(function(x, y) { return x - y; },
-		function(x) { return -x; }));
-$mille.bindg('*', $mille.arith1(function(x, y) { return x * y; }, 1));
-$mille.bindg('/', $mille.arith2(function(x, y) { return x / y; },
-		function(x) { return 1 / x; }));
+$mille.bindg('=', $mille.compare($mille.c.equals, $mille.checkNumber));
+$mille.bindg('+', $mille.arith1($mille.c.add, 0));
+$mille.bindg('-', $mille.arith2($mille.c.subtract,
+		function(x) { return $mille.c.subtract(0, x); }));
+$mille.bindg('*', $mille.arith1($mille.c.multiply, 1));
+$mille.bindg('/', $mille.arith2($mille.c.divide,
+		function(x) { return $mille.c.divide(1, x); }));
 $mille.bindg('string?', $mille.o.isString);
 $mille.bindg('substring', $mille.substring);
 $mille.bindg('string-ref', $mille.stringRef);
@@ -1259,6 +1440,9 @@ $mille.bindg('list->vector', $mille.listToVector);
 $mille.bindg('vector-fill!', $mille.vectorFill);
 $mille.bindg('not', $mille.not);
 $mille.bindg('boolean?', $mille.isBoolean);
+
+$mille.bindg('>=', $mille.compareNumber(function(x, y) { return x >= y; }));
+$mille.bindg('<=', $mille.compareNumber(function(x, y) { return x <= y; }));
 $mille.bindg('number?', $mille.isNumber);
 $mille.bindg('real?', $mille.isReal);
 $mille.bindg('integer?', $mille.isInteger);
@@ -1268,8 +1452,10 @@ $mille.bindg('abs', $mille.abs);
 $mille.bindg('remainder', $mille.remainder);
 $mille.bindg('quotient', $mille.quotient);
 $mille.bindg('modulo', $mille.modulo);
-$mille.bindg('>=', $mille.compareNumber(function(x, y) { return x >= y; }));
-$mille.bindg('<=', $mille.compareNumber(function(x, y) { return x <= y; }));
+$mille.bindg('floor', $mille.floor);
+$mille.bindg('ceiling', $mille.ceiling);
+$mille.bindg('truncate', $mille.truncate);
+$mille.bindg('round', $mille.round);
 
 $mille.bindg('object?', $mille.isObject);
 $mille.bindg('object-ref', $mille.objectRef);
@@ -1298,6 +1484,29 @@ $mille.bindg('char->integer', $mille.charToInteger);
 $mille.bindg('integer->char', $mille.integerToChar);
 $mille.bindg('char-upcase', $mille.charUpcase);
 $mille.bindg('char-downcase', $mille.charDowncase);
+
+$mille.bindg('complex?', $mille.isComplex);
+$mille.bindg('zero?', $mille.isZero);
+$mille.bindg('positive?', $mille.isPositive);
+$mille.bindg('negative?', $mille.isNegative);
+$mille.bindg('odd?', $mille.isOdd);
+$mille.bindg('even?', $mille.isEven);
+$mille.bindg('max', $mille.max);
+$mille.bindg('min', $mille.min);
+$mille.bindg('exp', $mille.exp);
+$mille.bindg('log', $mille.log);
+$mille.bindg('sin', $mille.sin);
+$mille.bindg('cos', $mille.cos);
+$mille.bindg('tan', $mille.tan);
+$mille.bindg('asin', $mille.asin);
+$mille.bindg('acos', $mille.acos);
+$mille.bindg('atan', $mille.atan);
+$mille.bindg('make-rectangular', $mille.makeRectangular);
+$mille.bindg('make-polar', $mille.makePolar);
+$mille.bindg('real-part', $mille.realPart);
+$mille.bindg('imag-part', $mille.imagPart);
+$mille.bindg('magnitude', $mille.magnitude);
+$mille.bindg('angle', $mille.angle);
 
 $mille.bindg('equal?', $mille.isEqual);
 $env = $mille.genv;

@@ -100,6 +100,12 @@ public class JSCallback implements Callback {
 			out.print(",");
 			value(env, ((Cell)o).cdr);
 			out.print(")");
+		} else if(o instanceof Double[]) {
+			out.print("$mille.c.make(");
+			out.print(((Double[])o)[0]);
+			out.print(",");
+			out.print(((Double[])o)[1]);
+			out.print(")");
 		} else {
 			out.print("#<object>");
 		}
