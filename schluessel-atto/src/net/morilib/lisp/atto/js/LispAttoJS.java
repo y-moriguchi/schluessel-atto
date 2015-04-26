@@ -170,6 +170,7 @@ public class LispAttoJS {
 		mn = new ScriptEngineManager();
 		en = mn.getEngineByName("javascript");
 		loadJs("mille-atto.js", mn, en);
+		loadJs("sExpression.js", mn, en);
 
 		if(args.length > 0) {
 			pr = "";

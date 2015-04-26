@@ -111,14 +111,11 @@ $mille.r.tanh = function(x) {
 
 $mille.c = {};
 $mille.c.make = function(re, im) {
-	var that = {};
+	var that = new Datum('complex');
 	var iszero = function() {
 		return re === 0.0 && im === 0.0;
 	};
 
-	that.$complex = function() {
-		return "complex";
-	};
 	that.getReal = function() {
 		return re;
 	};
@@ -304,15 +301,6 @@ $mille.c.make = function(re, im) {
 			return z3.divide($mille.c.TWO_I);
 		}
 	};
-	that.toString = function() {
-		if(im > 0) {
-			return re + '+' + im + 'i';
-		} else if(im < 0) {
-			return re + '' + im + 'i';
-		} else {
-			return re + '';
-		}
-	};
 	return that;
 };
 $mille.c.HALFPI = $mille.c.make(Math.PI / 2);
@@ -322,10 +310,7 @@ $mille.c.ONE = $mille.c.make(1, 0);
 $mille.c.I = $mille.c.make(0, 1);
 $mille.c.NaN = $mille.c.make(NaN, NaN);
 $mille.c.isComplex = function(o) {
-	return (typeof o === 'object' &&
-			o.hasOwnProperty('$complex') &&
-			$mille.o.isFunction(o.$complex) &&
-			o.$complex() === 'complex');
+	return $mille.datumTypeOf(o, 'complex');
 };
 $mille.c.toComplex = function(o) {
 	if($mille.o.isNumber(o)) {
@@ -488,6 +473,16 @@ Datum.prototype.toString = function() {
 Datum.prototype.symbolToString = function() {
 	return this.name;
 };
+Datum.prototype.complexToString = function() {
+	if(this.getImag() > 0) {
+		return this.getReal() + '+' + this.getImag() + 'i';
+	} else if(this.getImag() < 0) {
+		return this.getReal() + '' + this.getImag() + 'i';
+	} else {
+		return this.getReal() + '';
+	}
+};
+
 $mille.datumTypeOf = function(o, typ) {
 	return ((o instanceof Datum) && o.typ() === typ);
 };
@@ -1377,6 +1372,23 @@ $mille.angle = function(z) {
 	return $mille.c.angle(z);
 };
 
+$mille.readString = function(s) {
+	var o, p = 0;
+	$mille.checkString(s);
+	o = new SExpression();
+	o.parse(function () {
+		if(p < s.length) {
+			return s.charCodeAt(p++);
+		} else if(p === s.length) {
+			p++;
+			return 1;
+		} else {
+			return null;
+		}
+	});
+	return o._;
+};
+
 $mille.genv = $mille.newenv(undefined, this);
 $mille.bindg = function(b, fn) {
 	$mille.genv.bind(b, $mille.closure($mille.genv, this, function(e) {
@@ -1509,4 +1521,5 @@ $mille.bindg('magnitude', $mille.magnitude);
 $mille.bindg('angle', $mille.angle);
 
 $mille.bindg('equal?', $mille.isEqual);
+$mille.bindg('read-string', $mille.readString);
 $env = $mille.genv;

@@ -1,16 +1,20 @@
 #machine DFABuilder
 #option targetLanguage=JavaScript
 
- *S****       @@@@@@@
- *    >-{exp}->     @
- ******       @@@@@@@
-
+ *S****       *******          @@@
+ *    >-{exp}->     >-[\u0001]-> @
+ ****v*       *******          @@@
+     |
+     |      ***
+     +--')'-> *
+            ***
 -- exp --
-                                           +---------+
- *S**********                      ********v*       *^********************       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- *          >-'('/'$this.initc();'->        >-{exp}->$this.addc($this._);>-+-')'->$this._ = $this.endc($mille.nil);@
- *v******^*v*                      *v******^*       *v******^************* |     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  +-[\s]-+ |                        +-[\s]-+         +-[\s]-+              |
+                                          +---')'---------------------------------+
+                                          |+---------+                            |
+ *S**********                      *******^v*       *^********************       @v@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ *          >-'('/'$this.initc();'->        >-{exp}->$this.addc($this._);>-+     @$this._ = $this.endc($mille.nil);@
+ *v******^*v*                      *v******^*       ********************** |     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  +-[\s]-+ |                        +-[\s]-+                               |
            |                                 +-----------------------------+
            |                                 |            ***           ***       ***     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
            |                                 +-/?=\.[\s]/-> >-/\.[\s]*/-> >-{exp}-> >-')'->$this._ = $this.endc($this._);@
@@ -19,22 +23,30 @@
            |     **********       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
            +-[']->        >-{exp}->$this._ = $this.quote($this._);@
            |     *v******^*       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-           |      +-[\s]-+
-           |                               +---------+
-           |                       ********v*       *^***********************     @@@@@@@@@@@@@@@@@@@@@
-           +-"#("/'$this.ls = [];'->        >-{exp}->$this.ls.push($this._);>-')'->$this._ = $this.ls;@
-                                   *v******^*       *v******^****************     @@@@@@@@@@@@@@@@@@@@@
-                                    +-[\s]-+         +-[\s]-+
+           |      +-[\s]-+                +--------------------------------')'--+
+           |                              |+---------+                          |
+           |                       *******^v*       *^********************     @v@@@@@@@@@@@@@@@@@@@@@@@
+           +-"#("/'$this.initv();'->        >-{exp}->$this.addv($this._);*     @$this._ = $this.endv();@
+           |                       *v******^*       **********************     @@@@@@@@@@@@@@@@@@@@@@@@@
+           |                        +-[\s]-+
+           |         @@@
+           +-{value}-> @
+                     @@@
 -- value --
- *S********            ***********************         ***          ***     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- *        >-+-{:float}->$this._ = $this.$num;>-+-'+'---> >-{:float}-> >-'i'->$this._ = $mille.c.make($this._, $this.$num);@
- *v******^* |          *********************** |       * *          ***     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  +-[\s]-+  |                                  +-/?=-/-> *
-            |                                  |       ***
-            |                                  |
-            |                                  |     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            |                                  +-'i'->$this._ = $mille.c.make(0, $this._);@
-            |                                        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                                                                        ***
+         +----/?=[\-+]?([0-9]*\.[0-9]+|[0-9]+)([eE][\-+]?[0-9]+)?[ \t\n;()#"',`\u0001]/-> *
+         |                                                                              *v*
+         |    +--------------------------------------------------------------------------+
+         |    |
+ *S******^*   |          @@@@@@@@@@@@@@@@@@@@@@@         ***          ***     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ *        >-+ +-{:float}->$this._ = $this.$num;>-+-'+'---> >-{:float}-> >-'i'->$this._ = $mille.c.make($this._, $this.$num);@
+ *v******^* |            @@@@@@@@@@@@@@@@@@@@@@@ |       * *          ***     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  +-[\s]-+  |                                    +-/?=-/-> *
+            |                                    |       ***
+            |                                    |
+            |                                    |     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            |                                    +-'i'->$this._ = $mille.c.make(0, $this._);@
+            |                                          @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             |                          +-.-+
             |                         *^***v*************     @@@@@@@@@@@@@@@@@@@
             +-'"'/'$this.clearbuf();'->$this.addbuf($c);>-'"'->$this._ = $t.buf;@
@@ -45,10 +57,10 @@
             |                         ********v*^*
             |                         *          *
             |                         ************
-            |                                             +-[^ \t\n;()#"',`]-+
-            |     *******************                    *^******************v* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            +-'#'->$this.clearbuf();>-+-[^ \t\n;()#"',`]->$this.addbuf($c);   >->$this._ = $this.sharp($this.buf);@
-            |     ******************* |                  ********************** @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            |                                                           +-[^ \t\n;()#"',`\u0001]-+
+            |     *******************                                  *^************************v* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            +-'#'->$this.clearbuf();>-+-[^bBoOxX\\ \t\n;()#"',`\u0001]->$this.addbuf($c);         >->$this._ = $this.sharp($this.buf);@
+            |     ******************* |                                **************************** @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             |                         |                                                                    +-[a-zA-Z]-+
             |                         |      ******            ****************                           *^**********v******
             |                         +-/\\/->    >-+-[a-zA-Z]->$this.ch = $c;>-[a-zA-Z]/'$this.addch();'->$this.addbuf($c);*
@@ -73,10 +85,89 @@
             |     *^***v*
             +-';'->     >-'\n'-(S)
             |     *******
-            |                   +-[^ \t\n;()#"',`]-+
-            |                  *^******************v* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-            +-[^ \t\n;()#"',`]->$this.addbuf($c);   >->$this._ = $this.sym($this.buf);@
-                               ********************** @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            |                        +-[^ \t\n;()#"',`\u0001]-+
+            |                       *^************************v* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            +-./'$this.clearbuf();'->$this.addbuf($c);         >->$this._ = $this.sym($this.buf);@
+                                    **************************** @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 %%
-
-SExpression.parseStdin();
+SExpression.sharpHash = {
+	't': true,
+	'f': false
+};
+SExpression.charnameHash = {
+	'newline': '\n'.charCodeAt(0),
+	'space':   ' '.charCodeAt(0)
+};
+SExpression.prototype.initc = function() {
+	if(this.sstack === undefined) {
+		this.sstack = [];
+	}
+	this.sstack.push({
+		exp: undefined,
+		ptr: undefined
+	});
+};
+SExpression.prototype.addc = function(x) {
+	var s = this.sstack.pop();
+	if(s.exp === undefined) {
+		s.exp = s.ptr = $mille.cons(x, $mille.nil);
+	} else {
+		s.ptr.cdr = $mille.cons(x, $mille.nil);
+		s.ptr = s.ptr.cdr;
+	}
+	this.sstack.push(s);
+};
+SExpression.prototype.endc = function(x) {
+	var s = this.sstack.pop();
+	if(s.exp === undefined) {
+		return $mille.nil;
+	} else {
+		s.ptr.cdr = x;
+		return s.exp;
+	}
+};
+SExpression.prototype.initv = function() {
+	if(this.sstack === undefined) {
+		this.sstack = [];
+	}
+	this.sstack.push([]);
+};
+SExpression.prototype.addv = function(x) {
+	var s = this.sstack.pop();
+	s.push(x);
+	this.sstack.push(s);
+};
+SExpression.prototype.endv = function(x) {
+	return this.sstack.pop();
+};
+SExpression.prototype.quote = function(x) {
+	return $mille.cons($mille.getSymbol('quote'), $mille.cons(x, $mille.nil));
+};
+SExpression.prototype.clearbuf = function() {
+	this.buf = '';
+};
+SExpression.prototype.addbuf = function(c) {
+	this.buf += String.fromCharCode(c);
+};
+SExpression.prototype.sharp = function(b) {
+	var x;
+	if((x = SExpression.sharpHash[b]) !== undefined) {
+		return x;
+	} else {
+		$mille.o.error('unknown sharp: ' + b);
+	}
+};
+SExpression.prototype.chrname = function(b) {
+	var x;
+	if((x = SExpression.charnameHash[b]) !== undefined) {
+		return x;
+	} else {
+		$mille.o.error('unknown character name: ' + b);
+	}
+};
+SExpression.prototype.addch = function(b) {
+	this.buf += String.fromCharCode(this.ch);
+};
+SExpression.prototype.sym = function(b) {
+	return $mille.getSymbol(b);
+};
