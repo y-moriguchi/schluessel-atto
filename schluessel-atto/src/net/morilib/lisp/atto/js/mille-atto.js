@@ -465,7 +465,7 @@ Datum.prototype.toString = function() {
 	var f;
 	f = this[this.typ() + 'ToString'];
 	if(f === undefined) {
-		return 'Datum';
+		return '#<' + this.typ() + '>';
 	} else {
 		return f.call(this);
 	}
@@ -820,6 +820,16 @@ $mille.checkSymbol = function(x) {
 $mille.checkCharacter = function(x) {
 	if(!$mille.o.isInteger(x) || x < 0 || x > 65535) {
 		$mille.o.error('the type of the object is not character:' + x);
+	}
+};
+$mille.checkFunction = function(x) {
+	if(!$mille.o.isFunction(x)) {
+		$mille.o.error('the type of the object is not function:' + x);
+	}
+};
+$mille.checkPromise = function(x) {
+	if(!$mille.datumTypeOf(x, 'promise')) {
+		$mille.o.error('the type of the object is not promise:' + x);
 	}
 };
 
@@ -1372,6 +1382,68 @@ $mille.angle = function(z) {
 	return $mille.c.angle(z);
 };
 
+$mille.values = function() {
+	var i, a;
+	if(arguments.length === 0) {
+		throw $mille.o.error('multivalue must have one datum');
+	} else if(arguments.length === 1) {
+		return arguments[0];
+	} else {
+		a = new Datum('multivalue');
+		for(i = 0; i < arguments.length; i++) {
+			a[i] = arguments[i];
+			a['value' + i] = arguments[i];
+		}
+		a.length = arguments.length;
+		return a;
+	}
+};
+$mille.isMultivalue = function(o) {
+	return $mille.datumTypeOf(o, 'multivalue');
+};
+$mille.callWithValues = function(producer, consumer) {
+	var p, a;
+	$mille.checkFunction(producer);
+	$mille.checkFunction(consumer);
+	p = producer.call(null);
+	if($mille.isMultivalue(p)) {
+		a = $mille.a.toArray(p);
+		return consumer.apply(null, a);
+	} else {
+		return consumer.call(null, p);
+	}
+};
+Datum.prototype.multivalueToString = function() {
+	var i, b = '';
+	for(i = 0; i < this.length; i++) {
+		if(b !== '') {
+			b += '\n';
+		}
+		b += this[i];
+	}
+	return b;
+};
+
+$mille.delay = function(f) {
+	var p;
+	p = new Datum('promise');
+	p.memorized = false;
+	p.value = f;
+	return p;
+};
+$mille.force = function(p) {
+	$mille.checkPromise(p);
+	if(!p.memorized) {
+		p.value = p.value();
+		p.memorized = true;
+	}
+	return p.value;
+};
+
+$mille.isProcedure = function(o) {
+	return $mille.o.isFunction(o);
+};
+
 $mille.readString = function(s) {
 	var o, p = 0;
 	$mille.checkString(s);
@@ -1520,6 +1592,12 @@ $mille.bindg('imag-part', $mille.imagPart);
 $mille.bindg('magnitude', $mille.magnitude);
 $mille.bindg('angle', $mille.angle);
 
+$mille.bindg('values', $mille.values);
+$mille.bindg('call-with-values', $mille.callWithValues);
+
+$mille.bindg('force', $mille.force);
+$mille.bindg('procedure?', $mille.isProcedure);
 $mille.bindg('equal?', $mille.isEqual);
+
 $mille.bindg('read-string', $mille.readString);
 $env = $mille.genv;

@@ -34,6 +34,8 @@ public final class AttoTraverser {
 	
 		if(o instanceof Symbol) {
 			return b.find(v, o);
+		} else if(o instanceof AttoParser.StringWrapper) {
+			return b.value(v, ((AttoParser.StringWrapper)o).wrap);
 		} else if(!(o instanceof Cell) || o == Cell.NIL) {
 			return b.value(v, o);
 		} else if((a = AttoUtils.toArray(o))[0] == Symbol.IF) {
@@ -71,6 +73,12 @@ public final class AttoTraverser {
 		} else if(a[0] == Symbol.SET) {
 			if(a.length == 3) {
 				return b.doSet(v, a[1], a[2]);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		} else if(a[0] == Symbol.DELAY) {
+			if(a.length == 2) {
+				return b.doDelay(v, a[1]);
 			} else {
 				throw new IllegalArgumentException();
 			}

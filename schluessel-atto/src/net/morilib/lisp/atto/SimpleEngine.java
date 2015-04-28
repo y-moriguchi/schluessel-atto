@@ -1082,4 +1082,12 @@ public class SimpleEngine implements Callback {
 		return r;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.morilib.lisp.atto.Callback#doDelay(net.morilib.lisp.atto.Environment, java.lang.Object)
+	 */
+	@Override
+	public Object doDelay(Environment env, Object a) {
+		throw new UnsupportedOperationException();
+	}
+
 }

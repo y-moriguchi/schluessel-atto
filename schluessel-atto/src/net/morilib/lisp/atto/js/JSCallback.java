@@ -1,5 +1,3 @@
-package net.morilib.lisp.atto.js;
-
 /*
  * Copyright 2014 Yuichiro Moriguchi
  *
@@ -15,6 +13,8 @@ package net.morilib.lisp.atto.js;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.morilib.lisp.atto.js;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +61,34 @@ public class JSCallback implements Callback {
 		return this;
 	}
 
+	private void printstr(String s) {
+		for(int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+
+			if(c == '\"') {
+				out.print("\\\"");
+			} else if(c == '\'') {
+				out.print("\\'");
+			} else if(c == '\\') {
+				out.print("\\\\");
+			} else if(c == '\b') {
+				out.print("\\b");
+			} else if(c == '\t') {
+				out.print("\\t");
+			} else if(c == '\n') {
+				out.print("\\n");
+			} else if(c == '\f') {
+				out.print("\\f");
+			} else if(c == '\r') {
+				out.print("\\r");
+			} else if(c < ' ' || c >= 0x7f) {
+				out.format("\\u%4d", (int)c);
+			} else {
+				out.print(c);
+			}
+		}
+	}
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object value(Environment env, Object o) {
@@ -75,7 +103,7 @@ public class JSCallback implements Callback {
 			out.print("')");
 		} else if(o instanceof String) {
 			out.print('"');
-			out.print(o);
+			printstr((String)o);
 			out.print('"');
 		} else if(o instanceof Boolean) {
 			out.print(o);
@@ -270,6 +298,14 @@ public class JSCallback implements Callback {
 		}
 		out.print(")");
 		return this;
+	}
+
+	@Override
+	public Object doDelay(Environment env, Object a) {
+		out.print("$mille.delay(function(){return(");
+		AttoTraverser.traverse(this, env, a);
+		out.print(");})");
+		return null;
 	}
 
 }

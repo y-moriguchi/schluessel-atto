@@ -55,6 +55,11 @@ public class Symbol {
 	 */
 	public 	static Symbol BEGIN = new Symbol("begin");
 
+	/**
+	 * 
+	 */
+	public 	static Symbol DELAY = new Symbol("delay");
+
 	//
 	private static Map<String, Symbol> symbols =
 			new HashMap<String, Symbol>();
@@ -67,6 +72,7 @@ public class Symbol {
 		symbols.put("set!",     SET);
 		symbols.put("define",   DEFINE);
 		symbols.put("begin",    BEGIN);
+		symbols.put("delay",    DELAY);
 	}
 
 	//

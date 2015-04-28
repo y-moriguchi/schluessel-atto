@@ -123,4 +123,13 @@ public interface Callback {
 	 */
 	public Object doBegin(Environment env, Object... body);
 
+	/**
+	 * This will be called if the evaluator processed the delay special-form.
+	 * 
+	 * @param env an environment
+	 * @param a
+	 * @return the result which this method is called
+	 */
+	public Object doDelay(Environment env, Object a);
+
 }
