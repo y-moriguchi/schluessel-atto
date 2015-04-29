@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yuichiro Moriguchi
+ * Copyright 2014-2015 Yuichiro Moriguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,21 @@ $mille.r.cosh = function(x) {
 };
 $mille.r.tanh = function(x) {
 	return $mille.r.sinh(x) / $mille.r.cosh(x);
+};
+$mille.r.gcd = function(x, y) {
+	var a, b, c, d;
+	if(x === 0 || y === 0) {
+		return 0;
+	} else {
+		b = Math.abs(x > y ? x : y);
+		c = Math.abs(x > y ? y : x);
+		do {
+			a = b;
+			b = c;
+			c = a - b * Math.floor(a / b);
+		} while(c !== 0);
+		return b;
+	}
 };
 
 $mille.c = {};
@@ -1107,6 +1122,28 @@ $mille.modulo = function(x, y) {
 		return (x % y) - y;
 	}
 };
+$mille.gcd = function() {
+	var a, i;
+	if(arguments.length === 0) {
+		return 0;
+	} else {
+		$mille.checkNumber(arguments[0]);
+		a = arguments[0];
+		for(i = 1; i < arguments.length; i++) {
+			$mille.checkNumber(arguments[i]);
+			a = $mille.r.gcd(a, arguments[i]);
+		}
+		return a;
+	}
+};
+$mille.lcm = function() {
+	var g, r = 1, i;
+	g = $mille.gcd.apply(null, arguments);
+	for(i = 0; i < arguments.length; i++) {
+		r *= Math.abs(arguments[i]) / g;
+	}
+	return r * g;
+}
 $mille.floor = function(x) {
 	$mille.checkReal(x);
 	return Math.floor(x);
@@ -1536,6 +1573,8 @@ $mille.bindg('abs', $mille.abs);
 $mille.bindg('remainder', $mille.remainder);
 $mille.bindg('quotient', $mille.quotient);
 $mille.bindg('modulo', $mille.modulo);
+$mille.bindg('gcd', $mille.gcd);
+$mille.bindg('lcm', $mille.lcm);
 $mille.bindg('floor', $mille.floor);
 $mille.bindg('ceiling', $mille.ceiling);
 $mille.bindg('truncate', $mille.truncate);
