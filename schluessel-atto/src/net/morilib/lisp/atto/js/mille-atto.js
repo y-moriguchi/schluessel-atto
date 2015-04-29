@@ -1480,6 +1480,12 @@ $mille.force = function(p) {
 $mille.isProcedure = function(o) {
 	return $mille.o.isFunction(o);
 };
+$mille.isTruthy = function(o) {
+	return !!o;
+};
+$mille.isFalsy = function(o) {
+	return !o
+};
 
 $mille.readString = function(s) {
 	var o, p = 0;
@@ -1636,6 +1642,8 @@ $mille.bindg('call-with-values', $mille.callWithValues);
 
 $mille.bindg('force', $mille.force);
 $mille.bindg('procedure?', $mille.isProcedure);
+$mille.bindg('truthy?', $mille.isTruthy);
+$mille.bindg('falsy?', $mille.isFalsy);
 $mille.bindg('equal?', $mille.isEqual);
 
 $mille.bindg('read-string', $mille.readString);
