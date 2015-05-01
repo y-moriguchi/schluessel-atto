@@ -64,7 +64,7 @@ $mille.o.error = function(e) {
 	throw e;
 };
 $mille.o.mapEntries = function(o, f) {
-	var v, r;
+	var v = null, r;
 	r = [];
 	for(v in o) {
 		if(o.hasOwnProperty(v)) {
@@ -109,7 +109,7 @@ $mille.r.tanh = function(x) {
 	return $mille.r.sinh(x) / $mille.r.cosh(x);
 };
 $mille.r.gcd = function(x, y) {
-	var a, b, c, d;
+	var a, b, c;
 	if(x === 0 || y === 0) {
 		return 0;
 	} else {
@@ -122,6 +122,11 @@ $mille.r.gcd = function(x, y) {
 		} while(c !== 0);
 		return b;
 	}
+};
+
+$mille.f = {};
+$mille.f.K = function(x) {
+	return x;
 };
 
 $mille.c = {};
@@ -333,7 +338,7 @@ $mille.c.toComplex = function(o) {
 	} else {
 		return o;
 	}
-}
+};
 $mille.c.getReal = function(z) {
 	return $mille.o.isNumber(z) ? z : z.getReal();
 };
@@ -399,7 +404,7 @@ $mille.c.equals = function(z, w) {
 };
 $mille.c.notEquals = function(z, w) {
 	return !$mille.c.equals(z, w);
-}
+};
 $mille.c.exp = function(z) {
 	if($mille.o.isNumber(z)) {
 		return Math.exp(z);
@@ -506,7 +511,7 @@ $mille.createMemo = function() {
 	return {
 		index: [],
 		value: []
-	}
+	};
 };
 $mille.searchMemo = function(memo, o) {
 	var i;
@@ -752,10 +757,10 @@ $mille.newenv = function(e, that) {
 		} else {
 			$mille.o.error('Found no functions');
 		}
-	}
+	};
 	diese.call = function(v) {
 		diese.apply(v, $mille.a.toArray(arguments, 1));
-	}
+	};
 	return diese;
 };
 $mille.applyObject = function(x, obj) {
@@ -965,11 +970,11 @@ $mille.compareStringCi = function(f) {
 	}, $mille.checkString);
 };
 $mille.stringToList = function(s) {
-	var i, v, c, p, ret;
+	var i, v, c, p, ret = undefined;
 	$mille.checkString(s);
 	for(i = 0; i < s.length; i++) {
 		v = s.charCodeAt(i);
-		c = $mille.cons(v, $mille.nil)
+		c = $mille.cons(v, $mille.nil);
 		if(ret === undefined) {
 			ret = c;
 		} else {
@@ -1143,7 +1148,7 @@ $mille.lcm = function() {
 		r *= Math.abs(arguments[i]) / g;
 	}
 	return r * g;
-}
+};
 $mille.floor = function(x) {
 	$mille.checkReal(x);
 	return Math.floor(x);
@@ -1176,11 +1181,11 @@ $mille.objectSet = function(o, i, x) {
 $mille.objectKeys = function(o) {
 	$mille.checkObject(o);
 	return $mille.listToCell($mille.o.keys(o));
-}
+};
 $mille.objectValues = function(o) {
 	$mille.checkObject(o);
 	return $mille.listToCell($mille.o.values(o));
-}
+};
 $mille.objectToList = function(o) {
 	var a, i;
 	if($mille.a.isArray(o)) {
@@ -1200,10 +1205,10 @@ $mille.objectToList = function(o) {
 	} else {
 		return o;
 	}
-}
+};
 
 $mille.isEqual = function(o, p) {
-	var i, v;
+	var i, v = null;
 	if($mille.isPair(o)) {
 		if($mille.isPair(p)) {
 			return ($mille.isEqual(o.car, p.car) &&
@@ -1244,21 +1249,21 @@ $mille.isEqual = function(o, p) {
 
 $mille.isChar = function(o) {
 	return $mille.o.isInteger(o) && o >= 0 && o < 65536;
-}
+};
 $mille.charUpcase = function(c) {
 	var x;
 	$mille.checkCharacter(c);
 	x = String.fromCharCode(c);
 	x = x.toUpperCase();
 	return x.charCodeAt(0);
-}
+};
 $mille.charDowncase = function(c) {
 	var x;
 	$mille.checkCharacter(c);
 	x = String.fromCharCode(c);
 	x = x.toUpperCase();
 	return x.charCodeAt(0);
-}
+};
 $mille.compareCharacter = function(f) {
 	return $mille.compare(f, $mille.checkCharacter);
 };
@@ -1279,7 +1284,7 @@ $mille.integerToChar = function(o) {
 		$mille.o.error('character out of range:' + o);
 	}
 	return o;
-}
+};
 $mille.isCharLowerCase = function(o) {
 	$mille.checkCharacter(o);
 	return $mille.charUpcase(o) !== o;
@@ -1484,7 +1489,7 @@ $mille.isTruthy = function(o) {
 	return !!o;
 };
 $mille.isFalsy = function(o) {
-	return !o
+	return !o;
 };
 
 $mille.readString = function(s) {
