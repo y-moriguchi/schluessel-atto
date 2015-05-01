@@ -1529,6 +1529,7 @@ return (false || STATE == 2 || STATE == 31 || STATE == 41 || STATE == 35 || STAT
 		return new StringWrapper(b.toString());
 	}
 
+	public static final Object NULL = new Object();
 	private static Object shp(String s) {
 		String x = s.substring(1);
 
@@ -1536,6 +1537,8 @@ return (false || STATE == 2 || STATE == 31 || STATE == 41 || STATE == 35 || STAT
 			return Boolean.TRUE;
 		} else if(x.equals("f")) {
 			return Boolean.FALSE;
+		} else if(x.equals("null")) {
+			return NULL;
 		} else {
 			throw new TokenException();
 		}

@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.morilib.lisp.atto.AttoParser;
 import net.morilib.lisp.atto.AttoTraverser;
 import net.morilib.lisp.atto.Callback;
 import net.morilib.lisp.atto.Cell;
@@ -134,6 +135,8 @@ public class JSCallback implements Callback {
 			out.print(",");
 			out.print(((Double[])o)[1]);
 			out.print(")");
+		} else if(o == AttoParser.NULL) {
+			out.print("(null)");
 		} else {
 			out.print("#<object>");
 		}

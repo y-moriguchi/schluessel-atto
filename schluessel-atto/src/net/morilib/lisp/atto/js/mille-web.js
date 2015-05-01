@@ -19,7 +19,7 @@ if(!$mille) {
 
 $mille.w = {};
 $mille.w.ajax = function(options) {
-	var xhr, conv;
+	var xhr, conv, ct;
 	xhr = new XMLHttpRequest();
 	conv = function() {
 		if(options.dataXML) {
@@ -39,13 +39,16 @@ $mille.w.ajax = function(options) {
 			}
 			options.complete(xhr, xhr.status, false);
 		}
-	}
+	};
 
 	try {
 		xhr.open(options.type, options.url);
 		if(options.type === 'GET') {
 			xhr.send();
 		} else {
+			ct = options.contentType ?
+					options.contentType : 'application/x-www-form-urlencoded';
+			xhr.setRequestHeader('Content-Type', ct);
 			xhr.send(options.data);
 		}
 	} catch(e) {
@@ -55,7 +58,7 @@ $mille.w.ajax = function(options) {
 	return true;
 };
 
-$mille.ajaxGetAny = function(url, success, error, type, parser, data) {
+$mille.ajaxAny = function(url, success, error, type, parser, data) {
 	var opts = {};
 
 	opts.type = type;

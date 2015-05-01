@@ -96,6 +96,12 @@ $mille.r = {};
 $mille.r.isNaN = function(o) {
 	return o !== o;
 };
+$mille.r.isFinite = function(o) {
+	return isFinite(o);
+};
+$mille.r.isInfinite = function(o) {
+	return o === Infinity || o === -Infinity;
+};
 $mille.r.hypot = function(x, y) {
 	return Math.sqrt(x * x + y * y);
 };
@@ -337,6 +343,36 @@ $mille.c.toComplex = function(o) {
 		return $mille.c.make(o, 0);
 	} else {
 		return o;
+	}
+};
+$mille.c.isNaN = function(o) {
+	if($mille.o.isNumber(o)) {
+		return $mille.r.isNaN(o);
+	} else if($mille.c.isComplex(o)) {
+		return ($mille.r.isNaN(o.getReal()) ||
+				$mille.r.isNaN(o.getImag()));
+	} else {
+		return false;
+	}
+};
+$mille.c.isFinite = function(o) {
+	if($mille.o.isNumber(o)) {
+		return $mille.r.isFinite(o);
+	} else if($mille.c.isComplex(o)) {
+		return ($mille.r.isFinite(o.getReal()) &&
+				$mille.r.isFinite(o.getImag()));
+	} else {
+		return false;
+	}
+};
+$mille.c.isInfinite = function(o) {
+	if($mille.o.isNumber(o)) {
+		return $mille.r.isInfinite(o);
+	} else if($mille.c.isComplex(o)) {
+		return ($mille.r.isInfinite(o.getReal()) ||
+				$mille.r.isInfinite(o.getImag()));
+	} else {
+		return false;
 	}
 };
 $mille.c.getReal = function(z) {
@@ -1491,6 +1527,21 @@ $mille.isTruthy = function(o) {
 $mille.isFalsy = function(o) {
 	return !o;
 };
+$mille.isNan = function(o) {
+	return $mille.c.isNaN(o);
+};
+$mille.isFinite = function(o) {
+	return $mille.c.isFinite(o);
+};
+$mille.isInfinite = function(o) {
+	return $mille.c.isInfinite(o);
+};
+$mille.isUndefined = function(o) {
+	return o === undefined;
+};
+$mille.isJsnull = function(o) {
+	return o === null;
+};
 
 $mille.readString = function(s) {
 	var o, p = 0;
@@ -1649,6 +1700,11 @@ $mille.bindg('force', $mille.force);
 $mille.bindg('procedure?', $mille.isProcedure);
 $mille.bindg('truthy?', $mille.isTruthy);
 $mille.bindg('falsy?', $mille.isFalsy);
+$mille.bindg('nan?', $mille.isNan);
+$mille.bindg('finite?', $mille.isFinite);
+$mille.bindg('infinite?', $mille.isInfinite);
+$mille.bindg('undefined?', $mille.isUndefined);
+$mille.bindg('jsnull?', $mille.isJsnull);
 $mille.bindg('equal?', $mille.isEqual);
 
 $mille.bindg('read-string', $mille.readString);
