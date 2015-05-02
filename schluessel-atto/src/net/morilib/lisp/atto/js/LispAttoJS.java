@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yuichiro Moriguchi
+ * Copyright 2014-2015 Yuichiro Moriguchi
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,21 @@
  */
 package net.morilib.lisp.atto.js;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -32,6 +40,7 @@ import net.morilib.lisp.atto.AttoTraverser;
 import net.morilib.lisp.atto.Cell;
 import net.morilib.lisp.atto.Environment;
 import net.morilib.lisp.atto.LispAtto;
+import net.morilib.lisp.atto.ReaderException;
 import net.morilib.lisp.atto.SimpleEngine;
 import net.morilib.lisp.atto.Symbol;
 
@@ -157,7 +166,7 @@ public class LispAttoJS {
 	 * @param args the command line argument
 	 * @throws Exception
 	 */
-	public static void main(String[] args) {
+	public static void repl() {
 		LispAttoJS s;
 		Object o;
 		Reader rd;
@@ -171,22 +180,16 @@ public class LispAttoJS {
 		en = mn.getEngineByName("javascript");
 		loadJs("mille-atto.js", mn, en);
 		loadJs("sExpression.js", mn, en);
+		loadJs("milia-lib.js", mn, en);
 
-		if(args.length > 0) {
-			pr = "";
-			is = LispAttoJS.class.getResourceAsStream("lib.scm");
-		} else {
-			loadJs("milia-lib.js", mn, en);
-			pr = " >";
-			is = System.in;
-		}
-
+		pr = " >";
+		is = System.in;
 		rd = new InputStreamReader(is);
 		System.out.print(pr);
 		while(true) {
 			try {
 				if((o = AttoParser.read(rd)) == null) {
-					System.exit(0);
+					return;
 				} else if(AttoParser.isInvaild(o)) {
 					continue;
 				} else {
@@ -197,25 +200,116 @@ public class LispAttoJS {
 					s = new LispAttoJS(sw);
 					s.eval(new Environment(), o);
 					js = sw.toString();
-					if(args.length > 0) {
-						System.out.println(js);
-					} else {
-						js = "(function(x){return x?x.toString():x}(" + js +"))";
-						r = en.eval(js);
-						System.out.println(r);
-					}
+					js = "(function(x){return x?x.toString():x}(" + js +"))";
+					r = en.eval(js);
+					System.out.println(r);
 				}
-				System.out.print(pr);
 			} catch(IOException e) {
+				System.err.println("IO error");
 				e.printStackTrace();
+				return;
 			} catch(IllegalArgumentException e) {
+				System.err.println("Runtime error");
 				e.printStackTrace();
 			} catch(ArithmeticException e) {
+				System.err.println("Arithmetic error");
 				e.printStackTrace();
 			} catch(ScriptException e) {
+				System.err.println("JavaScript error");
 				e.printStackTrace();
 			}
+			System.out.print(pr);
 		}
+	}
+
+	private static final Pattern SUFFIX =
+			Pattern.compile("(.*)\\.[^\\.]+");
+
+	/**
+	 * 
+	 * @param args the command line argument
+	 * @throws Exception
+	 */
+	public static boolean compile(String infile,
+			String outfile) {
+		PrintWriter pw = null; 
+		LineNumberReader rd = null;
+		StringWriter sw;
+		LispAttoJS s;
+		String js;
+		Object o;
+
+		try {
+			rd = new LineNumberReader(new InputStreamReader(
+					new FileInputStream(infile)));
+			pw = new PrintWriter(new BufferedWriter(
+					new OutputStreamWriter(
+							new FileOutputStream(outfile))));
+			while(true) {
+				if((o = AttoParser.read(rd)) == null) {
+					return true;
+				} else if(!AttoParser.isInvaild(o)) {
+					sw = new StringWriter();
+					s  = new LispAttoJS(sw);
+					s.eval(new Environment(), o);
+					js = sw.toString();
+					pw.println(js);
+				}
+			}
+		} catch(ReaderException e) {
+			System.err.format("Reader error: %s(%d)\n", infile,
+					rd.getLineNumber());
+			return false;
+		} catch(IOException e) {
+			System.err.format("IO error: %s\n", infile);
+			e.printStackTrace();
+			return false;
+		} finally {
+			if(rd != null) {
+				try {
+					rd.close();
+				} catch (IOException e) {
+					System.err.format("IO error: %s", infile);
+					e.printStackTrace();
+					return false;
+				}
+			}
+			if(pw != null) {
+				pw.close();
+			}
+		}
+	}
+
+	/**
+	 * read-eval-print-loop of Schluessel Atto.
+	 * 
+	 * @param args the command line argument
+	 * @throws Exception
+	 */
+	public static void main(String[] args) {
+		Matcher m;
+		String of;
+		File f;
+		int r = 0;
+
+		if(args.length > 0) {
+			for(int i = 0; i < args.length; i++) {
+				if((m = SUFFIX.matcher(args[i])).matches()) {
+					of = m.group(1) + ".js";
+				} else {
+					of = args[i] + ".js";
+				}
+
+				if(!compile(args[i], of)) {
+					f = new File(of);
+					f.delete();
+					r = 2;
+				}
+			}
+		} else {
+			repl();
+		}
+		System.exit(r);
 	}
 
 }

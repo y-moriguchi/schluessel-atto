@@ -345,6 +345,14 @@ $mille.c.toComplex = function(o) {
 		return o;
 	}
 };
+$mille.c.equals = function(z, w) {
+	if($mille.o.isComplex(z) && $mille.o.isComplex(w)) {
+		return (z.getReal() == w.getReal() &&
+				z.getImag() == w.getImag());
+	} else {
+		return z === w;
+	}
+};
 $mille.c.isNaN = function(o) {
 	if($mille.o.isNumber(o)) {
 		return $mille.r.isNaN(o);
@@ -914,6 +922,13 @@ $mille.compareNumber = function(f) {
 	return $mille.compare(f, $mille.checkReal);
 };
 $mille.eq = $mille.compare(function(x, y) { return x === y; });
+$mille.eqv = $mille.compare(function(x, y) {
+	if($mille.c.isComplex(x) && $mille.c.isComplex(y)) {
+		return $mille.c.equals(x, y);
+	} else {
+		return x === y;
+	}
+});
 $mille.arith1 = function(f, d) {
 	return function() {
 		var k, v = d;
@@ -1568,7 +1583,7 @@ $mille.bindg = function(b, fn) {
 };
 $mille.bindg('cons', $mille.cons);
 $mille.bindg('eq?', $mille.eq);
-$mille.bindg('eqv?', $mille.eq);
+$mille.bindg('eqv?', $mille.eqv);
 $mille.bindg('car', $mille.car);
 $mille.bindg('cdr', $mille.cdr);
 $mille.bindg('atom?', $mille.isAtom);

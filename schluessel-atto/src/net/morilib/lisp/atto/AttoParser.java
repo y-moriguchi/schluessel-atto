@@ -1638,9 +1638,13 @@ return (false || STATE == 2 || STATE == 31 || STATE == 41 || STATE == 35 || STAT
 	public static Object read(Reader rd) throws java.io.IOException {
 		AttoParser p;
 
-		p = new AttoParser();
-		p.parse(rd);
-		return p._;
+		try {
+			p = new AttoParser();
+			p.parse(rd);
+			return p._;
+		} catch(TokenException e) {
+			throw new ReaderException(e);
+		}
 	}
 
 }
