@@ -104,11 +104,14 @@ $mille.bindg('ajax-post', $mille.ajaxPost);
 $mille.bindg('ajax-post-text', $mille.ajaxPostText);
 
 $mille.readMilia = function() {
-	var x, v, i;
+	var x, i, j, p;
 	x = document.getElementsByTagName("script");
 	for(i = 0; i < x.length; i++) {
 		if(x[i].type === 'text/x-schluessel-milia') {
-			$mille.eval($env, $mille.readString(x[i].text));
+			p = $mille.readStringAll(x[i].text);
+			for(j = 0; j < p.length; j++) {
+				$mille.eval($env, p[j]);
+			}
 		}
 	}
 };

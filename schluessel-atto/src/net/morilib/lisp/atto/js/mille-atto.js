@@ -1594,6 +1594,26 @@ $mille.readString = function(s) {
 	});
 	return o._;
 };
+$mille.readStringAll = function(s) {
+	var o, p = 0, r = [];
+	$mille.checkString(s);
+	while(p <= s.length) {
+		o = new SExpression();
+		o.parse(function () {
+			if(p < s.length) {
+				return s.charCodeAt(p++);
+			} else if(p === s.length) {
+				p++;
+				return 1;
+			} else {
+				return null;
+			}
+		});
+		r.push(o._);
+		p = p > s.length ? p : p - 1;
+	}
+	return r;
+};
 $mille.evalbas = function($env, x) {
 	var ls, lt, doLambda, r, i;
 	doLambda = function(lx) {
@@ -1861,4 +1881,5 @@ $mille.bindg('jsnull?', $mille.isJsnull);
 $mille.bindg('equal?', $mille.isEqual);
 
 $mille.bindg('read-string', $mille.readString);
+$mille.bindg('read-string-all', $mille.readStringAll);
 $env = $mille.genv;
