@@ -726,6 +726,23 @@ $mille.cellToList = function(l, notproper) {
 		}
 	}
 };
+$mille.shallowCellToList = function(l, notproper) {
+	var a = [], p;
+
+	p = notproper !== undefined ? notproper : function(l) {
+		$mille.o.error('Not proper list: ' + l);
+	};
+	while(true) {
+		if(!$mille.datumTypeOf(l, 'cell')) {
+			return p(l);
+		} else if(l.isNull()) {
+			return a;
+		} else {
+			a.push(l.car);
+			l = l.cdr;
+		}
+	}
+};
 
 $mille.trampoline = function(f) {
 	return new Trampoline(f);
@@ -797,13 +814,16 @@ $mille.newenv = function(e, that) {
 		var x;
 		x = diese.find(v);
 		if($mille.o.isFunction(x)) {
-			x.apply(null, a);
+			return x.apply(null, a);
 		} else {
 			$mille.o.error('Found no functions');
 		}
 	};
 	diese.call = function(v) {
-		diese.apply(v, $mille.a.toArray(arguments, 1));
+		return diese.apply(v, $mille.a.toArray(arguments, 1));
+	};
+	diese.closure = function(f) {
+		return $mille.closure(e, that, f);
 	};
 	return diese;
 };
@@ -1057,8 +1077,8 @@ $mille.getSymbol = function(s) {
 	}
 	return v;
 };
-$mille.checkSymbol = function(x) {
-	$mille.checkSymbol(x);
+$mille.isSymbol = function(o) {
+	return $mille.datumTypeOf(o, 'symbol');
 };
 $mille.stringToSymbol = function(x) {
 	$mille.checkString(x);
@@ -1573,6 +1593,124 @@ $mille.readString = function(s) {
 		}
 	});
 	return o._;
+};
+$mille.evalbas = function($env, x) {
+	var ls, lt, doLambda, r, i;
+	doLambda = function(lx) {
+		var p, s;
+		p = lx[1];
+		s = [];
+		while(true) {
+			if($mille.isNull(p)) {
+				p = null;
+				break;
+			} else if($mille.isSymbol(p)) {
+				break;
+			} else if($mille.isAtom(p)) {
+				$mille.o.error(p + " must be a symbol");
+			} else if($mille.isSymbol(p.car)) {
+				s.push(p.car);
+				p = p.cdr;
+			} else {
+				$mille.o.error(p.car + " must be a symbol");
+			}
+		}
+		return $env.closure(function(e) {
+			var r, i;
+			for(i = 0; i < s.length; i++) {
+				e.bind(s[i].toString(), arguments[i + 1]);
+			}
+			if(p !== null) {
+				e.bind(p.toString(), $mille.listToCell(
+						$mille.a.toArray(arguments, i + 1)));
+			}
+			for(i = 2; i < lx.length; i++) {
+				r = $mille.evalbas(e, lx[i]);
+			}
+			return r;
+		});
+	};
+	if($mille.isPair(x)) {
+		ls = $mille.shallowCellToList(x);
+		if(ls[0] === $mille.getSymbol('if')) {
+			if(ls.length === 3) {
+				return $mille.evalbas($env, ls[1]) ?
+						$mille.evalbas($env, ls[2]) : undefined;
+			} else if(ls.length === 4) {
+				return $mille.evalbas($env, ls[1]) ?
+						$mille.evalbas($env, ls[2]) :
+							$mille.evalbas($env, ls[3]);
+			} else {
+				$mille.o.error('malformed if');
+			}
+		} else if(ls[0] === $mille.getSymbol('lambda')) {
+			return doLambda(ls);
+		} else if(ls[0] === $mille.getSymbol('quote')) {
+			if(ls.length === 2) {
+				return ls[1];
+			} else {
+				$mille.o.error('malformed quote');
+			}
+		} else if(ls[0] === $mille.getSymbol('begin')) {
+			for(i = 1; i < ls.length; i++) {
+				r = $mille.evalbas($env, ls[i]);
+			}
+			return r;
+		} else if(ls[0] === $mille.getSymbol('define')) {
+			if(ls.length !== 3) {
+				$mille.o.error('malformed define');
+			} else if(!$mille.isSymbol(ls[1])) {
+				$mille.o.error(ls[1] + ' must be a symbol');
+			} else {
+				$env.bind(ls[1].toString(), ls[2]);
+				return undefined;
+			}
+		} else if(ls[0] === $mille.getSymbol('set!')) {
+			if(ls.length !== 3) {
+				$mille.o.error('malformed set!');
+			} else if(!$mille.isSymbol(ls[1])) {
+				$mille.o.error(ls[1] + ' must be a symbol');
+			} else {
+				$env.set(ls[1].toString(), ls[2]);
+				return undefined;
+			}
+		} else if(ls[0] === $mille.getSymbol('delay')) {
+			if(ls.length === 2) {
+				return $mille.delay(function() {
+					return $mille.evalbas($env, ls[1]);
+				});
+			} else {
+				$mille.o.error('malformed delay');
+			}
+		} else {
+			r = ls[0];
+			if($mille.isSymbol(r) &&
+					r.length > 1 && r.charAt(0) == '.') {
+				lt = [r.substring(1, r.length)];
+				for(i = 1; i < ls.length; i++) {
+					lt.push($mille.evalbas($env, ls[i]));
+				}
+				return $mille.applyObject.apply(null, lt);
+			} else {
+				r = $mille.evalbas($env, r);
+				if($mille.o.isFunction(r)) {
+					lt = [];
+					for(i = 1; i < ls.length; i++) {
+						lt.push($mille.evalbas($env, ls[i]));
+					}
+					return r.apply(null, lt);
+				} else {
+					$mille.o.error(r + ' must be a function');
+				}
+			}
+		}
+	} else {
+		if($mille.isSymbol(x)) {
+			return $env.find(x.toString());
+		} else {
+			return x;
+		}
+	}
 };
 
 $mille.genv = $mille.newenv(undefined, this);

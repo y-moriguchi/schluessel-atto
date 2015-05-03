@@ -55,12 +55,15 @@ public class LispAttoJS {
 	Environment macroenv;
 	JSCallback jscall;
 	PrintWriter pw;
+	boolean basic;
 
 	/**
 	 * The constructor of the class.
 	 */
-	public LispAttoJS(Writer wr) {
+	public LispAttoJS(Writer wr, boolean basic) {
 		try {
+			this.basic = basic;
+
 			// setup macro
 			macroenv = new Environment();
 			SimpleEngine.getInstance().init(macroenv);
@@ -114,11 +117,13 @@ public class LispAttoJS {
 	public Object eval(Environment env, Object p) {
 		Object o = p;
 
-		o = new Cell(Symbol.get("eval-macro"), new Cell(
-				new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
-				Cell.NIL));
-		o = AttoTraverser.traverse(SimpleEngine.getInstance(),
-				macroenv, o);
+		if(!basic) {
+			o = new Cell(Symbol.get("eval-macro"), new Cell(
+					new Cell(Symbol.QUOTE, new Cell(o, Cell.NIL)),
+					Cell.NIL));
+			o = AttoTraverser.traverse(SimpleEngine.getInstance(),
+					macroenv, o);
+		}
 		o = AttoTraverser.traverse(jscall, env, o);
 		pw.flush();
 		return o;
@@ -153,7 +158,7 @@ public class LispAttoJS {
 				continue;
 			} else {
 				sw = new StringWriter();
-				s = new LispAttoJS(sw);
+				s = new LispAttoJS(sw, false);
 				s.eval(new Environment(), o);
 				out.println(sw.toString());
 			}
@@ -180,6 +185,7 @@ public class LispAttoJS {
 		en = mn.getEngineByName("javascript");
 		loadJs("mille-atto.js", mn, en);
 		loadJs("sExpression.js", mn, en);
+		loadJs("macro-atto.js", mn, en);
 		loadJs("milia-lib.js", mn, en);
 
 		pr = " >";
@@ -197,7 +203,7 @@ public class LispAttoJS {
 					Object r;
 
 					sw = new StringWriter();
-					s = new LispAttoJS(sw);
+					s = new LispAttoJS(sw, false);
 					s.eval(new Environment(), o);
 					js = sw.toString();
 					js = "(function(x){return x?x.toString():x}(" + js +"))";
@@ -230,8 +236,8 @@ public class LispAttoJS {
 	 * @param args the command line argument
 	 * @throws Exception
 	 */
-	public static boolean compile(String infile,
-			String outfile) {
+	public static boolean compile(String infile, String outfile,
+			boolean basic) {
 		PrintWriter pw = null; 
 		LineNumberReader rd = null;
 		StringWriter sw;
@@ -250,7 +256,7 @@ public class LispAttoJS {
 					return true;
 				} else if(!AttoParser.isInvaild(o)) {
 					sw = new StringWriter();
-					s  = new LispAttoJS(sw);
+					s  = new LispAttoJS(sw, basic);
 					s.eval(new Environment(), o);
 					js = sw.toString();
 					pw.println(js);
@@ -291,19 +297,24 @@ public class LispAttoJS {
 		String of;
 		File f;
 		int r = 0;
+		boolean basic = false;
 
 		if(args.length > 0) {
 			for(int i = 0; i < args.length; i++) {
-				if((m = SUFFIX.matcher(args[i])).matches()) {
-					of = m.group(1) + ".js";
+				if(args[i].equals("-b")) {
+					basic = true;
 				} else {
-					of = args[i] + ".js";
-				}
-
-				if(!compile(args[i], of)) {
-					f = new File(of);
-					f.delete();
-					r = 2;
+					if((m = SUFFIX.matcher(args[i])).matches()) {
+						of = m.group(1) + ".js";
+					} else {
+						of = args[i] + ".js";
+					}
+	
+					if(!compile(args[i], of, basic)) {
+						f = new File(of);
+						f.delete();
+						r = 2;
+					}
 				}
 			}
 		} else {
