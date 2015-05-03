@@ -102,3 +102,20 @@ $mille.bindg('ajax-get', $mille.ajaxGet);
 $mille.bindg('ajax-get-text', $mille.ajaxGetText);
 $mille.bindg('ajax-post', $mille.ajaxPost);
 $mille.bindg('ajax-post-text', $mille.ajaxPostText);
+
+$mille.readMilia = function() {
+	var x, v, i;
+	x = document.getElementsByTagName("script");
+	for(i = 0; i < x.length; i++) {
+		if(x[i].type === 'text/x-schluessel-milia') {
+			$mille.eval($env, $mille.readString(x[i].text));
+		}
+	}
+};
+if(window.addEventListener) {
+    window.addEventListener('load', $mille.readMilia, false);
+} else if(window.attachEvent) {
+    window.attachEvent('onload', $mille.readMilia);
+} else {
+    window.onload = $mille.readMilia;
+}

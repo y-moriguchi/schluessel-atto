@@ -1084,7 +1084,7 @@ $mille.stringToSymbol = function(x) {
 	$mille.checkString(x);
 	return $mille.getSymbol(x);
 };
-$mille.symbolToSymbol = function(x) {
+$mille.symbolToString = function(x) {
 	$mille.checkSymbol(x);
 	return x.name;
 };
@@ -1726,7 +1726,7 @@ $mille.bindg('car', $mille.car);
 $mille.bindg('cdr', $mille.cdr);
 $mille.bindg('atom?', $mille.isAtom);
 $mille.bindg('null?', $mille.isNull);
-$mille.bindg('symbol?', $mille.o.isString);
+$mille.bindg('symbol?', $mille.isSymbol);
 $mille.bindg('error', $mille.o.error);
 $mille.bindg('set-car!', $mille.setCar);
 $mille.bindg('set-cdr!', $mille.setCdr);
