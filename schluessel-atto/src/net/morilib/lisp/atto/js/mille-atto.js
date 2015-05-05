@@ -1,17 +1,28 @@
 /*
- * Copyright 2014-2015 Yuichiro Moriguchi
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2015, Yuichiro MORIGUCHI
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * * Redistributions of source code must retain the above copyright notice, 
+ *   this list of conditions and the following disclaimer.
+ * * Redistributions in binary form must reproduce the above copyright notice, 
+ *   this list of conditions and the following disclaimer in the documentation 
+ *   and/or other materials provided with the distribution.
+ * * Neither the name of the Yuichiro MORIGUCHI nor the names of its contributors 
+ *   may be used to endorse or promote products derived from this software 
+ *   without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Yuichiro MORIGUCHI BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 var $mille = {};
 var $env;
@@ -872,7 +883,7 @@ $mille.newenv = function(e, that) {
 		return diese.apply(v, $mille.a.toArray(arguments, 1));
 	};
 	diese.closure = function(f) {
-		return $mille.closure(e, that, f);
+		return $mille.closure(diese, that, f);
 	};
 	return diese;
 };
@@ -1036,7 +1047,7 @@ $mille.substring = function(x, start, end) {
 	$mille.checkString(x);
 	$mille.checkInteger(start);
 	$mille.checkInteger(end);
-	return x.substring(x, start, end);
+	return x.substring(start, end);
 };
 $mille.stringRef = function(x, k) {
 	$mille.checkString(x);
@@ -1051,8 +1062,8 @@ $mille.stringLength = function(x) {
 $mille.stringAppend = function() {
 	var k, v = "";
 	for(k = 0; k < arguments.length; k++) {
-		$mille.checkString(arguments[k]);
-		v += arguments[k];
+		//$mille.checkString(arguments[k]);
+		v += arguments[k].toString();
 	}
 	return v;
 };
@@ -1186,6 +1197,20 @@ $mille.vectorFill = function(v, fill) {
 $mille.numberToString = function(x) {
 	$mille.checkNumber(x);
 	return x.toString();
+};
+$mille.stringToNumber = function(x) {
+	var p, r, a;
+	$mille.checkString(x);
+	p = /([\-+]?(?:[0-9]*\.[0-9]+|[0-9]+)(?:[eE][\-+]?[0-9]+)?)(?:([\-+](?:[0-9]*\.[0-9]+|[0-9]+)(?:[eE][\-+]?[0-9]+)?)i)?/;
+	r = x.match(p);
+	a = parseFloat(r[1]);
+	if(r[0] === null) {
+		return false;
+	} else if(r[2] === undefined) {
+		return a;
+	} else {
+		return $mille.c.make(a, parseFloat(r[2]));
+	}
 };
 $mille.isProcedure = function(x) {
 	return $mille.o.isFunction(x);
@@ -1744,7 +1769,7 @@ $mille.evalbas = function($env, x) {
 			} else if(!$mille.isSymbol(ls[1])) {
 				$mille.o.error(ls[1] + ' must be a symbol');
 			} else {
-				$env.bind(ls[1].toString(), ls[2]);
+				$env.bind(ls[1].toString(), $mille.evalbas($env, ls[2]));
 				return undefined;
 			}
 		} else if(ls[0] === $mille.getSymbol('set!')) {
@@ -1753,13 +1778,15 @@ $mille.evalbas = function($env, x) {
 			} else if(!$mille.isSymbol(ls[1])) {
 				$mille.o.error(ls[1] + ' must be a symbol');
 			} else {
-				$env.set(ls[1].toString(), ls[2]);
+				$env.set(ls[1].toString(),
+						$mille.evalbas($env, ls[2]));
 				return undefined;
 			}
 		} else if(ls[0] === $mille.getSymbol('delay')) {
 			if(ls.length === 2) {
 				return $mille.delay(function() {
-					return $mille.evalbas($env, ls[1]);
+					return $mille.evalbas($env,
+							$mille.evalbas($env, ls[1]));
 				});
 			} else {
 				$mille.o.error('malformed delay');
@@ -1927,6 +1954,7 @@ $mille.bindg('real-part', $mille.realPart);
 $mille.bindg('imag-part', $mille.imagPart);
 $mille.bindg('magnitude', $mille.magnitude);
 $mille.bindg('angle', $mille.angle);
+$mille.bindg('string->number', $mille.stringToNumber);
 
 $mille.bindg('values', $mille.values);
 $mille.bindg('call-with-values', $mille.callWithValues);
