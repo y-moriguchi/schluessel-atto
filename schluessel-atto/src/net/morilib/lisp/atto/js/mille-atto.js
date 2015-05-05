@@ -16,6 +16,27 @@
 var $mille = {};
 var $env;
 
+if(!Function.prototype.bind) {
+	Function.prototype.bind = function(oThis) {
+		if(typeof this !== 'function') {
+			throw $mille.o.error(
+					'Function.prototype.bind - what is trying to be bound is not callable');
+	    }
+
+		var aArgs, fToBind, fNOP, fBound;
+		aArgs = Array.prototype.slice.call(arguments, 1),
+		fToBind = this,
+		fNOP    = function() {},
+		fBound  = function() {
+			return fToBind.apply(this instanceof fNOP ? this : oThis,
+					aArgs.concat(Array.prototype.slice.call(arguments)));
+		};
+		fNOP.prototype = this.prototype;
+		fBound.prototype = new fNOP();
+		return fBound;
+	};
+}
+
 $mille.a = {};
 $mille.a.toArray = function(o) {
 	var l, k, r;
@@ -59,6 +80,9 @@ $mille.o.isInteger = function(o) {
 };
 $mille.o.isObject = function(o) {
 	return (o instanceof Object && !(o instanceof Array));
+};
+$mille.o.hasProperty = function(o) {
+	return o instanceof Object;
 };
 $mille.o.error = function(e) {
 	throw e;
@@ -768,29 +792,39 @@ $mille.applyCell = function(o, l) {
 	a = $mille.cellToList(l);
 	return $mille.applya(o, a);
 };
-$mille.findObjectChain = function(diese, a) {
-	var r = diese, i;
-	for(i = 0; i < a.length; i++) {
-		if((r = r[a[i]]) === undefined) {
-			return r;
-		}
-	}
-	return r;
-};
 $mille.newenv = function(e, that) {
-	var diese = {};
-	var vars = {};
+	var diese = {}, vars = {}, findObjectChain, setObjectChain;
+	findObjectChain = function(diese, a, n) {
+		var r = diese, i, x;
+		x = n === undefined ? 0 : n;
+		for(i = x; i < a.length; i++) {
+			if((r = r[a[i]]) === undefined) {
+				return r;
+			}
+		}
+		return r;
+	};
+	setObjectChain = function(diese, a, n) {
+		var r = diese, i, x;
+		x = n === undefined ? 0 : n;
+		for(i = x; i < a.length - 1; i++) {
+			if(!$mille.o.hasProperty(r = r[a[i]])) {
+				return r;
+			}
+		}
+		return r;
+	};
 	diese.find = function(v) {
 		var x, a;
-		if(vars['$' + v] !== undefined) {
-			return vars['$' + v];
+		a = v.split('.');
+		if(vars['$' + a[0]] !== undefined) {
+			return findObjectChain(vars['$' + a[0]], a, 1);
 		} else if(e !== undefined && e !== null) {
 			return e.find(v);
 		} else {
-			a = v.split('.');
-			if((x = $mille.findObjectChain(that, a)) !== undefined) {
+			if((x = findObjectChain(that, a)) !== undefined) {
 				return x;
-			} else if((x = $mille.findObjectChain(
+			} else if((x = findObjectChain(
 					$mille.global, a)) !== undefined) {
 				return x;
 			} else {
@@ -802,12 +836,27 @@ $mille.newenv = function(e, that) {
 		vars['$' + v] = o;
 	};
 	diese.set = function(v, o) {
-		if(vars['$' + v] !== undefined) {
-			vars['$' + v] = o;
-		} else if(e === undefined || e === null) {
-			$mille.o.error('Undefined Symbol ' + v);
-		} else {
+		var a, r, i;
+		a = v.split('.');
+		if(vars['$' + a[0]] !== undefined) {
+			if(a.length === 1) {
+				vars['$' + a[0]] = o;
+			} else {
+				r = setObjectChain(vars['$' + a[0]], a, 1);
+				if(!$mille.o.hasProperty(r)) {
+					$mille.o.error('Undefined Symbol ' + v);
+				} else {
+					r[a[a.length - 1]] = o;
+				}
+			}
+		} else if(e !== undefined && e !== null) {
 			e.set(v, o);
+		} else if($mille.o.hasProperty(r = setObjectChain(that, a))) {
+			r[a[a.length - 1]] = o;
+		} else if($mille.o.hasProperty(r = setObjectChain(that, a))) {
+			r[a[a.length - 1]] = o;
+		} else {
+			$mille.o.error('Undefined Symbol ' + v);
 		}
 	};
 	diese.apply = function(v, a) {
@@ -1577,6 +1626,19 @@ $mille.isUndefined = function(o) {
 $mille.isJsnull = function(o) {
 	return o === null;
 };
+$mille.stringConcat = function() {
+	var r = '', i;
+	for(i = 0; i < arguments.length; i++) {
+		r += arguments[i].toString();
+	}
+	return r;
+};
+$mille.newObject = function(o) {
+	return new (o.bind.apply(o, $mille.a.toArray(arguments, 1, [null])))();
+};
+$mille.isInstance = function(o, c) {
+	return o instanceof c;
+};
 
 $mille.readString = function(s) {
 	var o, p = 0;
@@ -1878,6 +1940,9 @@ $mille.bindg('finite?', $mille.isFinite);
 $mille.bindg('infinite?', $mille.isInfinite);
 $mille.bindg('undefined?', $mille.isUndefined);
 $mille.bindg('jsnull?', $mille.isJsnull);
+$mille.bindg('++', $mille.stringConcat);
+$mille.bindg('new', $mille.newObject);
+$mille.bindg('instance?', $mille.isInstance);
 $mille.bindg('equal?', $mille.isEqual);
 
 $mille.bindg('read-string', $mille.readString);
