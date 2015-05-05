@@ -888,8 +888,13 @@ $mille.newenv = function(e, that) {
 	return diese;
 };
 $mille.applyObject = function(x, obj) {
-	var z = obj[x].apply(obj, $mille.a.toArray(arguments, 2));
-	return z;
+	var f, z;
+	if($mille.o.isFunction(f = obj[x])) {
+		z = f.apply(obj, $mille.a.toArray(arguments, 2));
+		return z;
+	} else {
+		$mille.o.error('undefined property: ' + x);
+	}
 };
 $mille.getGlobal = function() {
 	$mille.global = this;
@@ -1794,8 +1799,8 @@ $mille.evalbas = function($env, x) {
 		} else {
 			r = ls[0];
 			if($mille.isSymbol(r) &&
-					r.length > 1 && r.charAt(0) == '.') {
-				lt = [r.substring(1, r.length)];
+					r.name.length > 1 && r.name.charAt(0) === '.') {
+				lt = [r.name.substring(1, r.name.length)];
 				for(i = 1; i < ls.length; i++) {
 					lt.push($mille.evalbas($env, ls[i]));
 				}
