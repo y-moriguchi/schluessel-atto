@@ -16,7 +16,7 @@ lexer
 <transition to="4" style="">;</transition>
 <transition to="5" style="">[ \t\n]</transition>
 <transition to="6" style="13,375">${NONDELIM}</transition>
-<transition to="7" style="">[&apos;,`]</transition>
+<transition to="7" style="">[&apos;,`^]</transition>
 <transition to="8" style="139,29">&apos;,@&apos;</transition>
 <transition to="9" style="104,180">[().]</transition>
 <transition to="10" style="286,178">{:digits-*}</transition>
@@ -48,6 +48,7 @@ lexer
 <transition to="17" style="216,464">[bB]</transition>
 <transition to="18" style="197,478">[xX]</transition>
 <transition to="19" style="186,485">[oO]</transition>
+<transition to="20" style="">&apos;/&apos;</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -114,8 +115,8 @@ return $$;
 <delimiter></delimiter>
 </state>
 <state no="10" name="State12" type="" priority="4" accept="true" x="317" y="168" w="125" h="22">
-<transition to="20" style="">[\-+]</transition>
-<transition to="21" style="">&apos;i&apos;</transition>
+<transition to="21" style="">[\-+]</transition>
+<transition to="22" style="">&apos;i&apos;</transition>
 <action><![CDATA[
 return _int($$);
 ]]></action>
@@ -125,8 +126,8 @@ return _int($$);
 <delimiter></delimiter>
 </state>
 <state no="11" name="State13" type="" priority="3" accept="true" x="185" y="233" w="122" h="17">
-<transition to="20" style="">[\-+]</transition>
-<transition to="21" style="315,276-531,281">&apos;i&apos;</transition>
+<transition to="21" style="">[\-+]</transition>
+<transition to="22" style="315,276-531,281">&apos;i&apos;</transition>
 <action><![CDATA[
 return dbl($$);
 ]]></action>
@@ -137,7 +138,7 @@ return dbl($$);
 </state>
 <state no="12" name="State4" type="" priority="2" accept="false" x="254" y="131" w="-1" h="-1">
 <transition to="2" style="247,112">.</transition>
-<transition to="22" style="">[xu]</transition>
+<transition to="23" style="">[xu]</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -175,7 +176,7 @@ return $$;
 <delimiter></delimiter>
 </state>
 <state no="17" name="State31" type="" priority="" accept="false" x="350" y="515" w="-1" h="-1">
-<transition to="23" style="">[01]</transition>
+<transition to="24" style="">[01]</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -185,8 +186,8 @@ return $$;
 <delimiter></delimiter>
 </state>
 <state no="16" name="State22" type="" priority="" accept="false" x="310" y="373" w="71" h="16">
-<transition to="24" style="">.</transition>
-<transition to="25" style="">[a-zA-Z]</transition>
+<transition to="25" style="">.</transition>
+<transition to="26" style="">[a-zA-Z]</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -196,7 +197,7 @@ return $$;
 <delimiter></delimiter>
 </state>
 <state no="19" name="State35" type="" priority="" accept="false" x="349" y="617" w="-1" h="-1">
-<transition to="26" style="">{:oct-*}</transition>
+<transition to="27" style="">{:oct-*}</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -206,7 +207,7 @@ return $$;
 <delimiter></delimiter>
 </state>
 <state no="18" name="State33" type="" priority="" accept="false" x="348" y="564" w="-1" h="-1">
-<transition to="27" style="">{:hex-*}</transition>
+<transition to="28" style="">{:hex-*}</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -215,7 +216,37 @@ return $$;
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="21" name="State40" type="" priority="3" accept="true" x="475" y="171" w="116" h="17">
+<state no="21" name="State39" type="" priority="3" accept="false" x="354" y="234" w="-1" h="-1">
+<transition to="29" style="">{:float}</transition>
+<action><![CDATA[
+// none
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="20" name="State44" type="" priority="" accept="false" x="164" y="558" w="-1" h="-1">
+<transition to="30" style="">.</transition>
+<action><![CDATA[
+// none
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="23" name="State42" type="" priority="2" accept="false" x="350" y="123" w="-1" h="-1">
+<transition to="31" style="">[0-9a-fA-F]</transition>
+<action><![CDATA[
+// none
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="22" name="State40" type="" priority="3" accept="true" x="475" y="171" w="116" h="17">
 <action><![CDATA[
 return cmp($$);
 ]]></action>
@@ -224,18 +255,17 @@ return cmp($$);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="20" name="State39" type="" priority="3" accept="false" x="354" y="234" w="-1" h="-1">
-<transition to="28" style="">{:float}</transition>
+<state no="25" name="State23" type="" priority="3" accept="true" x="442" y="340" w="125" h="17">
 <action><![CDATA[
-// none
+return ch1($$);
 ]]></action>
 <operators></operators>
 <callee></callee>
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="23" name="State32" type="" priority="3" accept="true" x="436" y="514" w="129" h="17">
-<transition to="23" style="433,503-466,502">[01]</transition>
+<state no="24" name="State32" type="" priority="3" accept="true" x="436" y="514" w="129" h="17">
+<transition to="24" style="433,503-466,502">[01]</transition>
 <action><![CDATA[
 return bin($$);
 ]]></action>
@@ -244,45 +274,7 @@ return bin($$);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="22" name="State42" type="" priority="2" accept="false" x="350" y="123" w="-1" h="-1">
-<transition to="29" style="">[0-9a-fA-F]</transition>
-<action><![CDATA[
-// none
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="25" name="State25" type="" priority="4" accept="true" x="303" y="422" w="111" h="17">
-<transition to="30" style="">[a-zA-Z]</transition>
-<action><![CDATA[
-return ch1($$);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="24" name="State23" type="" priority="3" accept="true" x="442" y="340" w="125" h="17">
-<action><![CDATA[
-return ch1($$);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="27" name="State34" type="" priority="3" accept="true" x="463" y="564" w="117" h="17">
-<action><![CDATA[
-return hex($$);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="26" name="State36" type="" priority="3" accept="true" x="462" y="616" w="119" h="17">
+<state no="27" name="State36" type="" priority="3" accept="true" x="462" y="616" w="119" h="17">
 <action><![CDATA[
 return oct($$);
 ]]></action>
@@ -291,8 +283,37 @@ return oct($$);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="29" name="State43" type="" priority="2" accept="false" x="484" y="121" w="-1" h="-1">
-<transition to="29" style="480,112-511,110">[0-9a-fA-F]</transition>
+<state no="26" name="State25" type="" priority="4" accept="true" x="303" y="422" w="111" h="17">
+<transition to="32" style="">[a-zA-Z]</transition>
+<action><![CDATA[
+return ch1($$);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="29" name="State41" type="" priority="3" accept="false" x="454" y="236" w="-1" h="-1">
+<transition to="22" style="">&apos;i&apos;</transition>
+<action><![CDATA[
+// none
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="28" name="State34" type="" priority="3" accept="true" x="463" y="564" w="117" h="17">
+<action><![CDATA[
+return hex($$);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="31" name="State43" type="" priority="2" accept="false" x="484" y="121" w="-1" h="-1">
+<transition to="31" style="480,112-511,110">[0-9a-fA-F]</transition>
 <transition to="2" style=""></transition>
 <action><![CDATA[
 // none
@@ -302,8 +323,10 @@ return oct($$);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="28" name="State41" type="" priority="3" accept="false" x="454" y="236" w="-1" h="-1">
-<transition to="21" style="">&apos;i&apos;</transition>
+<state no="30" name="State45" type="" priority="" accept="false" x="188" y="619" w="-1" h="-1">
+<transition to="33" style="">&apos;\\&apos;</transition>
+<transition to="34" style="">&apos;/&apos;</transition>
+<transition to="30" style="167,622-168,639">[^/]</transition>
 <action><![CDATA[
 // none
 ]]></action>
@@ -312,58 +335,7 @@ return oct($$);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="31" name="State6" type="" priority="" accept="true" x="464" y="711" w="117" h="17">
-<action><![CDATA[
-_ = lst(${lst});
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="30" name="State24" type="" priority="4" accept="true" x="457" y="427" w="108" h="17">
-<transition to="30" style="475,413-513,414">[a-zA-Z]</transition>
-<action><![CDATA[
-return chn($$);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<subautomaton no="32" name="State12" type="" priority="" accept="false" x="489" y="819" w="-1" h="-1">
-<transition to="33" style="">)</transition>
-<action><![CDATA[
-main
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</subautomaton>
-<subautomaton no="34" name="State1" type="" priority="" accept="false" x="253" y="855" w="-1" h="-1">
-<transition to="35" style=""></transition>
-<action><![CDATA[
-main
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</subautomaton>
-<state no="36" name="State5" type="" priority="" accept="false" x="443" y="762" w="138" h="17">
-<transition to="31" style="">)</transition>
-<transition to="37" style="422,761"></transition>
-<transition to="32" style="">&apos;.&apos;</transition>
-<action><![CDATA[
-${lst}.add(_);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<subautomaton no="37" name="State26" type="" priority="" accept="false" x="408" y="789" w="-1" h="-1">
+<subautomaton no="35" name="State1" type="" priority="" accept="false" x="253" y="1097" w="-1" h="-1">
 <transition to="36" style=""></transition>
 <action><![CDATA[
 main
@@ -373,29 +345,28 @@ main
 <position></position>
 <delimiter></delimiter>
 </subautomaton>
-<state no="33" name="State13" type="" priority="" accept="true" x="427" y="871" w="154" h="20">
+<state no="37" name="State10" type="" priority="" accept="true" x="295" y="1117" w="120" h="17">
 <action><![CDATA[
-_ = lst(${lst}, _);
+_ = vec(${vec});
 ]]></action>
 <operators></operators>
 <callee></callee>
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="38" name="vec" type="java.util.List&lt;Object&gt;" priority="" accept="false" x="5" y="827" w="249" h="24">
-<transition to="34" style=""></transition>
-<transition to="39" style="">)</transition>
+<state no="32" name="State24" type="" priority="4" accept="true" x="457" y="427" w="108" h="17">
+<transition to="32" style="475,413-513,414">[a-zA-Z]</transition>
 <action><![CDATA[
-%% = new java.util.ArrayList<Object>();
+return chn($$);
 ]]></action>
 <operators></operators>
 <callee></callee>
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="35" name="State9" type="" priority="" accept="false" x="290" y="818" w="130" h="17">
-<transition to="34" style="264,828"></transition>
-<transition to="40" style="">)</transition>
+<state no="36" name="State9" type="" priority="" accept="false" x="290" y="1060" w="130" h="17">
+<transition to="35" style="264,1070"></transition>
+<transition to="37" style="">)</transition>
 <action><![CDATA[
 ${vec}.add(_);
 ]]></action>
@@ -404,7 +375,7 @@ ${vec}.add(_);
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="40" name="State10" type="" priority="" accept="true" x="295" y="875" w="120" h="17">
+<state no="38" name="State38" type="" priority="" accept="true" x="194" y="1020" w="132" h="17">
 <action><![CDATA[
 _ = vec(${vec});
 ]]></action>
@@ -413,56 +384,8 @@ _ = vec(${vec});
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="41" name="lst" type="java.util.List&lt;Object&gt;" priority="" accept="false" x="238" y="682" w="246" h="22">
-<transition to="37" style=""></transition>
-<transition to="42" style="">)</transition>
-<action><![CDATA[
-%% = new java.util.ArrayList<Object>();
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="42" name="State37" type="" priority="" accept="true" x="210" y="634" w="109" h="17">
-<action><![CDATA[
-_ = Cell.NIL;
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="39" name="State38" type="" priority="" accept="true" x="194" y="778" w="132" h="17">
-<action><![CDATA[
-_ = vec(${vec});
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<state no="43" name="State19" type="" priority="" accept="true" x="225" y="740" w="123" h="17">
-<action><![CDATA[
-_ = unw($c);
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</state>
-<start-anchor no="44" name="" type="" priority="" accept="false" x="15" y="656" w="46" h="21">
-<transition to="45" style=""></transition>
-<action><![CDATA[
-main
-]]></action>
-<operators></operators>
-<callee></callee>
-<position></position>
-<delimiter></delimiter>
-</start-anchor>
-<subautomaton no="46" name="State16" type="" priority="" accept="false" x="195" y="541" w="-1" h="-1">
-<transition to="47" style=""></transition>
+<subautomaton no="39" name="State12" type="" priority="" accept="false" x="489" y="1061" w="-1" h="-1">
+<transition to="40" style="">)</transition>
 <action><![CDATA[
 main
 ]]></action>
@@ -471,11 +394,80 @@ main
 <position></position>
 <delimiter></delimiter>
 </subautomaton>
-<state no="45" name="State8" type="" priority="" accept="true" x="83" y="691" w="91" h="17">
+<state no="41" name="State6" type="" priority="" accept="true" x="464" y="953" w="117" h="17">
+<action><![CDATA[
+_ = lst(${lst});
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="42" name="vec" type="java.util.List&lt;Object&gt;" priority="" accept="false" x="5" y="1069" w="249" h="24">
+<transition to="35" style=""></transition>
+<transition to="38" style="">)</transition>
+<action><![CDATA[
+%% = new java.util.ArrayList<Object>();
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="43" name="State19" type="" priority="" accept="true" x="225" y="982" w="123" h="17">
+<action><![CDATA[
+_ = unw($c);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="44" name="State5" type="" priority="" accept="false" x="443" y="1004" w="138" h="17">
+<transition to="41" style="">)</transition>
+<transition to="45" style="422,1003"></transition>
+<transition to="39" style="">&apos;.&apos;</transition>
+<action><![CDATA[
+${lst}.add(_);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="40" name="State13" type="" priority="" accept="true" x="427" y="1113" w="154" h="20">
+<action><![CDATA[
+_ = lst(${lst}, _);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="46" name="State37" type="" priority="" accept="true" x="207" y="875" w="109" h="17">
+<action><![CDATA[
+_ = Cell.NIL;
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<start-anchor no="47" name="" type="" priority="" accept="false" x="15" y="898" w="46" h="21">
+<transition to="48" style=""></transition>
+<action><![CDATA[
+main
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</start-anchor>
+<state no="48" name="State8" type="" priority="" accept="true" x="83" y="933" w="91" h="17">
 <transition to="43" style="">&lt;Object&gt;</transition>
-<transition to="41" style="">(</transition>
-<transition to="38" style="">&apos;#(&apos;</transition>
-<transition to="48" style="">&lt;MT&gt;</transition>
+<transition to="49" style="">(</transition>
+<transition to="42" style="">&apos;#(&apos;</transition>
+<transition to="50" style="">&lt;MT&gt;</transition>
 <action><![CDATA[
 _ = null;
 ]]></action>
@@ -484,19 +476,70 @@ _ = null;
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="48" name="meta" type="MT" priority="" accept="false" x="95" y="541" w="67" h="17">
-<transition to="46" style=""></transition>
+<subautomaton no="45" name="State26" type="" priority="" accept="false" x="408" y="1031" w="-1" h="-1">
+<transition to="44" style=""></transition>
 <action><![CDATA[
-%% = $c;
+main
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</subautomaton>
+<state no="51" name="State17" type="" priority="" accept="true" x="177" y="833" w="135" h="17">
+<action><![CDATA[
+_ = mta(${meta}, _);
 ]]></action>
 <operators></operators>
 <callee></callee>
 <position></position>
 <delimiter></delimiter>
 </state>
-<state no="47" name="State17" type="" priority="" accept="true" x="180" y="592" w="135" h="17">
+<state no="34" name="State47" type="" priority="3" accept="true" x="308" y="672" w="134" h="17">
+<transition to="34" style="378,701-344,702">[a-z]</transition>
 <action><![CDATA[
-_ = mta(${meta}, _);
+return reg($$);
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="33" name="State46" type="" priority="" accept="false" x="205" y="673" w="-1" h="-1">
+<transition to="30" style="186,681">.</transition>
+<action><![CDATA[
+// none
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<subautomaton no="52" name="State16" type="" priority="" accept="false" x="192" y="782" w="-1" h="-1">
+<transition to="51" style=""></transition>
+<action><![CDATA[
+main
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</subautomaton>
+<state no="49" name="lst" type="java.util.List&lt;Object&gt;" priority="" accept="false" x="238" y="924" w="246" h="22">
+<transition to="45" style=""></transition>
+<transition to="46" style="">)</transition>
+<action><![CDATA[
+%% = new java.util.ArrayList<Object>();
+]]></action>
+<operators></operators>
+<callee></callee>
+<position></position>
+<delimiter></delimiter>
+</state>
+<state no="50" name="meta" type="MT" priority="" accept="false" x="92" y="782" w="67" h="17">
+<transition to="52" style=""></transition>
+<action><![CDATA[
+%% = $c;
 ]]></action>
 <operators></operators>
 <callee></callee>
@@ -528,7 +571,7 @@ package net.morilib.example.s;
 </imports>
 <labels>
 <label name="NONDELIM"><![CDATA[
-[^ \t\n;()#"',`]
+[^ \t\n;()#"',`^]
 ]]></label>
 </labels>
 <options>

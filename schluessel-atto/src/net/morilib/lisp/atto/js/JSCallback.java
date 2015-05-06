@@ -25,6 +25,7 @@ import net.morilib.lisp.atto.Callback;
 import net.morilib.lisp.atto.Cell;
 import net.morilib.lisp.atto.Environment;
 import net.morilib.lisp.atto.LispAtto;
+import net.morilib.lisp.atto.RegexWrapper;
 import net.morilib.lisp.atto.Symbol;
 
 /**
@@ -134,6 +135,12 @@ public class JSCallback implements Callback {
 			out.print(((Double[])o)[0]);
 			out.print(",");
 			out.print(((Double[])o)[1]);
+			out.print(")");
+		} else if(o instanceof RegexWrapper) {
+			out.print("(/");
+			out.print(((RegexWrapper)o).getRegex());
+			out.print("/");
+			out.print(((RegexWrapper)o).getFlags());
 			out.print(")");
 		} else if(o == AttoParser.NULL) {
 			out.print("(null)");
