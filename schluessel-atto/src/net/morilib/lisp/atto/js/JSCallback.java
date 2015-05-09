@@ -24,6 +24,7 @@ import net.morilib.lisp.atto.AttoTraverser;
 import net.morilib.lisp.atto.Callback;
 import net.morilib.lisp.atto.Cell;
 import net.morilib.lisp.atto.Environment;
+import net.morilib.lisp.atto.Keyword;
 import net.morilib.lisp.atto.LispAtto;
 import net.morilib.lisp.atto.RegexWrapper;
 import net.morilib.lisp.atto.Symbol;
@@ -142,6 +143,10 @@ public class JSCallback implements Callback {
 			out.print("/");
 			out.print(((RegexWrapper)o).getFlags());
 			out.print(")");
+		} else if(o instanceof Keyword) {
+			out.print("$mille.getKeyword('");
+			out.print(((Keyword)o).getName());
+			out.print("')");
 		} else if(o == AttoParser.NULL) {
 			out.print("(null)");
 		} else {
@@ -149,6 +154,43 @@ public class JSCallback implements Callback {
 		}
 		out.print(" ");
 		return this;
+	}
+
+	private String getKeyword(Object o) {
+		if(o instanceof Keyword) {
+			return ((Keyword)o).getName();
+		} else {
+			return null;
+		}
+	}
+
+	private void outapplyargs(Environment env, Object... args) {
+		String s, d = "";
+		int i;
+
+		for(i = 0; i < args.length; i++) {
+			if(getKeyword(args[i]) != null) {
+				break;
+			}
+			out.print(',');
+			AttoTraverser.traverse(this, env, args[i]);
+		}
+
+		if(i < args.length) {
+			out.print(",{");
+			for(; i < args.length; i += 2) {
+				s = getKeyword(args[i]);
+				if(i + 1 >= args.length || s == null) {
+					break;
+				}
+				out.print(d);
+				out.print(s);
+				out.print(':');
+				AttoTraverser.traverse(this, env, args[i + 1]);
+				d = ",";
+			}
+			out.print('}');
+		}
 	}
 
 	@Override
@@ -160,18 +202,12 @@ public class JSCallback implements Callback {
 			out.print("$mille.applyObject('");
 			out.print(s.substring(1));
 			out.print("'");
-			for(int i = 0; i < args.length; i++) {
-				out.print(',');
-				AttoTraverser.traverse(this, env, args[i]);
-			}
+			outapplyargs(env, args);
 			out.print(')');
 		} else {
 			out.print("$mille.apply(");
 			AttoTraverser.traverse(this, env, f);
-			for(Object o : args) {
-				out.print(',');
-				AttoTraverser.traverse(this, env, o);
-			}
+			outapplyargs(env, args);
 			out.print(')');
 		}
 		return this;

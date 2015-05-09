@@ -572,6 +572,9 @@ Datum.prototype.toString = function() {
 Datum.prototype.symbolToString = function() {
 	return this.name;
 };
+Datum.prototype.keywordToString = function() {
+	return ':' + this.name;
+};
 Datum.prototype.complexToString = function() {
 	if(this.getImag() > 0) {
 		return this.getReal() + '+' + this.getImag() + 'i';
@@ -1154,6 +1157,21 @@ $mille.symbolToString = function(x) {
 	return x.name;
 };
 
+$mille.keywords = {};
+$mille.getKeyword = function(s) {
+	var v;
+	v = $mille.keywords[s];
+	if(v === undefined) {
+		v = new Datum('keyword');
+		v.name = s;
+		$mille.keywords[s] = v;
+	}
+	return v;
+};
+$mille.isKeyword = function(o) {
+	return $mille.datumTypeOf(o, 'keyword');
+};
+
 $mille.isVector = function(x) {
 	return $mille.a.isArray(x);
 };
@@ -1669,6 +1687,14 @@ $mille.newObject = function(o) {
 $mille.isInstance = function(o, c) {
 	return o instanceof c;
 };
+$mille.objectJ = function(o) {
+	if(o === undefined) {
+		return {};
+	} else {
+		$mille.checkObject(o);
+		return o;
+	}
+};
 
 $mille.readString = function(s) {
 	var o, p = 0;
@@ -1707,7 +1733,7 @@ $mille.readStringAll = function(s) {
 	return r;
 };
 $mille.evalbas = function($env, x) {
-	var ls, lt, doLambda, r, i;
+	var ls, lt, doLambda, r, i, fn;
 	doLambda = function(lx) {
 		var p, s;
 		p = lx[1];
@@ -1798,20 +1824,35 @@ $mille.evalbas = function($env, x) {
 			}
 		} else {
 			r = ls[0];
+			fn = function(lt) {
+				var obj;
+				for(i = 1; i < ls.length; i++) {
+					if($mille.isKeyword(ls[i])) {
+						break;
+					}
+					lt.push($mille.evalbas($env, ls[i]));
+				}
+				if(i < ls.length) {
+					obj = {};
+					for(; i + 1 < ls.length; i += 2) {
+						if(!$mille.isKeyword(ls[i])) {
+							break;
+						}
+						obj[ls[i].name] = $mille.evalbas($env, ls[i + 1]);
+					}
+					lt.push(obj);
+				}
+			};
 			if($mille.isSymbol(r) &&
 					r.name.length > 1 && r.name.charAt(0) === '.') {
 				lt = [r.name.substring(1, r.name.length)];
-				for(i = 1; i < ls.length; i++) {
-					lt.push($mille.evalbas($env, ls[i]));
-				}
+				fn(lt);
 				return $mille.applyObject.apply(null, lt);
 			} else {
 				r = $mille.evalbas($env, r);
 				if($mille.o.isFunction(r)) {
 					lt = [];
-					for(i = 1; i < ls.length; i++) {
-						lt.push($mille.evalbas($env, ls[i]));
-					}
+					fn(lt);
 					return r.apply(null, lt);
 				} else {
 					$mille.o.error(r + ' must be a function');
@@ -1976,6 +2017,7 @@ $mille.bindg('jsnull?', $mille.isJsnull);
 $mille.bindg('++', $mille.stringConcat);
 $mille.bindg('new', $mille.newObject);
 $mille.bindg('instance?', $mille.isInstance);
+$mille.bindg('J', $mille.objectJ);
 $mille.bindg('equal?', $mille.isEqual);
 
 $mille.bindg('read-string', $mille.readString);

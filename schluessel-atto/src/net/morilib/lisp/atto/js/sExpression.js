@@ -2079,7 +2079,11 @@ SExpression.prototype.addch = function(b) {
 	this.buf += String.fromCharCode(this.ch);
 };
 SExpression.prototype.sym = function(b) {
-	return $mille.getSymbol(b);
+	if(b.charAt(0) === ':') {
+		return $mille.getKeyword(b.substring(1));
+	} else {
+		return $mille.getSymbol(b);
+	}
 };
 SExpression.prototype.newre = function() {
 	if(this.buf === '') {
