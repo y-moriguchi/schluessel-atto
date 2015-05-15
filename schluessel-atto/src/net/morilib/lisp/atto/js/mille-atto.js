@@ -92,6 +92,9 @@ $mille.o.isInteger = function(o) {
 $mille.o.isObject = function(o) {
 	return (o instanceof Object && !(o instanceof Array));
 };
+$mille.o.isRegex = function(o) {
+	return o instanceof RegExp;
+};
 $mille.o.hasProperty = function(o) {
 	return o instanceof Object;
 };
@@ -984,6 +987,11 @@ $mille.checkPromise = function(x) {
 		$mille.o.error('the type of the object is not promise:' + x);
 	}
 };
+$mille.checkRegex = function(x) {
+	if(!$mille.o.isRegex(x)) {
+		$mille.o.error('the type of the object is not regexp:' + x);
+	}
+};
 
 $mille.compare = function(f, check) {
 	var cf;
@@ -1592,21 +1600,24 @@ $mille.angle = function(z) {
 	return $mille.c.angle(z);
 };
 
-$mille.values = function() {
+$mille.makeValues = function(v) {
 	var i, a;
-	if(arguments.length === 0) {
+	if(v.length === 0) {
 		throw $mille.o.error('multivalue must have one datum');
-	} else if(arguments.length === 1) {
-		return arguments[0];
+	} else if(v.length === 1) {
+		return v[0];
 	} else {
 		a = new Datum('multivalue');
-		for(i = 0; i < arguments.length; i++) {
-			a[i] = arguments[i];
-			a['value' + i] = arguments[i];
+		for(i = 0; i < v.length; i++) {
+			a[i] = v[i];
+			a['value' + i] = v[i];
 		}
-		a.length = arguments.length;
+		a.length = v.length;
 		return a;
 	}
+};
+$mille.values = function() {
+	return $mille.makeValues($mille.a.toArray(arguments));
 };
 $mille.isMultivalue = function(o) {
 	return $mille.datumTypeOf(o, 'multivalue');
@@ -1648,6 +1659,55 @@ $mille.force = function(p) {
 		p.memorized = true;
 	}
 	return p.value;
+};
+
+$mille.isRegex = function(o) {
+	return $mille.o.isRegex(o);
+};
+$mille.regexReplace = function(re, dest, repl) {
+	$mille.checkRegex(re);
+	$mille.checkString(dest);
+	$mille.checkString(repl);
+	return dest.replace(re, repl);
+};
+$mille.regexToString = function(re) {
+	$mille.checkRegex(re);
+	return re.source;
+};
+$mille.stringToRegex = function(s, flags) {
+	$mille.checkString(s);
+	if(flags === undefined) {
+		return new RegExp(s);
+	} else {
+		$mille.checkString(flags);
+		return new RegExp(s, flags);
+	}
+};
+$mille.rxmatchVector = function(re, dest) {
+	var r;
+	$mille.checkRegex(re);
+	$mille.checkString(dest);
+	r = re.exec(dest);
+	if(r === null) {
+		return false;
+	} else {
+		return r;
+	}
+};
+$mille.rxmatch = function(re, dest) {
+	var r;
+	r = $mille.rxmatchVector(re, dest);
+	return r ? $mille.makeValues(r) : r;
+};
+$mille.rxmatchList = function(re, dest) {
+	var r;
+	r = $mille.rxmatchVector(re, dest);
+	return r ? $mille.listToCell(r) : r;
+};
+$mille.isMatchrx = function(re, dest) {
+	$mille.checkRegex(re);
+	$mille.checkString(dest);
+	return re.test(dest);
 };
 
 $mille.isProcedure = function(o) {
@@ -2004,6 +2064,19 @@ $mille.bindg('string->number', $mille.stringToNumber);
 
 $mille.bindg('values', $mille.values);
 $mille.bindg('call-with-values', $mille.callWithValues);
+
+$mille.bindg('regex?', $mille.isRegex);
+$mille.bindg('regex-replace', $mille.regexReplace);
+$mille.bindg('regex->string', $mille.regexToString);
+$mille.bindg('string->regex', $mille.stringToRegex);
+$mille.bindg('rxmatch', $mille.rxmatch);
+$mille.bindg('rxmatch-list', $mille.rxmatchList);
+$mille.bindg('rxmatch-vector', $mille.rxmatchVector);
+$mille.bindg('matchrx?', $mille.isMatchrx);
+$mille.bindg('regexp?', $mille.isRegex);
+$mille.bindg('regexp-replace', $mille.regexReplace);
+$mille.bindg('regexp->string', $mille.regexToString);
+$mille.bindg('string->regexp', $mille.stringToRegex);
 
 $mille.bindg('force', $mille.force);
 $mille.bindg('procedure?', $mille.isProcedure);
