@@ -204,6 +204,12 @@ public class JSCallback implements Callback {
 			out.print("'");
 			outapplyargs(env, args);
 			out.print(')');
+		} else if(f instanceof Symbol) {
+			out.print("$env.applySymbol('");
+			out.print(((Symbol)f).getName());
+			out.print("'");
+			outapplyargs(env, args);
+			out.print(')');
 		} else {
 			out.print("$mille.apply(");
 			AttoTraverser.traverse(this, env, f);

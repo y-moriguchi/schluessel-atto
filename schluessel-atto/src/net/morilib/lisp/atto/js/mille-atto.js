@@ -794,20 +794,21 @@ $mille.closure = function(e, that, f) {
 		return f.apply(that, $mille.a.toArray(arguments, 0, [env]));
 	};
 };
-$mille.applya = function(o, a) {
+$mille.applya = function(o, a, diese) {
+	var ce = diese === undefined ? null : diese;
 	if($mille.o.isFunction(o)) {
-		return o.apply(null, a);
+		return o.apply(ce, a);
 	}
 };
-$mille.apply = function(o) {
+$mille.apply = function(o, diese) {
 	var a;
 	a = $mille.a.toArray(arguments, 1);
-	return $mille.applya(o, a);
+	return $mille.applya(o, a, diese);
 };
-$mille.applyCell = function(o, l) {
+$mille.applyCell = function(o, l, diese) {
 	var a;
 	a = $mille.cellToList(l);
-	return $mille.applya(o, a);
+	return $mille.applya(o, a, diese);
 };
 $mille.newenv = function(e, that) {
 	var diese = {}, vars = {}, findObjectChain, setObjectChain;
@@ -881,6 +882,19 @@ $mille.newenv = function(e, that) {
 		x = diese.find(v);
 		if($mille.o.isFunction(x)) {
 			return x.apply(null, a);
+		} else {
+			$mille.o.error('Found no functions');
+		}
+	};
+	diese.applySymbol = function(v, a) {
+		var pt = /(.+)\.([^.]+)/.exec(v), o, f;
+		if(pt === null) {
+			$mille.o.error('not object pattern');
+		}
+		o = diese.find(pt[1]);
+		f = o[pt[2]];
+		if($mille.o.isFunction(f)) {
+			return f.apply(o, a);
 		} else {
 			$mille.o.error('Found no functions');
 		}
@@ -1908,6 +1922,10 @@ $mille.evalbas = function($env, x) {
 				lt = [r.name.substring(1, r.name.length)];
 				fn(lt);
 				return $mille.applyObject.apply(null, lt);
+			} else if($mille.isSymbol(r) && /.+\.[^.]+/.test(r.name)) {
+				lt = [];
+				fn(lt);
+				return $env.applySymbol(r.name, lt);
 			} else {
 				r = $mille.evalbas($env, r);
 				if($mille.o.isFunction(r)) {

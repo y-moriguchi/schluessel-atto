@@ -137,6 +137,14 @@ $mille.macroenv.call('eval-macro', $mille.readString(
 		"		     (let ((x1 v1))" +
 		"		       (let* ((x2 v2) ...) e1 ...)))))"
 ));
+$mille.macroenv.call('eval-macro', $mille.readString(
+		"(define-syntax ->" +
+		"  (syntax-rules ()" +
+		"    ((_ o (m args ...))" +
+		"     (m o args ...))" +
+		"    ((_ o (m args ...) a ...)" +
+		"     (-> (m o args ...) a ...))))"
+));
 $mille.eval = function($env, x) {
 	var o;
 	o = $mille.macroenv.call('eval-macro', x);

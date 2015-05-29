@@ -94,4 +94,11 @@
     ((_ ((x1 v1) (x2 v2) ...) e1 ...)
      (let ((x1 v1))
        (let* ((x2 v2) ...) e1 ...)))))
+
+(define-syntax ->
+  (syntax-rules ()
+    ((_ o (m args ...))
+     (m o args ...))
+    ((_ o (m args ...) a ...)
+     (-> (m o args ...) a ...))))
 ; end
