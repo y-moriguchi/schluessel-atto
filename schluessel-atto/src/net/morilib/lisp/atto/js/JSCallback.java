@@ -204,7 +204,8 @@ public class JSCallback implements Callback {
 			out.print("'");
 			outapplyargs(env, args);
 			out.print(')');
-		} else if(f instanceof Symbol) {
+		} else if(f instanceof Symbol &&
+				((Symbol)f).getName().indexOf('.') > 0) {
 			out.print("$env.applySymbol('");
 			out.print(((Symbol)f).getName());
 			out.print("'");

@@ -28,108 +28,110 @@ if(!$mille) {
 	throw 'Mille core library required';
 }
 
-$mille.w = {};
-$mille.w.ajax = function(options) {
-	var xhr, conv, ct;
-	xhr = new XMLHttpRequest();
-	conv = function() {
-		if(options.dataXML) {
-			return xhr.responseXML;
-		} else {
-			return xhr.responseText;
-		}
-	};
-	xhr.onreadystatechange = function() {
-		var t;
-		if(xhr.readyState === 4) {
-			if(xhr.status === 200) { // OK
-				t = conv();
-				options.success(t);
+(function(M) {
+	M.w = {};
+	M.w.ajax = function(options) {
+		var xhr, conv, ct;
+		xhr = new XMLHttpRequest();
+		conv = function() {
+			if(options.dataXML) {
+				return xhr.responseXML;
 			} else {
-				options.error(xhr, xhr.status, false);
+				return xhr.responseText;
 			}
-			options.complete(xhr, xhr.status, false);
+		};
+		xhr.onreadystatechange = function() {
+			var t;
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) { // OK
+					t = conv();
+					options.success(t);
+				} else {
+					options.error(xhr, xhr.status, false);
+				}
+				options.complete(xhr, xhr.status, false);
+			}
+		};
+
+		try {
+			xhr.open(options.type, options.url);
+			if(options.type === 'GET') {
+				xhr.send();
+			} else {
+				ct = options.contentType ?
+						options.contentType : 'application/x-www-form-urlencoded';
+				xhr.setRequestHeader('Content-Type', ct);
+				xhr.send(options.data);
+			}
+		} catch(e) {
+			options.error(xhr, false, e);
+			options.complete(xhr, null);
 		}
+		return true;
 	};
 
-	try {
-		xhr.open(options.type, options.url);
-		if(options.type === 'GET') {
-			xhr.send();
-		} else {
-			ct = options.contentType ?
-					options.contentType : 'application/x-www-form-urlencoded';
-			xhr.setRequestHeader('Content-Type', ct);
-			xhr.send(options.data);
-		}
-	} catch(e) {
-		options.error(xhr, false, e);
-		options.complete(xhr, null);
-	}
-	return true;
-};
+	M.ajaxAny = function(url, success, error, type, parser, data) {
+		var opts = {};
 
-$mille.ajaxAny = function(url, success, error, type, parser, data) {
-	var opts = {};
-
-	opts.type = type;
-	opts.url = url;
-	opts.success = function(t) {
-		var o = parser(t);
-		success(o);
+		opts.type = type;
+		opts.url = url;
+		opts.success = function(t) {
+			var o = parser(t);
+			success(o);
+		};
+		opts.error = error;
+		opts.data = data;
+		M.w.ajax(opts);
 	};
-	opts.error = error;
-	opts.data = data;
-	$mille.w.ajax(opts);
-};
-$mille.ajaxGet = function(url, success, error) {
-	$mille.checkString(url);
-	$mille.checkFunction(success);
-	$mille.checkFunction(error);
-	$mille.ajaxAny(url, success, error, 'GET', $mille.readString);
-};
-$mille.ajaxGetText = function(url, success, error) {
-	$mille.checkString(url);
-	$mille.checkFunction(success);
-	$mille.checkFunction(error);
-	$mille.ajaxAny(url, success, error, 'GET', $mille.f.K);
-};
-$mille.ajaxPost = function(url, data, success, error) {
-	$mille.checkString(url);
-	$mille.checkString(data);
-	$mille.checkFunction(success);
-	$mille.checkFunction(error);
-	$mille.ajaxAny(url, success, error, 'POST', $mille.readString, data);
-};
-$mille.ajaxPostText = function(url, data, success, error) {
-	$mille.checkString(url);
-	$mille.checkString(data);
-	$mille.checkFunction(success);
-	$mille.checkFunction(error);
-	$mille.ajaxAny(url, success, error, 'POST', $mille.f.K, data);
-};
+	M.ajaxGet = function(url, success, error) {
+		M.checkString(url);
+		M.checkFunction(success);
+		M.checkFunction(error);
+		M.ajaxAny(url, success, error, 'GET', M.readString);
+	};
+	M.ajaxGetText = function(url, success, error) {
+		M.checkString(url);
+		M.checkFunction(success);
+		M.checkFunction(error);
+		M.ajaxAny(url, success, error, 'GET', M.f.K);
+	};
+	M.ajaxPost = function(url, data, success, error) {
+		M.checkString(url);
+		M.checkString(data);
+		M.checkFunction(success);
+		M.checkFunction(error);
+		M.ajaxAny(url, success, error, 'POST', M.readString, data);
+	};
+	M.ajaxPostText = function(url, data, success, error) {
+		M.checkString(url);
+		M.checkString(data);
+		M.checkFunction(success);
+		M.checkFunction(error);
+		M.ajaxAny(url, success, error, 'POST', M.f.K, data);
+	};
 
-$mille.bindg('ajax-get', $mille.ajaxGet);
-$mille.bindg('ajax-get-text', $mille.ajaxGetText);
-$mille.bindg('ajax-post', $mille.ajaxPost);
-$mille.bindg('ajax-post-text', $mille.ajaxPostText);
+	M.bindg('ajax-get', M.ajaxGet);
+	M.bindg('ajax-get-text', M.ajaxGetText);
+	M.bindg('ajax-post', M.ajaxPost);
+	M.bindg('ajax-post-text', M.ajaxPostText);
 
-$mille.readMilia = function() {
-	var x, i, j, p;
-	x = document.getElementsByTagName("script");
-	for(i = 0; i < x.length; i++) {
-		if(x[i].type === 'text/x-schluessel-milia') {
-			p = $mille.readStringAll(x[i].text);
-			for(j = 0; j < p.length; j++) {
-				$mille.eval($env, p[j]);
+	M.readMilia = function() {
+		var x, i, j, p;
+		x = document.getElementsByTagName("script");
+		for(i = 0; i < x.length; i++) {
+			if(x[i].type === 'text/x-schluessel-milia') {
+				p = M.readStringAll(x[i].text);
+				for(j = 0; j < p.length; j++) {
+					M.eval($env, p[j]);
+				}
 			}
 		}
+	};
+	if(window.addEventListener) {
+	    window.addEventListener('load', M.readMilia, false);
+	} else if(window.attachEvent) {
+	    window.attachEvent('onload', M.readMilia);
+	} else {
+	    window.onload = M.readMilia;
 	}
-};
-if(window.addEventListener) {
-    window.addEventListener('load', $mille.readMilia, false);
-} else if(window.attachEvent) {
-    window.attachEvent('onload', $mille.readMilia);
-} else {
-    window.onload = $mille.readMilia;
-}
+}($mille));
