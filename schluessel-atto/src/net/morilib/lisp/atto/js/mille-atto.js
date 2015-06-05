@@ -1768,6 +1768,22 @@ Datum.prototype.complexToString = function() {
 			return o;
 		}
 	};
+	M.tryCc = function(f) {
+		M.checkFunction(f);
+		try {
+			return f.call(null, function(x) {
+				var k = new Datum('__continuation');
+				k.value = x;
+				throw k;
+			});
+		} catch(e) {
+			if(M.datumTypeOf(e, '__continuation')) {
+				return e.value;
+			} else {
+				throw e;
+			}
+		}
+	}
 
 	M.allDef = function(a, i) {
 		var k;
@@ -2182,6 +2198,7 @@ Datum.prototype.complexToString = function() {
 	M.bindg('instance?', M.isInstance);
 	M.bindg('J', M.objectJ);
 	M.bindg('equal?', M.isEqual);
+	M.bindg('try/cc', M.tryCc);
 
 	M.bindg('vector-fold', M.vectorFold);
 	M.bindg('vector-fold-right', M.vectorFoldRight);
