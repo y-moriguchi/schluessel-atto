@@ -850,7 +850,21 @@ Datum.prototype.complexToString = function() {
 			}
 		};
 		diese.bind = function(v, o) {
-			vars['$' + v] = o;
+			var a, r, i;
+			a = v.split('.');
+			if(a.length > 1) {
+				r = M.global;
+				for(i = 0; i < a.length - 1; i++) {
+					r[a[i]] = r[a[i]] || {};
+					r = r[a[i]];
+					if(!M.o.isObject(r)) {
+						M.o.error('Not a namespace:' + a[i]);
+					}
+				}
+				r[a[i]] = o;
+			} else {
+				vars['$' + v] = o;
+			}
 		};
 		diese.set = function(v, o) {
 			var a, r, i;
